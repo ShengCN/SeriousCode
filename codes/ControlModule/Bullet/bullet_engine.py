@@ -1,5 +1,7 @@
 # coding=utf-8
 import sys
+
+import math
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.InputStateGlobal import inputState
 from direct.showbase.ShowBase import ShowBase, AntialiasAttrib, NodePath
@@ -29,16 +31,17 @@ from ControlModule.common_para import *
 from SceneModule.scene_manager import SceneManager
 from SceneModule.camera_controller import CameraController
 from SceneModule.light_controller import LightController
-from RoleModule.role_manager import RoleManager
+from RoleModule.role_manager import RoleManager, PLAYER_ROLE
+
 
 class BulletEngine(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
         self.init_shader()
         self.init_light_camera()
-        self.init_input()
         self.init_bullet_engine()
         self.setup()
+        self.init_input()
         taskMgr.add(self.update,'updateWorld')
 
 
@@ -47,8 +50,11 @@ class BulletEngine(ShowBase):
          self.setBackgroundColor(0.1, 0.1, 0.8, 1)
          self.setFrameRateMeter(True)
 
-         self.cam.setPos(0, -20, 4)
-         self.cam.lookAt(0, 0, 0)
+         # self.cam.setPos(0, -20, 4)
+         # self.cam.lookAt(0, 0, 0)
+
+         self.cam.setPos(0, 0, 100)
+         self.cam.lookAt(0, 0, -90)
 
          # Light
          alight = AmbientLight('ambientLight')
@@ -64,6 +70,7 @@ class BulletEngine(ShowBase):
          render.setLight(alightNP)
          render.setLight(dlightNP)
 
+    # 输入初始化
     def init_input(self):
         self.accept('escape', self.doExit)
         self.accept('r', self.doReset)
@@ -75,7 +82,8 @@ class BulletEngine(ShowBase):
         # 事件管理
         self.accept('space', self.doJump)
         self.accept('mouse1',self.doShoot)
-        self.accept('shift', self.doCrouch)
+        self.accept('control', self.doCrouch)
+        self.accept('1',self.getCurrentPos)
 
         inputState.watchWithModifiers('back', 's')
         inputState.watchWithModifiers('forward', 'w')
@@ -83,7 +91,6 @@ class BulletEngine(ShowBase):
         inputState.watchWithModifiers('turnRight', 'd')
 
     # _____HANDLER_____
-
     def doExit(self):
         # self.cleanup()
         sys.exit(1)
@@ -103,22 +110,34 @@ class BulletEngine(ShowBase):
         self.screenshot('Bullet')
 
     def doJump(self):
-        self.actor_character_NP.setMaxJumpHeight(JUMPHEIGHT)
         self.actor_character_NP.setJumpSpeed(JUMPSPEED)
+        self.actor_character_NP.setMaxJumpHeight(JUMPHEIGHT)
         self.actor_character_NP.isOnGround()
         self.actor_character_NP.doJump()
+
+    def getCurrentPos(self):
+        print "角色当前位置 %s" % self.actorNP.getPos()
 
     # ____TASK___
 
     def processInput(self, dt):
         speed = Vec3(0, 0, 0)
         omega = 0.0
+        force = Vec3(0,0,0)
+        torque = Vec3(0,0,0)
 
         if inputState.isSet('forward'): speed.setY(-SPEED)
+        if inputState.isSet('forward'): force.setY(-SPEED)
         if inputState.isSet('back'): speed.setY(SPEED)
+        if inputState.isSet('back'): force.setY(SPEED)
         if inputState.isSet('turnLeft'):  omega = 120.0
+        if inputState.isSet('turnLeft'):  torque = 120.0
         if inputState.isSet('turnRight'): omega = -120.0
+        if inputState.isSet('turnRight'): torque = -120.0
 
+        force *= 30.0
+        torque *= 10.0
+        # character
         self.actor_character_NP.setAngularMovement(omega)
         self.actor_character_NP.setLinearMovement(speed,True)
 
@@ -153,6 +172,7 @@ class BulletEngine(ShowBase):
         self.world.setDebugNode(self.debugNP.node())
         # 玩家
         self.crouching = False
+        self.omega = 0.0
 
     def create_box_rigid(self,name,size,pos,isCCD):
         shape = BulletBoxShape(size)
@@ -174,27 +194,38 @@ class BulletEngine(ShowBase):
 
 
     def doShoot(self):
-        pFrom = Point3()
+        pFrom = Point3(0,0,0)
         pTo = Point3()
 
-        print self.actorNP.getPos()
-
-        #get from and to position
-        pFrom =  self.actorNP.getPos() + Point3(0,0,5)
-        pTo = self.boxNP.getPos()
-
-        # calculate initial velocity
-        v = pTo - pFrom
+        print "omega"
+        omega = self.actorNP.getHpr().getX()
+        print omega
+        omega = (omega - 90)%360
+        v = Point3(math.cos(omega * math.pi / 180), math.sin(omega * math.pi / 180),0)
         v.normalize()
-        v *= 0.1
-        print "v 的速度是: "
-        print v
+        v *= BULLETSPEED
+        print '子弹速度 %s' %v
         #create Bullet
-        size = Vec3(5,5,5)
-        bulletNP = self.create_box_rigid('Bullet',size,pFrom,True)
-        bulletNP.node().setMass(10.0)
+        size = Vec3(7,7,7)
+        pFrom = self.actorNP.getPos()
+        print '玩家位置 %s' %pFrom
+        x = self.actorNP.getPos().getX()
+        y = self.actorNP.getPos().getY()
+        z = self.actorNP.getPos().getZ()
+        hpr = self.actorNP.getHpr()
+        print '玩家位置x %s' % x
+        print '玩家位置y %s' % y
+        print '玩家位置z %s' % z
+        print '玩家方向hpr %s' % hpr
+        print '胶囊包围体r %s' % self.actor_character_NP.getShape().getRadius()
+        cosOmg = 10*math.cos(omega*math.pi/180)
+        sinOmg = 10*math.sin(omega*math.pi/180)
+        bulletNP = self.create_box_rigid('Bullet',size,Point3(x+cosOmg,y+sinOmg,10),True)
         bulletNP.node().setLinearVelocity(v)
         self.world.attachRigidBody(bulletNP.node())
+        bulletNP.setCollideMask(BitMask32.allOff())
+        print '子弹方向hpr %s' % v
+        print '子弹位置 %s' %bulletNP.getPos()
 
         # Remove the bullet again after 1 sec
         taskMgr.doMethodLater(1,self.doRemove,'doRemove',
@@ -210,8 +241,8 @@ class BulletEngine(ShowBase):
 
 
     def setup(self):
-        sceneMgr = SceneManager()
-        sceneMgr.build_on(self)
+        self.sceneMgr = SceneManager()
+        self.sceneMgr.build_on(self)
 
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
@@ -220,57 +251,71 @@ class BulletEngine(ShowBase):
         np.node().addShape(shape)
         np.setPos(0, 0, -1)
         np.setCollideMask(BitMask32.allOn())
-
         self.world.attachRigidBody(np.node())
 
-        ## 村庄
-        # villageModel = self.loader.loadModel(VILLAGE)
-        # villageModel.setPos(0,0,0)
-        # villageModel.setScale(5)
-        # villageModel.setTwoSided(True)
-        # # villageModel.reparentTo(self.render)
-        # villageModel.clearLight()
-
-        # # 场地碰撞节点
-        # geomNodes = villageModel.findAllMatches('**/+GeomNode')
-        # geomNode = geomNodes.getPath(0).node()
-        # geom = geomNode.getGeom(0)
-        # village_shape = BulletConvexHullShape()
-        # village_shape.addGeom(geom)
-        # village_coll_NP = self.worldNP.attachNewNode(BulletRigidBodyNode('village'))
-        # village_coll_NP.node().addShape(village_shape)
-        # village_coll_NP.setPos(0,0,0)
-        # village_coll_NP.setScale(5)
-        # village_coll_NP.setCollideMask(BitMask32.allOn())
-        # self.world.attachRigidBody(village_coll_NP.node())
-        # villageModel.reparentTo(village_coll_NP)
-
         # 测试用房子
-        house1 = sceneMgr.add_model_scene(TEST_HOUSE1,self.render)
-        house2 = sceneMgr.add_model_scene(TEST_HOUSE2,self.render)
-        house3 = sceneMgr.add_model_scene(TEST_HOUSE3,self.render)
-        self.add_house_collide(house1,Vec3(5,5,5),Vec3(0,20,0),"house1")
-        self.add_house_collide(house1,Vec3(5,5,5),Vec3(0,-20,0),"house2")
-        self.add_house_collide(house1,Vec3(5,5,5),Vec3(-20,0,0),"house3")
-        house1.setTwoSided(True)
-        house2.setTwoSided(True)
-        house3.setTwoSided(True)
+        village = self.sceneMgr.add_model_scene(TEST_MAIN_SCENE,self.render)
+        village.setTwoSided(True)
+        village.setScale(5.0)
+
+        ##测试碰撞平面(西)
+        normal = Vec3(0,1,0)
+        d = 0
+        shape = BulletPlaneShape(normal,d)
+        np = self.worldNP.attachNewNode(BulletRigidBodyNode('west_end'))
+        np.node().addShape(shape)
+        np.setPos(0,-430,0)
+        np.setCollideMask(BitMask32.allOn())
+        self.world.attachRigidBody(np.node())
+
+        ##测试碰撞平面(东)
+        normal = Vec3(0, -1, 0)
+        d = 0
+        shape = BulletPlaneShape(normal, d)
+        np = self.worldNP.attachNewNode(BulletRigidBodyNode('west_end'))
+        np.node().addShape(shape)
+        np.setPos(0, 400, 0)
+        np.setCollideMask(BitMask32.allOn())
+        self.world.attachRigidBody(np.node())
+
+        ##测试碰撞平面(北)
+        normal = Vec3(1,0,0)
+        d = 0
+        shape = BulletPlaneShape(normal,d)
+        np = self.worldNP.attachNewNode(BulletRigidBodyNode('north_end'))
+        np.node().addShape(shape)
+        np.setPos(-300,0,0)
+        np.setCollideMask(BitMask32.allOn())
+        self.world.attachRigidBody(np.node())
+
+        ##测试碰撞平面(南)
+        normal = Vec3(-1,0,0)
+        d = 0
+        shape = BulletPlaneShape(normal,d)
+        np = self.worldNP.attachNewNode(BulletRigidBodyNode('north_end'))
+        np.node().addShape(shape)
+        np.setPos(330,0,0)
+        np.setCollideMask(BitMask32.allOn())
+        self.world.attachRigidBody(np.node())
 
         # Some boxes
-        size = 9.0
-        shape = BulletBoxShape(Vec3(size,size,size))
-        body = BulletRigidBodyNode('Big box')
-        self.boxNP = self.worldNP.attachNewNode(body)
-        self.boxNP.node().addShape(shape)
-        self.boxNP.node().setMass(5.0)
-        self.boxNP.node().setDeactivationEnabled(True)
-        self.boxNP.setPos(0,0,10)
-        self.boxNP.setCollideMask(BitMask32.allOn())
-        self.world.attachRigidBody(self.boxNP.node())
+        # size = 9.0
+        # shape = BulletBoxShape(Vec3(size,size,size))
+        # body = BulletRigidBodyNode('Big box')
+        # self.boxNP = self.worldNP.attachNewNode(body)
+        # self.boxNP.node().addShape(shape)
+        # # self.boxNP.node().setMass(100.0)
+        # self.boxNP.node().setDeactivationEnabled(False)
+        # self.boxNP.setPos(0,0,10)
+        # self.boxNP.setCollideMask(BitMask32.allOn())
+        # self.world.attachRigidBody(self.boxNP.node())
 
+        house1NP = self.create_box_rigid('house1',Vec3(5,5,5),Vec3(0,0,5),False)
+        self.world.attachRigidBody(house1NP.node())
+        house1NP.node().setDeactivationEnabled(False)
 
         # 猎人
-        actor = sceneMgr.add_actor_scene(HUNTER_PATH,
+        actor = self.sceneMgr.add_actor_scene(HUNTER_PATH,
                                          HUNTER_ACTION_PATH,
                                          self.render)
         actor.setPos(0,1,-10)
@@ -279,13 +324,13 @@ class BulletEngine(ShowBase):
         self.add_actor_collide(actor,3.5,15)
 
         # control
-        sceneMgr.get_ActorMgr().set_clock(globalClock)
-        actorId = sceneMgr.get_ActorMgr().get_resId(actor)
-        sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId, "run")
-        sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId, "run_back")
-        sceneMgr.get_ActorMgr().add_toggle_to_actor("z", actorId, "rda")
-        sceneMgr.get_ActorMgr().add_toggle_to_actor("x", actorId, "lda")
-        sceneMgr.get_ActorMgr().add_toggle_to_actor("c", actorId, "bda")
+        self.sceneMgr.get_ActorMgr().set_clock(globalClock)
+        actorId = self.sceneMgr.get_ActorMgr().get_resId(actor)
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId, "run")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId, "run_back")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("z", actorId, "rda")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("x", actorId, "lda")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("c", actorId, "bda")
         print "actorId : ", actorId
 
         camCtrlr = CameraController()
@@ -299,19 +344,20 @@ class BulletEngine(ShowBase):
         camCtrlr.add_toggle_to_opt("h", "rotate_around_cw")
         camCtrlr.add_toggle_to_opt("k", "rotate_around_ccw")
 
-        sceneMgr.bind_CameraController(camCtrlr)
-        sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
+        self.sceneMgr.bind_CameraController(camCtrlr)
+        self.sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
 
-        print sceneMgr.get_ActorMgr().get_eventActionRecord()
-        print sceneMgr.get_ActorMgr().get_eventEffertRecord()
+        print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
+        print self.sceneMgr.get_ActorMgr().get_eventEffertRecord()
 
-        roleMgr = RoleManager()
-        sceneMgr.get_ActorMgr().bind_RoleManager(roleMgr)
-        player = roleMgr.create_role(roleType="PlayerRole",
+        self.roleMgr = RoleManager()
+        self.sceneMgr.get_ActorMgr().bind_RoleManager(self.roleMgr)
+        self.roleMgr.bind_SceneManager(self.sceneMgr)
+        player = self.roleMgr.create_role(roleType="PlayerRole",
                                      modelId=actorId)
         player.print_all_attr()
 
-        self.taskMgr.add(sceneMgr.update_scene, "update_scene")
+        self.taskMgr.add(self.sceneMgr.update_scene, "update_scene")
 
     def add_actor_collide(self,actor,radius,height):
         # 猎人胶囊碰撞体
@@ -325,6 +371,7 @@ class BulletEngine(ShowBase):
         self.world.attachCharacter(self.actorNP.node())
         # actor.detachNode(self.world)
         actor.reparentTo(self.actorNP)
+
 
     def add_house_collide(self, house, size,pos,houseName):
         # geomNodes = loader.loadModel(TEST_HOUSE1).findAllMatches('**/+GeomNode')
