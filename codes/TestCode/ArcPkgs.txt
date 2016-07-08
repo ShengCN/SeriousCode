@@ -1,0 +1,47 @@
+---------- Archive Package ----------
+===========
+actor
+itemsName : actorId, actorPath, actionsPath, pos, hpr, scale, parentId, 
+===========
+['actor3', '/e/Material/WifeZombieEgg/WifeZombie_Stand.egg', {'walk': '/e/Material/WifeZombieEgg/WifeZombie_Walk.egg'}, LPoint3f(20, 20, 0), LVecBase3f(0, 0, 0), LVecBase3f(1, 1, 1), 'render']
+['actor2', '/e/Material/HookZombie_Pose2.egg', {'walk': '/e/Material/HookZombie_Walk_v4.egg'}, LPoint3f(10, 10, 0), LVecBase3f(0, 0, 0), LVecBase3f(1, 1, 1), 'render']
+['actor1', '/e/Material/HunterEgg/finalHunter.egg', {'rda': '/e/Material/HunterEgg/rightDefenceActionUpdate.egg', 'lda': '/e/Material/HunterEgg/leftDefenceActionUpdate.egg', 'bda': '/e/Material/HunterEgg/backDefenceActionUpdate1.egg', 'run': '/e/Material/HunterEgg/hunter_WALK123.egg', 'run_back': '/e/Material/HunterEgg/hunter_WALK666.egg'}, LPoint3f(5, 0, 0), LVecBase3f(0, 0, 0), LVecBase3f(1.2, 1.2, 1.2), 'render']
+==========
+===========
+model
+itemsName : modelId, modelPath, pos, hpr, scale, parentId, 
+===========
+['model3', '/e/Material/building1.egg', LPoint3f(-10, -30, 0), LVecBase3f(0, 0, 0), LVecBase3f(15, 15, 15), 'render']
+['model2', '/e/Material/HunterEgg/finalHunter.egg', LPoint3f(0, 0, 0), LVecBase3f(0, 0, 0), LVecBase3f(0.22, 0.22, 0.22), 'render']
+['model1', '/e/Material/v10.egg', LPoint3f(0, 0, 0), LVecBase3f(0, 0, 0), LVecBase3f(5, 5, 5), 'render']
+['model4', '/e/Material/building1.egg', LPoint3f(0, 0, 0), LVecBase3f(0, 0, 0), LVecBase3f(5, 5, 5), 'render']
+==========
+===========
+terrain
+itemsName : terrainId, heightfieldPath, colormapPath, pos, hpr, scale, parentId, 
+===========
+['terrain1', '/e/models/ground.jpg', '/e/models/ground.jpg', LPoint3f(-50, -50, 0), LVecBase3f(0, 0, 0), LVecBase3f(1, 1, 1), 'render']
+==========
+===========
+camera
+itemsName : pos, hpr, moveSpeed, rotateSpeed, focusObjId, radius, optsSwitch, toggleEventToOpts, 
+===========
+[LPoint3f(0, 50, 5), LVecBase3f(180, -5.71059, 0), 10, 5, 'actor1', 200, {'rotate_r_cw': [False, False], 'rotate_p_cw': [False, False], 'move_left': [False, False], 'rotate_around_down': [False, True], 'rotate_r_ccw': [False, False], 'move_backward': [False, False], 'rotate_h_cw': [False, False], 'move_right': [False, False], 'rotate_p_ccw': [False, False], 'rotate_h_ccw': [False, False], 'move_down': [False, False], 'rotate_around_cw': [False, True], 'move_forward': [False, False], 'rotate_around_ccw': [False, True], 'move_up': [False, False], 'rotate_around_up': [False, True]}, {'h': 'rotate_around_cw', 'k': 'rotate_around_ccw', 'j': 'rotate_around_down', 'u': 'rotate_around_up'}]
+==========
+===========
+light
+itemsName : lightId, color, Pos, Hpr, targetId, setorId, parentId, 
+===========
+['AmbientLight1', LVecBase4f(0.2, 0.1, 0.2, 1), LPoint3f(0, 0, 0), LVecBase3f(0, 0, 0), None, ['render'], 'render']
+['DirectionalLight1', LVecBase4f(1, 1, 1, 1), LPoint3f(0, 0, 0), LVecBase3f(0, 0, 0), None, ['render'], 'render']
+['PointLight1', LVecBase4f(0.8, 0.9, 0.7, 1), LPoint3f(5, 5, 50), LVecBase3f(0, 0, 0), None, ['render'], 'render']
+['SpotLight1', LVecBase4f(1, 1, 1, 1), LPoint3f(10, 10, 10), LVecBase3f(153.435, -41.8103, 0), ['actor1'], ['render'], 'render']
+==========
+===========
+role
+itemsName : roleId, modelId, ableToTalk, ableToCtrl, ableToAtck, states, hp, money, attackForce, walkSpeed, runSpeed, rotateSpeed, touchRadius, actions, currWeapon, attachments, attachmentType, num, price, soild, effert, 
+===========
+['PlayerRole', 'actor1', True, True, True, [], 100, 0, 10, 20, 10, 100, 3, {}, None, {'medicine': None, 'weapon2': None, 'weapon1': None, 'weapon3': None}, None, None, None, None, None]
+['NPCRole1', 'actor4', True, False, False, [], None, None, None, None, None, None, None, {}, None, None, None, None, None, None, None]
+==========
+------------------------------
