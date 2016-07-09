@@ -19,6 +19,7 @@ from pandac.PandaModules import TransparencyAttrib
 from panda3d.core import *
 
 import math
+import random
 
 # 角色行为常量
 ACTOR_MOVE_FORWARD  = "actor_move_forward"
@@ -665,7 +666,7 @@ class ActorManager(ResManager):
 
             enemy = self.get_actor(enemyId)
 
-            self.__enemy_face_to_player(enemy, task)
+            #self.__enemy_face_to_player(enemy, task)
             self.__enemy_move_to_player(enemy, task)
 
         return task.cont
@@ -741,11 +742,14 @@ class ActorManager(ResManager):
 
             dt = self.__clock.getDt()
 
-            c = math.cos(enemy.getH() * math.pi / 180 - math.pi / 2)
-            s = math.sin(enemy.getH() * math.pi / 180 - math.pi / 2)
+            # c = math.cos(enemy.getH() * math.pi / 180 - math.pi / 2)
+            # s = math.sin(enemy.getH() * math.pi / 180 - math.pi / 2)
+            #
+            # enemy.setX(enemy.getX() + c * dt * enemyRunSpeed)
+            # enemy.setY(enemy.getY() + s * dt * enemyRunSpeed)
 
-            enemy.setX(enemy.getX() + c * dt * enemyRunSpeed)
-            enemy.setY(enemy.getY() + s * dt * enemyRunSpeed)
+            #messenger.send("player_be_attacked1-up")
+            #messenger.send("player_be_attacked2-up")
 
         else:
 
@@ -755,6 +759,14 @@ class ActorManager(ResManager):
 
                 messenger.send("enemy_run-up")
                 messenger.send("enemy_attack")
+
+                # if random.randint(0, 1) == 0:
+                #
+                #     messenger.send("player_be_attacked1")
+                #
+                # else:
+                #
+                #     messenger.send("player_be_attacked2")
 
             elif enemyRole.get_attr_value("currState") == "attacking":
 
@@ -766,6 +778,8 @@ class ActorManager(ResManager):
                     enemyRole.set_attr_value("remainCd", remainCd - self.__clock.getDt())
 
                     actorState = self.__roleMgr.calc_attack(enemyRole.get_attr_value("roleId"), "PlayerRole")
+
+                    #print "player hp : ", playerRole.get_attr_value("hp")
 
                     if actorState[1] == "die":
 
