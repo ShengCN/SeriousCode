@@ -1,6 +1,6 @@
 # coding=utf-8
 import sys
-
+sys.path.append('../../')
 import math
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.InputStateGlobal import inputState
@@ -39,11 +39,16 @@ class BulletEngine(ShowBase):
         ShowBase.__init__(self)
         self.init_shader()
         self.init_light_camera()
+        self.init_mgr()
         self.init_bullet_engine()
         self.setup()
         self.init_input()
         taskMgr.add(self.update,'updateWorld')
 
+    def init_mgr(self):
+        self.sceneMgr = SceneManager()
+        self.roleMgr = RoleManager()
+        self.sceneMgr.bind_RoleManager(self.roleMgr)
 
     # 灯光镜头初始化
     def init_light_camera(self):
@@ -84,6 +89,7 @@ class BulletEngine(ShowBase):
         self.accept('mouse1',self.doShoot)
         self.accept('control', self.doCrouch)
         self.accept('1',self.getCurrentPos)
+        self.accept('2',self.all_collide_result)
 
         inputState.watchWithModifiers('back', 's')
         inputState.watchWithModifiers('forward', 'w')
@@ -110,8 +116,8 @@ class BulletEngine(ShowBase):
         self.screenshot('Bullet')
 
     def doJump(self):
-        self.actor_character_NP.setJumpSpeed(JUMPSPEED)
-        self.actor_character_NP.setMaxJumpHeight(JUMPHEIGHT)
+        self.actor_character_NP.setJumpSpeed(JUMP_SPEED)
+        self.actor_character_NP.setMaxJumpHeight(JUMP_HEIGHT)
         self.actor_character_NP.isOnGround()
         self.actor_character_NP.doJump()
 
@@ -145,7 +151,18 @@ class BulletEngine(ShowBase):
         dt = globalClock.getDt()
         self.processInput(dt)
         self.world.doPhysics(dt,4,1./240.)
+        self.all_collide_result()
         return task.cont
+
+    def all_collide_result(self):
+        self.result = self.world.contactTest(self.wife_character_NP.node())
+        for contact in self.result.getContacts():
+            if contact.getNode1().isStatic() == False:
+                print "人物所有的碰撞结果：%s" % self.result.getNumContacts()
+                print "wifi 受到了攻击"
+                print "%s%s 发生了碰撞" % (contact.getNode0(), contact.getNode1())
+                self.roleMgr.calc_attack("PlayerRole", self.actorRole2.get_attr_value("roleId"))
+                print "怪物血量:%s" %self.actorRole2.get_attr_value("hp")
 
     def init_shader(self):
         self.backfaceCullingOn()
@@ -203,7 +220,7 @@ class BulletEngine(ShowBase):
         omega = (omega - 90)%360
         v = Point3(math.cos(omega * math.pi / 180), math.sin(omega * math.pi / 180),0)
         v.normalize()
-        v *= BULLETSPEED
+        v *= BULLET_SPEED
         print '子弹速度 %s' %v
         #create Bullet
         size = Vec3(7,7,7)
@@ -220,7 +237,7 @@ class BulletEngine(ShowBase):
         print '胶囊包围体r %s' % self.actor_character_NP.getShape().getRadius()
         cosOmg = 10*math.cos(omega*math.pi/180)
         sinOmg = 10*math.sin(omega*math.pi/180)
-        bulletNP = self.create_box_rigid('Bullet',size,Point3(x+cosOmg,y+sinOmg,10),True)
+        bulletNP = self.create_box_rigid('Bullet',BULLET_SIZE,Point3(x+cosOmg,y+sinOmg,10),True)
         bulletNP.node().setLinearVelocity(v)
         self.world.attachRigidBody(bulletNP.node())
         bulletNP.setCollideMask(BitMask32.allOff())
@@ -241,9 +258,6 @@ class BulletEngine(ShowBase):
 
 
     def setup(self):
-        self.sceneMgr = SceneManager()
-        self.sceneMgr.build_on(self)
-
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
 
@@ -299,45 +313,50 @@ class BulletEngine(ShowBase):
         self.world.attachRigidBody(np.node())
 
         # Some boxes
-        # size = 9.0
-        # shape = BulletBoxShape(Vec3(size,size,size))
-        # body = BulletRigidBodyNode('Big box')
-        # self.boxNP = self.worldNP.attachNewNode(body)
-        # self.boxNP.node().addShape(shape)
-        # # self.boxNP.node().setMass(100.0)
-        # self.boxNP.node().setDeactivationEnabled(False)
-        # self.boxNP.setPos(0,0,10)
-        # self.boxNP.setCollideMask(BitMask32.allOn())
-        # self.world.attachRigidBody(self.boxNP.node())
-
         house1NP = self.create_box_rigid('house1',Vec3(5,5,5),Vec3(0,0,5),False)
         self.world.attachRigidBody(house1NP.node())
         house1NP.node().setDeactivationEnabled(False)
 
         # 猎人
-        actor = self.sceneMgr.add_actor_scene(HUNTER_PATH,
+        actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
                                          HUNTER_ACTION_PATH,
                                          self.render)
-        actor.setPos(0,1,-10)
-        actor.setScale(1.6)
-        actor.setTwoSided(True)
-        self.add_actor_collide(actor,3.5,15)
+        actor_hunter.setPos(0,1,-10)
+        actor_hunter.setScale(1.6)
+        actor_hunter.setTwoSided(True)
+        self.add_actor_collide(actor_hunter,3.5,15)
+
+
+        # 怪物
+        actor_wife = self.sceneMgr.add_actor_scene(WIFE_ZOMBIE_PATH,
+                                              WIFE_ZOMBIE_ACTION_PATH,
+                                              self.render)
+        actor_wife.setPos(0,0,-10)
+        actor_wife.setScale(1)
+        actor_wife.setTwoSided(True)
+        self.wife_character_NP =  self.add_model_collide(actor_wife,4,18,'WIFI')
+
 
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
-        actorId = self.sceneMgr.get_ActorMgr().get_resId(actor)
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId, "run")
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId, "run_back")
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("z", actorId, "rda")
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("x", actorId, "lda")
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("c", actorId, "bda")
-        print "actorId : ", actorId
+        actorId1 = self.sceneMgr.get_ActorMgr().get_resId(actor_hunter)
+        actorId2 = self.sceneMgr.get_ActorMgr().get_resId(actor_wife)
+        print "hunterID : %s" %actorId1
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId1, "run")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId1, "run_back")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
+        self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_run", actorId2, "walk")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", actorId2, "attack")
+
+        self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
         camCtrlr = CameraController()
         camCtrlr.bind_camera(self.cam)
         camCtrlr.bind_ToggleHost(self)
         camCtrlr.set_clock(globalClock)
-        camCtrlr.focus_on(actor, 100)
+        camCtrlr.focus_on(actor_hunter, 100)
         camCtrlr.set_rotateSpeed(10)
         camCtrlr.add_toggle_to_opt("u", "rotate_around_up")
         camCtrlr.add_toggle_to_opt("j", "rotate_around_down")
@@ -347,15 +366,12 @@ class BulletEngine(ShowBase):
         self.sceneMgr.bind_CameraController(camCtrlr)
         self.sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
 
+        # create role
+        self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(actor_hunter))
+        self.actorRole2 = self.roleMgr.create_role("EnemyRole", self.sceneMgr.get_resId(actor_wife))
+
         print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
         print self.sceneMgr.get_ActorMgr().get_eventEffertRecord()
-
-        self.roleMgr = RoleManager()
-        self.sceneMgr.get_ActorMgr().bind_RoleManager(self.roleMgr)
-        self.roleMgr.bind_SceneManager(self.sceneMgr)
-        player = self.roleMgr.create_role(roleType="PlayerRole",
-                                     modelId=actorId)
-        player.print_all_attr()
 
         self.taskMgr.add(self.sceneMgr.update_scene, "update_scene")
 
@@ -372,6 +388,18 @@ class BulletEngine(ShowBase):
         # actor.detachNode(self.world)
         actor.reparentTo(self.actorNP)
 
+    def add_model_collide(self,actor,radius,height,name):
+        # 猎人胶囊碰撞体
+        r = radius
+        h = height
+        actor_shape = BulletCapsuleShape(r, height, ZUp)
+        actor_character_NP = BulletCharacterControllerNode(actor_shape, 1.0, name)
+        actorNP = self.worldNP.attachNewNode(actor_character_NP)
+        actorNP.setCollideMask(BitMask32.allOn())
+        self.world.attachCharacter(actorNP.node())
+        # actor.detachNode(self.world)
+        actor.reparentTo(actorNP)
+        return actorNP
 
     def add_house_collide(self, house, size,pos,houseName):
         # geomNodes = loader.loadModel(TEST_HOUSE1).findAllMatches('**/+GeomNode')

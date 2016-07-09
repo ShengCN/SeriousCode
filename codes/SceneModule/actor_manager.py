@@ -162,8 +162,8 @@ class ActorManager(ResManager):
 
         self._resMap[resId] = res
         self._resPath[resId] = [resPath, extraResPath]
-
         self.__itvlMap[resId] = self.__gen_interval_for_actor(res)
+        self.print_all_itvl_duration()
 
         return res
 
@@ -310,17 +310,17 @@ class ActorManager(ResManager):
 
         attackItvl = self.__itvlMap[actorId]["attack"]
 
-        effertDict = self.__eventEffertRecord[actorId]
-
-        for toggleEvent, effertList in effertDict.iteritems():
-
-            for effert in effertList:
-
-                if effert[0] == "actor_move_forward" and self.__playerMovingForward is True:
-                    self.__turn_effert_switch(actorId, toggleEvent, "actor_move_forward", True)
-
-                if effert[0] == "actor_move_backward" and self.__playerMovingBackward is True:
-                    self.__turn_effert_switch(actorId, toggleEvent, "actor_move_backward", True)
+        # effertDict = self.__eventEffertRecord[actorId]
+        #
+        # for toggleEvent, effertList in effertDict.iteritems():
+        #
+        #     for effert in effertList:
+        #
+        #         if effert[0] == "actor_move_forward" and self.__playerMovingForward is True:
+        #             self.__turn_effert_switch(actorId, toggleEvent, "actor_move_forward", True)
+        #
+        #         if effert[0] == "actor_move_backward" and self.__playerMovingBackward is True:
+        #             self.__turn_effert_switch(actorId, toggleEvent, "actor_move_backward", True)
 
     def __actor_attack_interval_play(self, actorId):
 
@@ -330,20 +330,20 @@ class ActorManager(ResManager):
 
         attackItvl = self.__itvlMap[actorId]["attack"]
 
-        effertDict = self.__eventEffertRecord[actorId]
-
-        for toggleEvent, effertList in effertDict.iteritems():
-
-            for effert in effertList:
-
-                if effert[0] == "actor_move_forward" and self.__playerMovingForward is True:
-
-                    self.__turn_effert_switch(actorId, toggleEvent, "actor_move_forward", False)
-
-
-                if effert[0] == "actor_move_backward" and self.__playerMovingBackward is True:
-
-                    self.__turn_effert_switch(actorId, toggleEvent, "actor_move_backward", False)
+        # effertDict = self.__eventEffertRecord[actorId]
+        #
+        # for toggleEvent, effertList in effertDict.iteritems():
+        #
+        #     for effert in effertList:
+        #
+        #         if effert[0] == "actor_move_forward" and self.__playerMovingForward is True:
+        #
+        #             self.__turn_effert_switch(actorId, toggleEvent, "actor_move_forward", False)
+        #
+        #
+        #         if effert[0] == "actor_move_backward" and self.__playerMovingBackward is True:
+        #
+        #             self.__turn_effert_switch(actorId, toggleEvent, "actor_move_backward", False)
 
         attackItvl.start()
 

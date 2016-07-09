@@ -1,5 +1,5 @@
 # coding=utf-8
-modelRootPath = "/d/SeriousPresent/"
+modelRootPath = "/d/SeriousPresent"
 
 VILLAGE = modelRootPath + "/Material/ModelEGGS/Village/v6.egg"
 
@@ -10,11 +10,13 @@ HUNTER_ACTION_PATH = {
     "rda" : modelRootPath + "/Material/ModelEGGS/Hunter/rightDefenceActionUpdate.egg",
     "lda" : modelRootPath + "/Material/ModelEGGS/Hunter/leftDefenceActionUpdate",
     "bda" : modelRootPath + "/Material/ModelEGGS/Hunter/backDefenceActionUpdate.egg",
+    "attack":modelRootPath+ "/Material/ModelEGGS/Hunter/Attack.egg"
 }
 
 WIFE_ZOMBIE_PATH = modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Stand.egg"
-WIFE_ZOMBIE_PATH = {
-    "walk" : modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Walk.egg"
+WIFE_ZOMBIE_ACTION_PATH = {
+    "walk" : modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Walk.egg",
+    "attack": modelRootPath+"/Material/ModelEGGS/WifeZombie/WifeZombie_Attack2.egg"
 }
 
 TERRAIN_H = modelRootPath + "/Material/Terrain/ground.jpg"
@@ -33,15 +35,16 @@ STEALER = modelRootPath + "/Material/ModelEGGS/Stealer"
 """""""""""""""
 test 用
 """""""""""""""
-TEST_HOUSE1 = modelRootPath + "house_test/house1.egg"
-TEST_HOUSE2 = modelRootPath + "house_test/house2.egg"
-TEST_HOUSE3 = modelRootPath + "house_test/house3.egg"
-TEST_MAIN_SCENE = modelRootPath + "house_test/village.egg"
-TEST_SECOND_SCENE = modelRootPath + "house_test/Outer_v2.egg"
+TEST_HOUSE1 = modelRootPath + "/house_test/house1.egg"
+TEST_HOUSE2 = modelRootPath + "/house_test/house2.egg"
+TEST_HOUSE3 = modelRootPath + "/house_test/house3.egg"
+TEST_MAIN_SCENE = modelRootPath + "/house_test/village.egg"
+TEST_SECOND_SCENE = modelRootPath + "/house_test/Outer_v2.egg"
 
 
 # 玩家的游戏中参数
 SPEED = 300.0
-JUMPHEIGHT = 1.0
-JUMPSPEED = 100.0
-BULLETSPEED = 1000
+JUMP_HEIGHT = 1.0
+JUMP_SPEED = 100.0
+BULLET_SPEED = 1000
+BULLET_SIZE = 3.0
