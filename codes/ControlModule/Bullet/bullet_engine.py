@@ -4,7 +4,7 @@ sys.path.append('../../')
 import math
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.InputStateGlobal import inputState
-from direct.showbase.ShowBase import ShowBase, AntialiasAttrib, NodePath
+from direct.showbase.ShowBase import ShowBase, AntialiasAttrib, NodePath, LPoint3f
 from direct.task.TaskManagerGlobal import taskMgr
 
 from panda3d.core import AmbientLight
@@ -32,6 +32,8 @@ from SceneModule.scene_manager import SceneManager
 from SceneModule.camera_controller import CameraController
 from SceneModule.light_controller import LightController
 from RoleModule.role_manager import RoleManager, PLAYER_ROLE
+from panda3d.ai import *
+from direct.stdpy import threading
 
 
 class BulletEngine(ShowBase):
@@ -43,6 +45,7 @@ class BulletEngine(ShowBase):
         self.init_bullet_engine()
         self.setup()
         self.init_input()
+        self.init_AI()
         taskMgr.add(self.update,'updateWorld')
 
     def init_mgr(self):
@@ -96,6 +99,14 @@ class BulletEngine(ShowBase):
         inputState.watchWithModifiers('turnLeft', 'a')
         inputState.watchWithModifiers('turnRight', 'd')
 
+    def init_AI(self):
+        self.AIworld = AIWorld(render)
+        self.AI_character = AICharacter("seeker",self.wife_character_NP,10,0.5,5)
+        self.AIworld.addAiChar(self.AI_character)
+        self.AI_behaviors = self.AI_character.getAiBehaviors()
+        self.AI_behaviors.flee(self.actorNP,10,5)
+        # self.AI_behaviors.removeAi("flee")
+
     # _____HANDLER_____
     def doExit(self):
         # self.cleanup()
@@ -144,25 +155,27 @@ class BulletEngine(ShowBase):
         force *= 30.0
         torque *= 10.0
         # character
-        self.actor_character_NP.setAngularMovement(omega)
-        self.actor_character_NP.setLinearMovement(speed,True)
+        self.wife_character_NP.node().setAngularMovement(omega)
+        self.wife_character_NP.node().setLinearMovement(speed,True)
 
     def update(self, task):
         dt = globalClock.getDt()
         self.processInput(dt)
         self.world.doPhysics(dt,4,1./240.)
         self.all_collide_result()
+        self.AIworld.update()
         return task.cont
 
     def all_collide_result(self):
         self.result = self.world.contactTest(self.wife_character_NP.node())
         for contact in self.result.getContacts():
-            if contact.getNode1().isStatic() == False:
-                print "人物所有的碰撞结果：%s" % self.result.getNumContacts()
-                print "wifi 受到了攻击"
-                print "%s%s 发生了碰撞" % (contact.getNode0(), contact.getNode1())
-                self.roleMgr.calc_attack("PlayerRole", self.actorRole2.get_attr_value("roleId"))
-                print "怪物血量:%s" %self.actorRole2.get_attr_value("hp")
+            if type(contact.getNode1()) != type(self.actor_character_NP):
+                if contact.getNode1().isStatic() == False:
+                    print "人物所有的碰撞结果：%s" % self.result.getNumContacts()
+                    print "wifi 受到了攻击"
+                    print "%s%s 发生了碰撞" % (contact.getNode0(), contact.getNode1())
+                    self.roleMgr.calc_attack("PlayerRole", self.actorRole2.get_attr_value("roleId"))
+                    print "怪物血量:%s" %self.actorRole2.get_attr_value("hp")
 
     def init_shader(self):
         self.backfaceCullingOn()
@@ -249,13 +262,11 @@ class BulletEngine(ShowBase):
                             extraArgs=[bulletNP],
                             appendTask=True)
 
-    ####################### some probelm todo  #########################################
     def doCrouch(self):
         self.crouching = not self.crouching
         sz = self.crouching and 0.6 or 1.0
         # self.actor_shape.setLocalScale(Vec3(1,1,sz))
         self.actorNP.setScale(Vec3(1,1,sz) * 0.3048)
-
 
     def setup(self):
         # Plane (static)
@@ -267,10 +278,10 @@ class BulletEngine(ShowBase):
         np.setCollideMask(BitMask32.allOn())
         self.world.attachRigidBody(np.node())
 
-        # 测试用房子
-        village = self.sceneMgr.add_model_scene(TEST_MAIN_SCENE,self.render)
-        village.setTwoSided(True)
-        village.setScale(5.0)
+        # 村庄
+        # village = self.sceneMgr.add_model_scene(TEST_MAIN_SCENE,self.render)
+        # village.setTwoSided(True)
+        # village.setScale(5.0)
 
         ##测试碰撞平面(西)
         normal = Vec3(0,1,0)
@@ -312,20 +323,21 @@ class BulletEngine(ShowBase):
         np.setCollideMask(BitMask32.allOn())
         self.world.attachRigidBody(np.node())
 
-        # Some boxes
-        house1NP = self.create_box_rigid('house1',Vec3(5,5,5),Vec3(0,0,5),False)
-        self.world.attachRigidBody(house1NP.node())
-        house1NP.node().setDeactivationEnabled(False)
+        # 房子包围体
+        # house1NP = self.create_box_rigid('house1',Vec3(5,5,5),Vec3(0,0,5),False)
+        # self.world.attachRigidBody(house1NP.node())
+        # house1NP.node().setDeactivationEnabled(False)
 
         # 猎人
-        actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
+        self.actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
                                          HUNTER_ACTION_PATH,
                                          self.render)
-        actor_hunter.setPos(0,1,-10)
-        actor_hunter.setScale(1.6)
-        actor_hunter.setTwoSided(True)
-        self.add_actor_collide(actor_hunter,3.5,15)
-
+        self.actor_hunter.setPos(0,1,-10) #相对于胶囊体坐标
+        self.actor_hunter.setScale(1.6)
+        self.actor_hunter.setTwoSided(True)
+        self.add_actor_collide(self.actor_hunter,3.5,15)
+        self.actorNP.setPos(-30,30,0)
+        print "主角现在的位置：",self.actor_hunter.getPos(render)
 
         # 怪物
         actor_wife = self.sceneMgr.add_actor_scene(WIFE_ZOMBIE_PATH,
@@ -334,14 +346,14 @@ class BulletEngine(ShowBase):
         actor_wife.setPos(0,0,-10)
         actor_wife.setScale(1)
         actor_wife.setTwoSided(True)
+        actor_wife.setH(-90)
         self.wife_character_NP =  self.add_model_collide(actor_wife,4,18,'WIFI')
 
 
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
-        actorId1 = self.sceneMgr.get_ActorMgr().get_resId(actor_hunter)
+        actorId1 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_hunter)
         actorId2 = self.sceneMgr.get_ActorMgr().get_resId(actor_wife)
-        print "hunterID : %s" %actorId1
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId1, "run")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId1, "run_back")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
@@ -356,7 +368,7 @@ class BulletEngine(ShowBase):
         camCtrlr.bind_camera(self.cam)
         camCtrlr.bind_ToggleHost(self)
         camCtrlr.set_clock(globalClock)
-        camCtrlr.focus_on(actor_hunter, 100)
+        camCtrlr.focus_on(self.actor_hunter, 100)
         camCtrlr.set_rotateSpeed(10)
         camCtrlr.add_toggle_to_opt("u", "rotate_around_up")
         camCtrlr.add_toggle_to_opt("j", "rotate_around_down")
@@ -367,7 +379,7 @@ class BulletEngine(ShowBase):
         self.sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
 
         # create role
-        self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(actor_hunter))
+        self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(self.actor_hunter))
         self.actorRole2 = self.roleMgr.create_role("EnemyRole", self.sceneMgr.get_resId(actor_wife))
 
         print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
@@ -389,7 +401,7 @@ class BulletEngine(ShowBase):
         actor.reparentTo(self.actorNP)
 
     def add_model_collide(self,actor,radius,height,name):
-        # 猎人胶囊碰撞体
+        # 怪物胶囊碰撞体
         r = radius
         h = height
         actor_shape = BulletCapsuleShape(r, height, ZUp)
@@ -397,7 +409,6 @@ class BulletEngine(ShowBase):
         actorNP = self.worldNP.attachNewNode(actor_character_NP)
         actorNP.setCollideMask(BitMask32.allOn())
         self.world.attachCharacter(actorNP.node())
-        # actor.detachNode(self.world)
         actor.reparentTo(actorNP)
         return actorNP
 
