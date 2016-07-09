@@ -78,6 +78,8 @@ roomPath = modelRootPath + "/Material/ModelEGGS/Room/Room.egg"
 
 coinPath = modelRootPath + "/Material/ModelEGGS/Coin/Coin.egg"
 
+EMPTY_NODEPATH = NodePath("EmptyNodePath")
+
 class GameWorld_Test(ShowBase):
 
     def __init__(self):
@@ -137,7 +139,7 @@ class GameWorld_Test(ShowBase):
         sceneMgr.get_ActorMgr().add_effert_to_actor("s", actorId, "actor_move_backward")
         sceneMgr.get_ActorMgr().add_effert_to_actor("a", actorId, "actor_rotate_cw")
         sceneMgr.get_ActorMgr().add_effert_to_actor("d", actorId, "actor_rotate_ccw")
-        sceneMgr.get_ActorMgr().actor_attack_effert("mouse1", actorId)
+        sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId)
 
         # _zombieWife = sceneMgr.add_actor_scene(wifeZombiePath,
         #                                        wifeZombieActionsPath,
@@ -167,8 +169,9 @@ class GameWorld_Test(ShowBase):
         # _nunv = sceneMgr.add_model_scene(nunv, self.render)
         # _nunv.setPos(60, 50, 0)
 
-        # _stealer = sceneMgr.add_actor_scene(stealer, {},  self.render)
-        # _stealer.setPos(70, 50, 0)
+        _stealer = sceneMgr.add_actor_scene(stealer, {},  self.render)
+        _stealer.setPos(70, 50, 0)
+        _stealer.setH(60)
         #
         # coin = sceneMgr.add_model_scene(coinPath, self.render)
         # coin.setPos(100, 100, 0)
@@ -226,6 +229,7 @@ class GameWorld_Test(ShowBase):
 
         print sceneMgr.get_ActorMgr().get_eventActionRecord()
         print sceneMgr.get_ActorMgr().get_eventEffertRecord()
+        sceneMgr.get_ActorMgr().print_all_itvl_duration()
 
         # terra = sceneMgr.add_terrain_scene(terrainH,
         #                                    terrainMap,
@@ -258,16 +262,18 @@ class GameWorld_Test(ShowBase):
         # arcPkgs = sceneMgr.export_sceneArcPkg()
 
         roleMgr = RoleManager()
-        sceneMgr.get_ActorMgr().bind_RoleManager(roleMgr)
+        sceneMgr.bind_RoleManager(roleMgr)
         player = roleMgr.create_role(roleType = "PlayerRole",
                                      modelId = actorId)
+        #player.set_attr_value("story", )
         # player.print_all_attr()
-        roleMgr.bind_SceneManager(sceneMgr)
+        #roleMgr.bind_SceneManager(sceneMgr)
         hookZombieRole = roleMgr.create_role(roleType = "EnemyRole",
                                              modelId = sceneMgr.get_resId(hookzombie))
         #
-        # npc1 = roleMgr.create_role(roleType = "NPCRole",
-        #                            modelId = sceneMgr.get_resId(_stealer))
+        npc1 = roleMgr.create_role(roleType = "NPCRole",
+                                   modelId = sceneMgr.get_resId(_stealer))
+        print roleMgr.get_role_face_hpr(roleMgr.get_roleId(npc1))
         # npc1.print_all_attr()
 
 
@@ -334,6 +340,7 @@ class GameWorld_Test(ShowBase):
         #pass
 
 game = GameWorld_Test()
+
 game.run()
 
 

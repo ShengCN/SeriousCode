@@ -6,6 +6,11 @@ from npc_role import NPCRole
 from attachment_role import AttachmentRole
 from ArchiveModule.archive_package import ArchivePackage
 import SeriousTools.SeriousTools as SeriousTools
+from ResourcesModule.resources_manager import ResourcesManager
+
+from panda3d.core import *
+
+import math
 
 # 常量，表示角色类型
 PLAYER_ROLE     = "PlayerRole"
@@ -52,7 +57,8 @@ ROLE_ATTR_LIST = [
     "num",
     "price",
     "soild",
-    "effert" # 20
+    "effert", # 20
+    "story"
 ]
 
 class RoleManager(object):
@@ -74,8 +80,11 @@ class RoleManager(object):
         self.__npcRoleCount = 0
         self.__attachmentRoleCount = 0
 
+        self.__resMgr = None
+
         self.__arcPkg = ArchivePackage(arcPkgName = "role",
                                        itemsName = ROLE_ATTR_LIST)
+
 
     def reset(self):
 
@@ -123,6 +132,12 @@ class RoleManager(object):
 
             playerRole.set_attr_value("roleId", roleId)
 
+            itvlMap = self.__sceneMgr.get_ActorMgr().get_itvlMap()
+            cd = itvlMap[modelId]["attack"].getDuration()
+
+            playerRole.set_attr_value("cd", cd)
+            playerRole.set_attr_value("remainCd", cd)
+
             self.__roleMap[roleId] = playerRole
             self.__roleModelMap[roleId] = modelId
 
@@ -146,6 +161,12 @@ class RoleManager(object):
                     roleId = _roleId
 
                 enemyRole.set_attr_value("roleId", roleId)
+
+                itvlMap = self.__sceneMgr.get_ActorMgr().get_itvlMap()
+                cd = itvlMap[modelId]["attack"].getDuration()
+
+                enemyRole.set_attr_value("cd", cd)
+                enemyRole.set_attr_value("remainCd", cd)
 
                 self.__roleMap[roleId] = enemyRole
                 self.__roleModelMap[roleId] = modelId
@@ -225,6 +246,10 @@ class RoleManager(object):
 
         self.__sceneMgr = sceneMgr
 
+    def bind_ResourcesManager(self, resMgr):
+
+        self.__resMgr = resMgr
+
     """""""""""""""""""""
     读档存档的角色数据接口
     """""""""""""""""""""
@@ -261,6 +286,7 @@ class RoleManager(object):
                 player.set_attr_value("actions", roleItem[13])
                 player.set_attr_value("currWeapon", roleItem[14])
                 player.set_attr_value("attachments", roleItem[15])
+                player.set_attr_value("story", roleItem[21])
 
             elif roleType == "EnemyRole":
 
@@ -567,9 +593,10 @@ class RoleManager(object):
 
         roleHpr = role.getHpr()
 
-        h = (roleHpr.getH() - 90) * math.pi / 180
+        h = (roleHpr.getX() - 90) * math.pi / 180
 
         return LVecBase3f(math.cos(h), 0, 0)
+
 
     """""""""""
     角色信息打印

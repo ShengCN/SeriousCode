@@ -7,6 +7,7 @@ from RoleModule.role_manager import RoleManager
 from ArchiveModule.archive_package import ArchivePackage
 import SeriousTools.SeriousTools as SeriousTools
 from SeriousTools.effert_msg_dispatcher import EffertMsgDispatcher
+from ResourcesModule.resources_manager import ResourcesManager
 
 from direct.actor.Actor import Actor
 from direct.interval.ActorInterval import ActorInterval
@@ -117,6 +118,8 @@ class ActorManager(ResManager):
 
         self.__effertMsgDiptcr = EffertMsgDispatcher()
 
+        self.__resMgr = ResourcesManager()
+
         self.__arcPkg = ArchivePackage(arcPkgName = "actor",
                                        itemsName = [
                                            "actorId",
@@ -144,7 +147,7 @@ class ActorManager(ResManager):
         #print "In load_res : ", resPath, extraResPath
 
         res = Actor(resPath, extraResPath)
-        print "in load_res :", res
+        #print "in load_res :", res
         resId = None
 
         self._resCount += 1
@@ -289,7 +292,7 @@ class ActorManager(ResManager):
 
     #########################################
 
-    def actor_attack_effert(self, event, actorId):
+    def toggle_actor_attack(self, event, actorId):
 
         actor = self.get_actor(actorId)
 
@@ -702,7 +705,7 @@ class ActorManager(ResManager):
         a = a * 180 / math.pi
         b = b * 180 / math.pi
 
-        print a, ", ", b
+        #print a, ", ", b
 
         enemy.setH(b - 90)
 
@@ -710,7 +713,8 @@ class ActorManager(ResManager):
 
     def __enemy_move_to_player(self, enemy, task):
 
-        player = self.get_actor(self.__roleMgr.get_role_model("PlayerRole"))
+        playerRole = self.__roleMgr.get_role("PlayerRole")
+        player = self.get_actor(playerRole.get_attr_value("modelId"))
 
         enemyId = self.get_resId(enemy)
         enemyRole = self.__roleMgr.get_role_by_model(enemyId)
@@ -752,6 +756,30 @@ class ActorManager(ResManager):
                 messenger.send("enemy_run-up")
                 messenger.send("enemy_attack")
 
+            elif enemyRole.get_attr_value("currState") == "attacking":
+
+                cd = enemyRole.get_attr_value("cd")
+                remainCd = enemyRole.get_attr_value("remainCd")
+                #print "player cd : ", cd, ", remainCd : ", remainCd
+                if remainCd == cd:
+
+                    enemyRole.set_attr_value("remainCd", remainCd - self.__clock.getDt())
+
+                    actorState = self.__roleMgr.calc_attack(enemyRole.get_attr_value("roleId"), "PlayerRole")
+
+                    if actorState[1] == "die":
+
+                        messenger.send("player_die")
+
+                else:
+
+                    remainCd = max(remainCd - self.__clock.getDt(), 0)
+
+                    if remainCd == 0:
+                        remainCd = cd
+
+                    enemyRole.set_attr_value("remainCd", remainCd)
+
         return task.cont
 
     # 监测玩家角色可触碰区域内的其他角色, 监测到的不同事件具有不同优先级
@@ -771,6 +799,8 @@ class ActorManager(ResManager):
 
         # 首先监测Enemy
         enemies = self.__roleMgr.get_one_kind_of_roles("EnemyRole")
+
+        enemyFoundPlayer = False
 
         for enemyRole in enemies:
 
@@ -796,6 +826,8 @@ class ActorManager(ResManager):
 
                 messenger.send(FIND_ENEMY)
 
+                enemyFoundPlayer = True
+
             else:
 
                 self.set_enemyCanAttack(enemyId, False)
@@ -804,7 +836,9 @@ class ActorManager(ResManager):
 
                 enemyRole.set_attr_value("currState", "wandering")
 
-                return task.cont
+        if enemyFoundPlayer is True:
+
+            return task.cont
 
         # 然后监测NPC
         NPCs = self.__roleMgr.get_one_kind_of_roles("NPCRole")
@@ -820,13 +854,16 @@ class ActorManager(ResManager):
 
             if dVector.length() <= touchRadius:
 
-                #print "playerPos:", playerPos, " npcPos:", NPCPos, " dVector length:", dVector.length()
+                self.__resMgr.show_prompt_box("发现NPC")
 
                 self.__NPCCanTalkWith = NPC
 
                 messenger.send(FIND_NPC)
 
                 return task.cont
+
+            else:
+                self.__resMgr.destroy_prompt()
 
         messenger.send(FIND_NOTHING)
 
@@ -904,6 +941,10 @@ class ActorManager(ResManager):
 
         return self.__eventEffertRecord
 
+    def get_itvlMap(self):
+
+        return self.__itvlMap
+
     def print_eventEffertRecord(self):
 
         print "----- eventEffertRecord -----"
@@ -919,5 +960,19 @@ class ActorManager(ResManager):
                 for effert in effertList:
 
                     print "        ", effert
+
+        print "-------------------------"
+
+    def print_all_itvl_duration(self):
+
+        print "----- all itvl duration -----"
+
+        for actorId, itvlDict in self.__itvlMap.iteritems():
+
+            print actorId, " : "
+
+            for itvl in itvlDict.values():
+
+                print "    ", itvl.animName, " : ", itvl.getDuration()
 
         print "-------------------------"

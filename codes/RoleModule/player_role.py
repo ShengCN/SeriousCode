@@ -20,9 +20,12 @@ class PlayerRole(Role):
         self.append_role_attr(key = "walkSpeed", value = 5)
         self.append_role_attr(key = "runSpeed", value = 20)
         self.append_role_attr(key = "rotateSpeed", value = 100)
-        self.append_role_attr(key = "touchRadius", value = 30)
+        self.append_role_attr(key = "touchRadius", value = 20)
+        self.append_role_attr(key = "cd", value = -1)
+        self.append_role_attr(key = "remainCd", value = -1)
         self.append_role_attr(key = "actions", value = dict())
         self.append_role_attr(key = "currWeapon", value = None)
+        self.append_role_attr(key = "story", value = None)
         self.append_role_attr(key = "attachments", value = {
                                                     "medicine" : None,
                                                     "weapon1" : None,

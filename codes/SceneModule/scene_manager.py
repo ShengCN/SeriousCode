@@ -15,6 +15,8 @@ class SceneManager(object):
         self.__modelMgr = ModelManager()
         self.__terraMgr = TerrainManager()
 
+        self.__resMgr = None
+
         self.__render = None
         self.__showbase = None
 
@@ -123,6 +125,16 @@ class SceneManager(object):
                 res = self.__terraMgr.get_res(resId)
 
         return res
+
+    def bind_RoleManager(self, roleMgr):
+
+        self.__actorMgr.bind_RoleManager(roleMgr)
+
+        roleMgr.bind_SceneManager(self)
+
+    def bind_ResourcesManager(self, resMgr):
+
+        self.__resMgr = resMgr
 
     def bind_CameraController(self, camCtrlr):
 
@@ -539,6 +551,17 @@ class SceneManager(object):
     """""""""""""""
     成员变量的get函数
     """""""""""""""
+
+    def all_reparentTo_render(self):
+
+        for actor in self.__actorMgr.get_resMap().values():
+
+            actor.reparentTo(self.__render)
+
+        for model in self.__modelMgr.get_resMap().values():
+
+            model.reparentTo(self.__render)
+
 
     def set_render(self, render):
 

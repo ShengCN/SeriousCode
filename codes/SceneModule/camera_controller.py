@@ -60,6 +60,8 @@ class CameraController(object):
         self.__camToggleHost = None
         self.__parentNode = None
 
+        self.__camFixed = False
+
         self.__directionsVector = {
             "N"  : LVector3f(0, 1, 0),
             "NE" : LVector3f(1, 1, 0),
@@ -181,6 +183,10 @@ class CameraController(object):
 
     # 相机总控制
     def update_camera(self, task):
+
+        if self.__camFixed == True:
+
+            return task.cont
 
         #task.setTaskChain("cameraTaskChain")
 
@@ -842,6 +848,18 @@ class CameraController(object):
         # self.__directionsVector["N"] = Vec3(odvX, odvY, 0)
 
         #print self.__directionsVector
+
+    def fix_on(self, fixedPos, fixedHpr, lookat):
+
+        self.__camFixed = True
+
+        self.__camToCtrl.setPos(fixedPos)
+        self.__camToCtrl.setHpr(fixedHpr)
+        self.__camToCtrl.lookAt(lookat)
+
+    def free_camera(self):
+
+        self.__camFixed = False
 
     """""""""""""""""""""
     成员变量的get和set函数
