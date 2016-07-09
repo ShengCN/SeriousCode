@@ -383,8 +383,9 @@ class RoleManager(object):
         victim = self.get_role(victimId)
 
         attackForce = attacker.get_attr_value("attackForce")
+        print "player force:", attackForce
         hp = victim.get_attr_value("hp")
-
+        print "enemy hp : ", hp
         hp = max(hp - attackForce, 0)
 
         victim.set_attr_value("hp", hp)
@@ -407,6 +408,7 @@ class RoleManager(object):
             else:
 
                 return [BE_ATTACKED, ATTACK]
+
 
     # 玩家角色使用药物
     def take_medicine(self):
