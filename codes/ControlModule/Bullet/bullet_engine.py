@@ -32,20 +32,24 @@ from SceneModule.scene_manager import SceneManager
 from SceneModule.camera_controller import CameraController
 from SceneModule.light_controller import LightController
 from RoleModule.role_manager import RoleManager, PLAYER_ROLE
+from ControlModule.math_helper import MathHelper
 from panda3d.ai import *
 from direct.stdpy import threading
+
 
 
 class BulletEngine(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
+        self.math_helper = MathHelper()
         self.init_shader()
         self.init_light_camera()
         self.init_mgr()
         self.init_bullet_engine()
-        self.setup()
-        self.init_input()
         self.init_AI()
+        self.scene_1()
+        self.init_input()
+
         taskMgr.add(self.update,'updateWorld')
 
     def init_mgr(self):
@@ -99,13 +103,9 @@ class BulletEngine(ShowBase):
         inputState.watchWithModifiers('turnLeft', 'a')
         inputState.watchWithModifiers('turnRight', 'd')
 
+    # 初始化 AI
     def init_AI(self):
-        self.AIworld = AIWorld(render)
-        self.AI_character = AICharacter("seeker",self.wife_character_NP,10,0.5,5)
-        self.AIworld.addAiChar(self.AI_character)
-        self.AI_behaviors = self.AI_character.getAiBehaviors()
-        self.AI_behaviors.flee(self.actorNP,10,5)
-        # self.AI_behaviors.removeAi("flee")
+        self.AIworld = AIWorld(self.worldNP)
 
     # _____HANDLER_____
     def doExit(self):
@@ -113,9 +113,8 @@ class BulletEngine(ShowBase):
         sys.exit(1)
 
     def doReset(self):
-        # self.cleanup()
+        self.cleanup()
         # self.setup()
-        pass
 
     def toggleDebug(self):
         if self.debugNP.isHidden():
@@ -127,16 +126,24 @@ class BulletEngine(ShowBase):
         self.screenshot('Bullet')
 
     def doJump(self):
-        self.actor_character_NP.setJumpSpeed(JUMP_SPEED)
-        self.actor_character_NP.setMaxJumpHeight(JUMP_HEIGHT)
-        self.actor_character_NP.isOnGround()
-        self.actor_character_NP.doJump()
+        self.actor_character_Node.setJumpSpeed(JUMP_SPEED)
+        self.actor_character_Node.setMaxJumpHeight(JUMP_HEIGHT)
+        self.actor_character_Node.isOnGround()
+        self.actor_character_Node.doJump()
 
     def getCurrentPos(self):
         print "角色当前位置 %s" % self.actorNP.getPos()
+        print "角色当前朝向 %s" % self.actorNP.getHpr()
+
+    def cleanup(self):
+        ###todo
+        ###1.destroy all actor
+        ###2.destroy all collison node
+        self.world = None
+        self.worldNP.removeNode()
+        self.taskMgr.remove("updateWorld")
 
     # ____TASK___
-
     def processInput(self, dt):
         speed = Vec3(0, 0, 0)
         omega = 0.0
@@ -155,21 +162,20 @@ class BulletEngine(ShowBase):
         force *= 30.0
         torque *= 10.0
         # character
-        self.wife_character_NP.node().setAngularMovement(omega)
-        self.wife_character_NP.node().setLinearMovement(speed,True)
+        self.actorNP.node().setAngularMovement(omega)
+        self.actorNP.node().setLinearMovement(speed,True)
 
     def update(self, task):
         dt = globalClock.getDt()
         self.processInput(dt)
         self.world.doPhysics(dt,4,1./240.)
         self.all_collide_result()
-        self.AIworld.update()
         return task.cont
 
     def all_collide_result(self):
         self.result = self.world.contactTest(self.wife_character_NP.node())
         for contact in self.result.getContacts():
-            if type(contact.getNode1()) != type(self.actor_character_NP):
+            if type(contact.getNode1()) != type(self.actor_character_Node):
                 if contact.getNode1().isStatic() == False:
                     print "人物所有的碰撞结果：%s" % self.result.getNumContacts()
                     print "wifi 受到了攻击"
@@ -247,7 +253,7 @@ class BulletEngine(ShowBase):
         print '玩家位置y %s' % y
         print '玩家位置z %s' % z
         print '玩家方向hpr %s' % hpr
-        print '胶囊包围体r %s' % self.actor_character_NP.getShape().getRadius()
+        print '胶囊包围体r %s' % self.actor_character_Node.getShape().getRadius()
         cosOmg = 10*math.cos(omega*math.pi/180)
         sinOmg = 10*math.sin(omega*math.pi/180)
         bulletNP = self.create_box_rigid('Bullet',BULLET_SIZE,Point3(x+cosOmg,y+sinOmg,10),True)
@@ -268,7 +274,7 @@ class BulletEngine(ShowBase):
         # self.actor_shape.setLocalScale(Vec3(1,1,sz))
         self.actorNP.setScale(Vec3(1,1,sz) * 0.3048)
 
-    def setup(self):
+    def scene_1(self):
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
 
@@ -337,23 +343,25 @@ class BulletEngine(ShowBase):
         self.actor_hunter.setTwoSided(True)
         self.add_actor_collide(self.actor_hunter,3.5,15)
         self.actorNP.setPos(-30,30,0)
-        print "主角现在的位置：",self.actor_hunter.getPos(render)
 
         # 怪物
-        actor_wife = self.sceneMgr.add_actor_scene(WIFE_ZOMBIE_PATH,
+        self.actor_wife = self.sceneMgr.add_actor_scene(WIFE_ZOMBIE_PATH,
                                               WIFE_ZOMBIE_ACTION_PATH,
                                               self.render)
-        actor_wife.setPos(0,0,-10)
-        actor_wife.setScale(1)
-        actor_wife.setTwoSided(True)
-        actor_wife.setH(-90)
-        self.wife_character_NP =  self.add_model_collide(actor_wife,4,18,'WIFI')
-
+        self.actor_wife.setPos(0,0,-10)
+        self.actor_wife.setScale(1)
+        self.actor_wife.setTwoSided(True)
+        self.actor_wife.setH(-90)
+        self.wife_character_NP =  self.add_model_collide(self.actor_wife,4,18,'WIFI')
+        print "怪物现在的位置：",self.actor_wife.getPos(render)
+        print "怪物现在的朝向：",self.actor_wife.getHpr(render)
+        # self.wifi_AI_wander()
+        self.setAI()
 
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
         actorId1 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_hunter)
-        actorId2 = self.sceneMgr.get_ActorMgr().get_resId(actor_wife)
+        actorId2 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_wife)
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId1, "run")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId1, "run_back")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
@@ -380,7 +388,7 @@ class BulletEngine(ShowBase):
 
         # create role
         self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(self.actor_hunter))
-        self.actorRole2 = self.roleMgr.create_role("EnemyRole", self.sceneMgr.get_resId(actor_wife))
+        self.actorRole2 = self.roleMgr.create_role("EnemyRole", self.sceneMgr.get_resId(self.actor_wife))
 
         print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
         print self.sceneMgr.get_ActorMgr().get_eventEffertRecord()
@@ -392,8 +400,8 @@ class BulletEngine(ShowBase):
         r = radius
         h = height
         self.actor_shape = BulletCapsuleShape(r, height, ZUp)
-        self.actor_character_NP = BulletCharacterControllerNode(self.actor_shape, 1.0, 'Player')
-        self.actorNP = self.worldNP.attachNewNode(self.actor_character_NP)
+        self.actor_character_Node = BulletCharacterControllerNode(self.actor_shape, 1.0, 'Player')
+        self.actorNP = self.worldNP.attachNewNode(self.actor_character_Node)
         self.actorNP.setPos(-20, 30, 0)
         self.actorNP.setCollideMask(BitMask32.allOn())
         self.world.attachCharacter(self.actorNP.node())
@@ -404,13 +412,16 @@ class BulletEngine(ShowBase):
         # 怪物胶囊碰撞体
         r = radius
         h = height
+        # 加入 render 世界
         actor_shape = BulletCapsuleShape(r, height, ZUp)
-        actor_character_NP = BulletCharacterControllerNode(actor_shape, 1.0, name)
-        actorNP = self.worldNP.attachNewNode(actor_character_NP)
-        actorNP.setCollideMask(BitMask32.allOn())
-        self.world.attachCharacter(actorNP.node())
-        actor.reparentTo(actorNP)
-        return actorNP
+        actor_np = self.worldNP.attachNewNode(BulletRigidBodyNode(name))
+        actor_np.setPos(0,0,10)
+        actor_np.node().addShape(actor_shape)
+        actor.reparentTo(actor_np)
+        #加入物理引擎
+        self.world.attachRigidBody(actor_np.node())
+        # actorNP.reparentTo(actor)
+        return actor_np
 
     def add_house_collide(self, house, size,pos,houseName):
         # geomNodes = loader.loadModel(TEST_HOUSE1).findAllMatches('**/+GeomNode')
@@ -427,6 +438,46 @@ class BulletEngine(ShowBase):
         # house.reparentTo(houseNP)
         # house.setPos(0,0,0)
         pass
+
+    """""""""""""""
+    玩家的游戏参数
+    """""""""""""""
+    def setAI(self):
+        self.wifi_AI_wander()
+        self.taskMgr.add(self.AIUpdate,"AIUpate")
+
+    # AI 闲逛
+    def wifi_AI_wander(self):
+        self.AIchar = AICharacter("wanderer", self.wife_character_NP, 100, 0.05, 5)
+        self.AIworld.addAiChar(self.AIchar)
+        self.AIbehaviors = self.AIchar.getAiBehaviors()
+        self.AIbehaviors.wander(5, 0, 10, 1)
+
+    # AI 追踪
+    def wifi_AI_seek(self):
+        self.AIchar = AICharacter("pursuer", self.wife_character_NP, 100, 0.05, 5)
+        self.AIworld.addAiChar(self.AIchar)
+        self.AIbehaviors = self.AIchar.getAiBehaviors()
+        self.AIbehaviors.pursue(self.actorNP)
+
+    def AIUpdate(self,task):
+        if self.isDanger():
+            self.AIbehaviors.pursue(self.actorNP)
+        else:
+            self.AIbehaviors.wander(5, 0, 10, 1)
+
+        self.AIworld.update()
+        return task.cont
+
+    def isDanger(self):
+        relativePos = self.actorNP.getPos(self.wife_character_NP)
+        length = self.math_helper.get_length(relativePos)
+        print "他们的距离是: ",length
+        if length < DANGER_LENGTH:
+            return True
+        else:
+            return False
+
 
 
 game = BulletEngine()

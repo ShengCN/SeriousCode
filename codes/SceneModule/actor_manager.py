@@ -164,7 +164,6 @@ class ActorManager(ResManager):
         self._resMap[resId] = res
         self._resPath[resId] = [resPath, extraResPath]
         self.__itvlMap[resId] = self.__gen_interval_for_actor(res)
-        self.print_all_itvl_duration()
 
         return res
 
