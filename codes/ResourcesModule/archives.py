@@ -10,7 +10,6 @@
 import sys
 sys.path.append('../')
 
-from SceneModule.scene_manager import SceneManager
 from ArchiveModule.archive_package import ArchivePackage
 
 import json

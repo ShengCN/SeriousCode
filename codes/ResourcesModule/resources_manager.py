@@ -6,7 +6,6 @@
 # Last Updated: 2016-06-28
 #
 # This tutorial shows resource module interface,
-
 from load_plot import LoadPlot
 from media_player import MediaPlayer
 from sound import MySound

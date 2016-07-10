@@ -24,10 +24,13 @@ class MainMenu(ShowBase):
         self.__rm = ResourcesManager()
         self.__destroySetting = False
 
+    """""""""""""""
+    所有界面（菜单、设置、游戏中）
+    """""""""""""""
     # 菜单界面
     def start(self):
-        #全屏
-        self.setFullScreen(0)
+        # #全屏
+        # self.setFullScreen(0)
 
         #load background image
         self.__image = OnscreenImage(image='../../resources/images/menu/home1.png',scale=1)
@@ -44,25 +47,13 @@ class MainMenu(ShowBase):
         self.accept("a",self.setting_menu)
         self.accept("b",self.setting_destroy)
 
-    # 设置全屏
-    def setFullScreen(self,full):
-        if full == 1 :
-            self.__setFullscreen(2560,1600,0,0,1)
-        else:
-            self.__setFullscreen(800,600,150,50,0)
-
-    # 清除界面，清除监听
+    """""""""""""""
+    菜单界面函数
+    """""""""""""""
+    # 清除菜单界面，清除监听
     def destroy(self):
         self.__image.destroy()
         self.__keyInput.destroy()
-
-    # 私有函数，选择全屏
-    def __setFullscreen(self, width, height, posX, posY, full):
-        winProps = WindowProperties()
-        winProps.setOrigin(posX, posY)
-        winProps.setSize(width, height)
-        winProps.setFullscreen(full)
-        self.win.requestProperties(winProps)
 
     # 私有函数，进入新建游戏界面
     def __new_game(self):
@@ -75,21 +66,30 @@ class MainMenu(ShowBase):
         print '进入load game'
         messenger.send("serious_load_game")
         print '发送了serious_load_game'
+    # 设置全屏
+    def setFullScreen(self,full):
+        if full == 1 :
+            self.__setFullscreen(2560,1600,0,0,1)
+        else:
+            self.__setFullscreen(800,600,150,50,0)
 
-    # 私有函数，进入about界面
+        # 私有函数，进入about界面
     def __description(self):
         print '进入description'
         messenger.send("serious_description")
         print '发送了serious_description'
 
+    # 私有函数，选择全屏
+    def __setFullscreen(self, width, height, posX, posY, full):
+        winProps = WindowProperties()
+        winProps.setOrigin(posX, posY)
+        winProps.setSize(width, height)
+        winProps.setFullscreen(full)
+        self.win.requestProperties(winProps)
+
     # 私有函数，用来自建的选择进入的游戏界面
     def __change_mode(self,image_path):
         self.__image.setImage(image_path)
-
-    def __exit(self):
-        print '进入exit'
-        # self.__del__()
-        exit()
 
     # 私有函数，更改游戏目录
     def __change_menu(self):
@@ -99,6 +99,14 @@ class MainMenu(ShowBase):
                         3:'../../resources/images/menu/home4.png',}
         self.__change_mode(switch_count[self.__keyInput.get_count()])
 
+    def __exit(self):
+        print '进入exit'
+        # self.__del__()
+        exit()
+
+    """""""""""""""
+    设置界面函数
+    """""""""""""""
     #设置界面
     def setting_menu(self):
         if self.__destroySetting==False:
@@ -191,3 +199,29 @@ class MainMenu(ShowBase):
     # 设置界面，私有函数,回到主界面
     def __return_home(self):
         self.setting_destroy()
+
+    """""""""""""""
+    游戏界面函数
+    """""""""""""""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

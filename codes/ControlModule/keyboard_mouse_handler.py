@@ -35,9 +35,9 @@ class MenuPlayerInputHandler(MenuInputHandler):
         tmp = self.__count % tmp
         print tmp
         switchInput = {0:self.beginNewGame,
-        			   1:self.beginLoadGame,
-        			   2:self.beginDescription,
-        			   3:self.beginExit}
+                       1:self.beginLoadGame,
+                       2:self.beginDescription,
+                       3:self.beginExit}
         switchInput[tmp]()
 
     def get_count(self):
@@ -75,4 +75,4 @@ class GamePlayerMouseHandler(GameInputHandler):
 
     def updateInput(self,task):
         self.dispatchMessages()
-		return task.cont
+        return task.cont

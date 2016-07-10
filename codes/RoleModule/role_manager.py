@@ -1,12 +1,15 @@
 # -*- coding:utf-8 -*-
 
+import sys
+sys.path.append('../')
 from player_role import PlayerRole
 from enemy_role import EnemyRole
 from npc_role import NPCRole
 from attachment_role import AttachmentRole
 from ArchiveModule.archive_package import ArchivePackage
 import SeriousTools.SeriousTools as SeriousTools
-from ResourcesModule.resources_manager import ResourcesManager
+# from ResourcesModule.resources_manager import ResourcesManager
+# from ResourcesModule.resources_manager import ResourcesManager
 
 from panda3d.core import *
 

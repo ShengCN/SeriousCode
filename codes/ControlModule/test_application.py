@@ -5,7 +5,6 @@ from direct.actor.Actor import Actor
 from panda3d.core import *
 from FollowCam import FollowCam
 from direct.showbase.DirectObject import DirectObject
-from keyboard_mouse_handler import GameControlMouseHandler
 from keyboard_mouse_handler import GamePlayerMouseHandler
 from input_recoder import InputRecorder
 

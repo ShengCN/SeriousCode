@@ -1,12 +1,12 @@
 # coding=utf-8
+import  sys
+sys.path.append('../')
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from panda3d.core import *
 
 from ControlModule.serious_state_manager import SeriousFSM
-from FollowCam import FollowCam
 from direct.showbase.DirectObject import DirectObject
-from keyboard_mouse_handler import GameControlMouseHandler
 from keyboard_mouse_handler import GamePlayerMouseHandler
 from test_application import testApplication
 from main_menu import MainMenu
