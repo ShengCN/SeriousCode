@@ -10,6 +10,8 @@
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import *
+from direct.task import Task
+from direct.gui.DirectButton import DirectButton
 
 class MediaPlayer():
 
@@ -26,10 +28,12 @@ class MediaPlayer():
         self.__mediaFileName["3"] = "../../resources/media/PandaSneezes.ogv"
         self.__tex = MovieTexture("name")
 
+        self.__time=14.0
+
     # 播放视频文件
     #render:ShowBase属性，render2d
     #id:视频ID
-    def playMedia(self,render,id):
+    def playMedia(self,base,id):
         id=str(id)
         # self.__mediaFileName[id] = fileName
         success = self.__tex.read(self.__mediaFileName[id])
@@ -43,7 +47,7 @@ class MediaPlayer():
 
         # Now place the card in the scene graph and apply the texture to it.
         self.__card = NodePath(cm.generate())
-        self.__card.reparentTo(render)
+        self.__card.reparentTo(base.render2d)
         self.__card.setTexture(self.__tex)
 
         self.__sound = loader.loadSfx(self.__mediaFileName[id])
@@ -52,9 +56,24 @@ class MediaPlayer():
 
         self.__sound.play()
 
+        base.taskMgr.add(self.getTime, "getTime")
+
+        self.__skipButton = DirectButton(pos=(1.5, 0, -0.9), text="Skip", scale=(0.2), command=self.__skip_media,frameColor=(0, 0, 0, 0))
+
+    def getTime(self,task):
+        if self.__sound.status() == self.__sound.PLAYING:
+        # if self.__time!=self.__sound.getTime():
+            return Task.cont
+        else:
+            self.destroy()
+
     #移除视频
     def destroy(self):
         self.__sound.stop()
         self.__card.detachNode()
+        self.__skipButton.destroy()
+
+    def __skip_media(self):
+        self.destroy()
 
 

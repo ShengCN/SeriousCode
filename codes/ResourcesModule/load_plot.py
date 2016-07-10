@@ -20,6 +20,34 @@ class LoadPlot(DirectObject):
 
         self.__plotFilePath="../../resources/files/dialogue.txt"
 
+        self.__imagePath="../../resources/images/dialogue/"
+
+        #0：对话框背景图
+        #1：对话框cube
+        #2：全透明图
+        #3：猎人头像
+        #4：修女头像
+        #5：女儿头像
+        #6：村民头像
+        #7：小偷头像
+        self.__imageList=list()
+        self.__images=self.__imagePath+"npc_chat_frame.png"
+        self.__imageList.append(self.__images)
+        self.__images = self.__imagePath + "npc_name_cube.png"
+        self.__imageList.append(self.__images)
+        self.__images = self.__imagePath + "bg.jpg"
+        self.__imageList.append(self.__images)
+        self.__images = self.__imagePath + "HunterFace.png"
+        self.__imageList.append(self.__images)
+        self.__images = self.__imagePath + "NunFace.png"
+        self.__imageList.append(self.__images)
+        self.__images = self.__imagePath + "GirlFace.png"
+        self.__imageList.append(self.__images)
+        self.__images = self.__imagePath + "black.png"
+        self.__imageList.append(self.__images)
+        self.__images = self.__imagePath + "StealerFace.png"
+        self.__imageList.append(self.__images)
+
         #打开对话文件
         # self.__file = open("../../resources/files/dialogue.txt", 'r')
         with open(self.__plotFilePath, 'r') as f:
@@ -67,6 +95,7 @@ class LoadPlot(DirectObject):
             self.__id=part
             if self.init_dialogue(part):
                 self.init_head_portrait()
+                self.dialogue_next()
                 self.__destroy = True
             else:
                 self.__destroy=False
@@ -76,11 +105,18 @@ class LoadPlot(DirectObject):
     def init_dialogue(self,part):
         # 显示对话内容
         if self.__destroy == False:
-            self.__dialogue = OnscreenText("", pos=(0, -0.9), scale=0.07, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1),
-                                           mayChange=True)
             if self.selectPart():
                 print "第",part,"成功"
-                # self.__destroy = True
+                self.__dialogueBackground = OnscreenImage(image=self.__imageList[0], pos=(0, 0, -0.7),
+                                                          scale=(1.85, 0, 0.3))
+                self.__dialogueBackground.setTransparency(TransparencyAttrib.MAlpha)
+                self.__dialogueNameCube = OnscreenImage(image=self.__imageList[1], pos=(-0.7, 0, -0.58),
+                                                        scale=(0.03, 0, 0.03))
+                self.__dialogueNameCube.setTransparency(TransparencyAttrib.MAlpha)
+                self.__dialogue = OnscreenText("", pos=(-0, -0.76), scale=0.1, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1),
+                                               mayChange=True)
+                self.__name = OnscreenText("", pos=(-0.55, -0.6), scale=0.1, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1),
+                                           mayChange=True)
                 return True
             else:
                 print "第",part,"失败"
@@ -92,14 +128,20 @@ class LoadPlot(DirectObject):
     def init_head_portrait(self):
         # 人物头像
         if self.__destroy == False:
-            self.__image = OnscreenImage(image='../../resources/images/1.jpg', pos=(-0.9, 0, -0.2), scale=0.2)
-            self.__image.setTransparency(TransparencyAttrib.MAlpha)
+            self.__image1 = OnscreenImage(image=self.__imageList[3], pos=(-1.2, 0, -0.55), scale=(0.7,0,0.45))
+            self.__image1.setTransparency(TransparencyAttrib.MAlpha)
+            self.__image2 = OnscreenImage(image=self.__imageList[2],pos=(1.2, 0, -0.55), scale=(0.7, 0, 0.45))
+            self.__image2.setTransparency(TransparencyAttrib.MAlpha)
             # self.__destroy = True
 
     #初始化提示框
-    def init_prompt(self):
+    def init_prompt(self,content):
         if self.__destroyPrompt==False:
-            self.__prompt = OnscreenText("提示", pos=(0, -0.5), scale=0.07, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1),
+            self.__promptBackground = OnscreenImage(image=self.__imageList[0], pos=(0, 0, -0.6),
+                                                      scale=(0.5, 0, 0.1))
+            self.__promptBackground.setTransparency(TransparencyAttrib.MAlpha)
+
+            self.__prompt = OnscreenText(content, pos=(0, -0.63), scale=0.07, fg=(1, 1, 1, 1), shadow=(0, 0, 0, 1),
                                            mayChange=True)
             self.__destroyPrompt=True
 
@@ -114,18 +156,23 @@ class LoadPlot(DirectObject):
     def destroy_dialogue(self):
         if self.__destroy == True:
             self.__dialogue.destroy()
+            self.__dialogueBackground.destroy()
+            self.__dialogueNameCube.destroy()
+            self.__name.destroy()
             # self.__destroy = False
 
     #移除头像
     def destroy_image(self):
         if self.__destroy == True:
-            self.__image.destroy()
+            self.__image1.destroy()
+            self.__image2.destroy()
             # self.__destroy = False
 
     #移除提示框
     def destroy_prompt(self):
         if self.__destroyPrompt== True:
             self.__prompt.destroy()
+            self.__promptBackground.destroy()
             self.__destroyPrompt = False
 
 
@@ -214,11 +261,24 @@ class LoadPlot(DirectObject):
 
         # 判断角色
         if role.decode('gb2312').encode('utf-8') == "猎人":
-            self.__image.setImage("../../resources/images/1.jpg")
-        elif role.decode('gb2312').encode('utf-8') == "修女":
-            self.__image.setImage("../../resources/images/2.jpg")
+            self.__name.setText(role.decode('gb2312'))
+            self.__image1.setImage(self.__imageList[3])
+            self.__image1.setTransparency(TransparencyAttrib.MAlpha)
+            self.__image2.setImage(self.__imageList[2])
+            self.__image2.setTransparency(TransparencyAttrib.MAlpha)
         else:
-            self.__image.setImage("../../resources/images/3.jpg")
+            self.__image1.setImage(self.__imageList[2])
+            self.__image1.setTransparency(TransparencyAttrib.MAlpha)
+            self.__name.setText(role.decode('gb2312'))
+            if role.decode('gb2312').encode('utf-8') == "修女":
+                self.__image2.setImage(self.__imageList[4])
+            elif role.decode('gb2312').encode('utf-8') == "女儿":
+                self.__image2.setImage(self.__imageList[5])
+            elif role.decode('gb2312').encode('utf-8') == "村民":
+                self.__image2.setImage(self.__imageList[6])
+            else:
+                self.__image2.setImage(self.__imageList[7])
+            self.__image2.setTransparency(TransparencyAttrib.MAlpha)
 
 
     #初始化剧情树

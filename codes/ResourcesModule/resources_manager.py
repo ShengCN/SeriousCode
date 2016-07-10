@@ -67,8 +67,8 @@ class ResourcesManager(object):
 
     #播放视频文件
     #fileName:视频文件路径
-    def play_media(self,render,id):
-        self.__media.playMedia(render,id)
+    def play_media(self,base,id):
+        self.__media.playMedia(base,id)
         self.stop_sound(self.__id)
 
 
@@ -87,8 +87,8 @@ class ResourcesManager(object):
         self.__dialogueFile.init_interface(part)
 
     # 加载提示框
-    def show_prompt_box(self):
-        self.__dialogueFile.init_prompt()
+    def show_prompt_box(self,content):
+        self.__dialogueFile.init_prompt(content)
 
     #读取下一句对话
     def dialog_next(self):
@@ -107,9 +107,11 @@ class ResourcesManager(object):
     def destroy_prompt(self):
         self.__dialogueFile.destroy_prompt()
 
+    #设置剧情树路径
     def set_path(self,path):
         self.__dialogueFile.set_path(path)
 
+    # 获取剧情树路径
     def get_path(self):
         return self.get_path()
 
