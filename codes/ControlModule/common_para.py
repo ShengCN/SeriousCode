@@ -34,14 +34,16 @@ STEALER = modelRootPath + "/Material/ModelEGGS/Stealer"
 """""""""""""""
 第一个场景
 """""""""""""""
-VILLAGE = modelRootPath + "/Material/ModelEGGS/Village/v6.egg"
+VILLAGE = modelRootPath + "/Material/ModelEGGS/Village/v7.egg"
 
 """""""""""""""
 第二个场景
 """""""""""""""
-TERRAIN_H = modelRootPath + "/Material/Terrain/ground.jpg"
-TERRAIN_Map = modelRootPath + "/Material/Terrain/ground.jpg"
-HOUSE_PATH = modelRootPath + "/Material/ModelEGGS/Village/house1.egg"
+OUTER = modelRootPath + "/Material/Outer_v2.egg"
+
+# TERRAIN_H = modelRootPath + "/Material/Terrain/ground.jpg"
+# TERRAIN_Map = modelRootPath + "/Material/Terrain/ground.jpg"
+# HOUSE_PATH = modelRootPath + "/Material/ModelEGGS/Village/house1.egg"
 
 """""""""""""""
 test 用
@@ -58,7 +60,7 @@ TEST_SECOND_SCENE = modelRootPath + "/house_test/Outer_v2.egg"
 SPEED = 300.0
 JUMP_HEIGHT = 1.0
 JUMP_SPEED = 10.0
-BULLET_SPEED = 1000
+BULLET_SPEED = 10000
 BULLET_SIZE = 3.0
 DANGER_LENGTH = 30
 

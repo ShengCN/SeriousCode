@@ -719,13 +719,12 @@ class ActorManager(ResManager):
         enemyId = self.get_resId(enemy)
         enemyRole = self.__roleMgr.get_role_by_model(enemyId)
 
-        playerPos = player.getPos()
-        enemyPos = enemy.getPos()
+        # playerPos = player.getPos(self.render)
+        # enemyPos = enemy.getPos(self.render)
 
-        playerPos.setZ(0)
-        enemyPos.setZ(0)
 
-        v = playerPos - enemyPos
+        v = player.getPos(enemy)
+        v.setZ(0)
 
         if v.length() > enemyRole.get_attr_value("attackRange"):
 
