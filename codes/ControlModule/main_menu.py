@@ -18,7 +18,7 @@ from ControlModule.bullet_engine import BulletEngine
 class MainMenu(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
-        self.accept("Exit",self.__exit)
+        self.__game = BulletEngine(self)
         self.__rm = ResourcesManager()
         self.__destroySetting = False
 
@@ -108,6 +108,8 @@ class MainMenu(ShowBase):
     #设置界面
     def setting_menu(self):
         if self.__destroySetting==False:
+            # 关闭游戏场景帧更新
+            self.__game.stop_update()
             # 设置界面背景图
             self.__background = OnscreenImage(image='../../resources/images/settings/setting_frame.png', pos=(0, 0, 0),
                                               scale=(1.0, 0, 0.7))
@@ -185,6 +187,7 @@ class MainMenu(ShowBase):
     # 设置界面，私有函数,继续游戏
     def __continue_game(self):
         self.setting_destroy()
+        self.__game.reset_update()
 
     # 设置界面，私有函数,存档
     def __save_game(self):
@@ -203,8 +206,7 @@ class MainMenu(ShowBase):
     """""""""""""""
     def game_window(self):
         self.accept("escape",self.setting_menu)
-        self.__game = BulletEngine(self)
-        self.__game.scene_1()
+        self.__game.room_scene()
 
 
 

@@ -32,18 +32,23 @@ NUNV = modelRootPath + "/Material/ModelEGGS/NUNV/NUNV_Pose.egg"
 STEALER = modelRootPath + "/Material/ModelEGGS/Stealer"
 
 """""""""""""""
-第一个场景
+VILLAGE场景
 """""""""""""""
-VILLAGE = modelRootPath + "/Material/ModelEGGS/Village/v7.egg"
+VILLAGE = modelRootPath + "/Material/village/village.egg"
 
 """""""""""""""
-第二个场景
+OUTER场景
 """""""""""""""
 OUTER = modelRootPath + "/Material/Outer_v2.egg"
 
 # TERRAIN_H = modelRootPath + "/Material/Terrain/ground.jpg"
 # TERRAIN_Map = modelRootPath + "/Material/Terrain/ground.jpg"
 # HOUSE_PATH = modelRootPath + "/Material/ModelEGGS/Village/house1.egg"
+
+"""""""""""""""
+教堂场景
+"""""""""""""""
+ROOM = modelRootPath + "/Material/Room/Room.egg"
 
 """""""""""""""
 test 用
