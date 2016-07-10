@@ -15,25 +15,21 @@ class SeriousGame(DirectObject):
     def __init__(self):
         DirectObject.__init__(self)
         self.__fsm = SeriousFSM()
+        self.__window = MainMenu()
         self.accept("serious_menu",self.__menu_window)
         self.accept("serious_new_game",self.__new_game_window)
         self.accept("serious_load_game",self.__load_game_window)
         self.accept("serious_description",self.__description)
-        self.__fsm.request('Menu')
+        self.__menu_window()
 
     def __menu_window(self):
-        if type(self.__menu_window)==MainMenu:
-            self.__menu_window.start()
-            self.__fsm.set_menu_window(self.__menu_window)
-            self.__menu_window.run()
-        else:
-            self.__menu_window = MainMenu()
-            self.__menu_window.start()
-            self.__fsm.set_menu_window(self.__menu_window)
-            self.__menu_window.run()
+        self.__window.start()
+        self.__window.run()
 
     def __new_game_window(self):
         print '控制器选择了新建游戏窗口'
+        self.__window.destroy()
+        self.__window.game_window()
 
     def __load_game_window(self):
         print '控制器选择载入游戏窗口'

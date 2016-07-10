@@ -37,21 +37,12 @@ from panda3d.ai import *
 from pandac.PandaModules import Material
 from pandac.PandaModules import VBase4
 
-
-
-class BulletEngine(ShowBase):
-    def __init__(self):
-        ShowBase.__init__(self)
+class BulletEngine(DirectObject):
+    def __init__(self, base):
+        DirectObject.__init__(self)
+        # ShowBase.__init__(self)
+        self.base = base
         self.math_helper = MathHelper()
-        self.init_shader()
-        self.init_light_camera()
-        self.init_mgr()
-        self.init_bullet_engine()
-        self.init_AI()
-        self.scene_1()
-        self.init_input()
-
-        taskMgr.add(self.update,'updateWorld')
 
     def init_mgr(self):
         self.sceneMgr = SceneManager()
@@ -60,35 +51,35 @@ class BulletEngine(ShowBase):
 
     # 灯光镜头初始化
     def init_light_camera(self):
-         self.setBackgroundColor(0.1, 0.1, 0.8, 1)
-         self.setFrameRateMeter(True)
+         self.base.setBackgroundColor(0.1, 0.1, 0.8, 1)
+         self.base.setFrameRateMeter(True)
 
          # self.cam.setPos(0, -20, 4)
          # self.cam.lookAt(0, 0, 0)
 
-         self.cam.setPos(0, 0, 100)
-         self.cam.lookAt(0, 0, -90)
+         self.base.cam.setPos(0, 0, 100)
+         self.base.cam.lookAt(0, 0, -90)
 
          # Light
          alight = AmbientLight('ambientLight')
          alight.setColor(Vec4(0.5, 0.5, 0.5, 1))
-         alightNP = render.attachNewNode(alight)
+         alightNP = self.base.render.attachNewNode(alight)
 
          dlight = DirectionalLight('directionalLight')
          dlight.setDirection(Vec3(1, 1, -1))
          dlight.setColor(Vec4(0.7, 0.7, 0.7, 1))
-         dlightNP = render.attachNewNode(dlight)
+         dlightNP = self.base.render.attachNewNode(dlight)
 
-         render.clearLight()
-         render.setLight(alightNP)
-         render.setLight(dlightNP)
+         self.base.render.clearLight()
+         self.base.render.setLight(alightNP)
+         self.base.render.setLight(dlightNP)
 
     # 输入初始化
     def init_input(self):
-        self.accept('escape', self.doExit)
+        # self.accept('escape', self.doExit)
         self.accept('r', self.doReset)
-        self.accept('f1', self.toggleWireframe)
-        self.accept('f2', self.toggleTexture)
+        self.accept('f1', self.base.toggleWireframe)
+        self.accept('f2', self.base.toggleTexture)
         self.accept('f3', self.toggleDebug)
         self.accept('f5', self.doScreenshot)
 
@@ -124,7 +115,7 @@ class BulletEngine(ShowBase):
             self.debugNP.hide()
 
     def doScreenshot(self):
-        self.screenshot('Bullet')
+        self.base.screenshot('Bullet')
 
     def doJump(self):
         self.actor_character_Node.setJumpSpeed(JUMP_SPEED)
@@ -142,7 +133,7 @@ class BulletEngine(ShowBase):
         ###2.destroy all collison node
         self.world = None
         self.worldNP.removeNode()
-        self.taskMgr.remove("updateWorld")
+        self.base.taskMgr.remove("updateWorld")
 
     # ____TASK___
     def processInput(self, dt):
@@ -185,18 +176,18 @@ class BulletEngine(ShowBase):
                     print "怪物血量:%s" %self.actorRole2.get_attr_value("hp")
 
     def init_shader(self):
-        self.backfaceCullingOn()
-        self.setFrameRateMeter(True)
-        self.render.flattenStrong()
-        self.render.setTwoSided(True)
-        self.render.setAntialias(AntialiasAttrib.MAuto)
+        self.base.backfaceCullingOn()
+        self.base.setFrameRateMeter(True)
+        self.base.render.flattenStrong()
+        self.base.render.setTwoSided(True)
+        self.base.render.setAntialias(AntialiasAttrib.MAuto)
 
         lod = LODNode("lod")
         lodnp  = NodePath(lod)
-        lodnp.reparentTo(self.render)
+        lodnp.reparentTo(self.base.render)
 
     def init_bullet_engine(self):
-        self.worldNP = render.attachNewNode('World')
+        self.worldNP = self.base.render.attachNewNode('World')
         self.world = BulletWorld()
         self.world.setGravity(Vec3(0, 0, -9.81))
         # World
@@ -336,7 +327,7 @@ class BulletEngine(ShowBase):
     """""""""""""""
     def setAI(self):
         self.wifi_AI_wander()
-        self.taskMgr.add(self.AIUpdate,"AIUpate")
+        self.base.taskMgr.add(self.AIUpdate,"AIUpate")
 
     # AI 闲逛
     def wifi_AI_wander(self):
@@ -358,7 +349,6 @@ class BulletEngine(ShowBase):
             self.AIbehaviors.pursue(self.actorNP)
         else:
             self.AIbehaviors.wander(5, 0, 10, 1)
-
         self.AIworld.update()
         return task.cont
 
@@ -374,6 +364,14 @@ class BulletEngine(ShowBase):
     场景部分
     """""""""""""""
     def scene_1(self):
+        # init
+        self.init_shader()
+        self.init_light_camera()
+        self.init_mgr()
+        self.init_bullet_engine()
+        self.init_AI()
+        self.init_input()
+
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
 
@@ -384,7 +382,7 @@ class BulletEngine(ShowBase):
         self.world.attachRigidBody(np.node())
 
         # 村庄
-        village = self.sceneMgr.add_model_scene(OUTER, self.render)
+        village = self.sceneMgr.add_model_scene(VILLAGE, self.base.render)
         village.setTwoSided(True)
         village.setScale(5.0)
 
@@ -402,7 +400,7 @@ class BulletEngine(ShowBase):
         # 猎人
         self.actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
                                                           HUNTER_ACTION_PATH,
-                                                          self.render)
+                                                          self.base.render)
         self.actor_hunter.setPos(0, 1, -10)  # 相对于胶囊体坐标
         self.actor_hunter.setScale(1.6)
         self.actor_hunter.setTwoSided(True)
@@ -412,14 +410,14 @@ class BulletEngine(ShowBase):
         # 怪物
         self.actor_wife = self.sceneMgr.add_actor_scene(WIFE_ZOMBIE_PATH,
                                                         WIFE_ZOMBIE_ACTION_PATH,
-                                                        self.render)
+                                                        self.base.render)
         self.actor_wife.setPos(0, 0, -10)
         self.actor_wife.setScale(1)
         self.actor_wife.setTwoSided(True)
         self.actor_wife.setH(-90)
         self.wife_character_NP = self.add_model_collide(self.actor_wife, 4, 18, 'WIFI')
-        print "怪物现在的位置：", self.actor_wife.getPos(render)
-        print "怪物现在的朝向：", self.actor_wife.getHpr(render)
+        print "怪物现在的位置：", self.actor_wife.getPos(self.base.render)
+        print "怪物现在的朝向：", self.actor_wife.getHpr(self.base.render)
         # self.wifi_AI_wander()
         self.setAI()
 
@@ -438,7 +436,7 @@ class BulletEngine(ShowBase):
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
         camCtrlr = CameraController()
-        camCtrlr.bind_camera(self.cam)
+        camCtrlr.bind_camera(self.base.cam)
         camCtrlr.bind_ToggleHost(self)
         camCtrlr.set_clock(globalClock)
         camCtrlr.focus_on(self.actor_hunter, 100)
@@ -458,9 +456,18 @@ class BulletEngine(ShowBase):
         print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
         print self.sceneMgr.get_ActorMgr().get_eventEffertRecord()
 
-        self.taskMgr.add(self.sceneMgr.update_scene, "update_scene")
+        self.base.taskMgr.add(self.sceneMgr.update_scene, "update_scene")
+        taskMgr.add(self.update, 'updateWorld')
 
     def scene_2(self):
+        # init
+        self.init_shader()
+        self.init_light_camera()
+        self.init_mgr()
+        self.init_bullet_engine()
+        self.init_AI()
+        self.init_input()
+
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
 
@@ -471,7 +478,7 @@ class BulletEngine(ShowBase):
         self.world.attachRigidBody(np.node())
 
         # 村庄
-        village = self.sceneMgr.add_model_scene(OUTER, self.render)
+        village = self.sceneMgr.add_model_scene(OUTER, self.base.render)
         village.setTwoSided(True)
         village.setScale(5.0)
 
@@ -489,7 +496,7 @@ class BulletEngine(ShowBase):
         # 猎人
         self.actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
                                                           HUNTER_ACTION_PATH,
-                                                          self.render)
+                                                          self.base.render)
         self.actor_hunter.setPos(0, 1, -10)  # 相对于胶囊体坐标
         self.actor_hunter.setScale(1.6)
         self.actor_hunter.setTwoSided(True)
@@ -499,14 +506,14 @@ class BulletEngine(ShowBase):
         # 怪物
         self.actor_wife = self.sceneMgr.add_actor_scene(WIFE_ZOMBIE_PATH,
                                                         WIFE_ZOMBIE_ACTION_PATH,
-                                                        self.render)
+                                                        self.base.render)
         self.actor_wife.setPos(0, 0, -10)
         self.actor_wife.setScale(1)
         self.actor_wife.setTwoSided(True)
         self.actor_wife.setH(-90)
         self.wife_character_NP = self.add_model_collide(self.actor_wife, 4, 18, 'WIFI')
-        print "怪物现在的位置：", self.actor_wife.getPos(render)
-        print "怪物现在的朝向：", self.actor_wife.getHpr(render)
+        print "怪物现在的位置：", self.actor_wife.getPos(self.base.render)
+        print "怪物现在的朝向：", self.actor_wife.getHpr(self.base.render)
         # self.wifi_AI_wander()
         self.setAI()
 
@@ -525,7 +532,7 @@ class BulletEngine(ShowBase):
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
         camCtrlr = CameraController()
-        camCtrlr.bind_camera(self.cam)
+        camCtrlr.bind_camera(self.base.cam)
         camCtrlr.bind_ToggleHost(self)
         camCtrlr.set_clock(globalClock)
         camCtrlr.focus_on(self.actor_hunter, 100)
@@ -545,8 +552,8 @@ class BulletEngine(ShowBase):
         print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
         print self.sceneMgr.get_ActorMgr().get_eventEffertRecord()
 
-        self.taskMgr.add(self.sceneMgr.update_scene, "update_scene")
+        self.base.taskMgr.add(self.sceneMgr.update_scene, "update_scene")
+        taskMgr.add(self.update, 'updateWorld')
 
-
-game = BulletEngine()
-game.run()
+# game = BulletEngine()
+# game.run()

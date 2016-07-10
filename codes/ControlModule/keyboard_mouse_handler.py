@@ -7,9 +7,9 @@ class MenuPlayerInputHandler(MenuInputHandler):
     def __init__(self):
         MenuInputHandler.__init__(self)
 
-        base.disableMouse()
+        # base.disableMouse()
         props = WindowProperties()
-        props.setCursorHidden(True)
+        # props.setCursorHidden(True)
         base.win.requestProperties(props)
 
         self.__count = 0
@@ -54,9 +54,9 @@ class GamePlayerMouseHandler(GameInputHandler):
     def __init__(self):
         GameInputHandler.__init__(self)
 
-        base.disableMouse()
+        # base.disableMouse()
         props = WindowProperties()
-        props.setCursorHidden(True)
+        # props.setCursorHidden(True)
         base.win.requestProperties(props)
 
         self.accept("escape",self.beginSetting)

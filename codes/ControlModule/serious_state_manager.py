@@ -13,8 +13,6 @@ class SeriousFSM(FSM):
         
     def exitMenu(self):
         print '退出菜单状态'
-        self.__window.destroy()
-        self.__menu_window.destroy()
 
     # 参数用来决定是新建游戏还是载入
     def enterGame(self,isNew):

@@ -3,8 +3,6 @@
 # Last Updated: 2016-06-29
 # menu菜单
 # 游戏的开始界面
-import sys
-sys.path.append('../')
 
 from direct.showbase.ShowBase import ShowBase
 from direct.gui.OnscreenImage import OnscreenImage
@@ -15,7 +13,7 @@ from direct.showbase.DirectObject import DirectObject
 from direct.gui.DirectSlider import DirectSlider
 from direct.gui.DirectButton import DirectButton
 from panda3d.core import *
-from serious_state_manager import SeriousFSM
+from ControlModule.bullet_engine import BulletEngine
 
 class MainMenu(ShowBase):
     def __init__(self):
@@ -31,7 +29,6 @@ class MainMenu(ShowBase):
     def start(self):
         # #全屏
         # self.setFullScreen(0)
-
         #load background image
         self.__image = OnscreenImage(image='../../resources/images/menu/home1.png',scale=1)
         self.__image.setSx(self.getAspectRatio())
@@ -44,8 +41,8 @@ class MainMenu(ShowBase):
         self.accept("Description",self.__description)
         self.accept("ChangeMenu",self.__change_menu)
 
-        self.accept("a",self.setting_menu)
-        self.accept("b",self.setting_destroy)
+        # self.accept("a",self.setting_menu)
+        # self.accept("b",self.setting_destroy)
 
     """""""""""""""
     菜单界面函数
@@ -58,6 +55,7 @@ class MainMenu(ShowBase):
     # 私有函数，进入新建游戏界面
     def __new_game(self):
         print '进入new game'
+        # self.destroy()
         messenger.send("serious_new_game")
         print '发送了serious_new_game'
 
@@ -203,6 +201,11 @@ class MainMenu(ShowBase):
     """""""""""""""
     游戏界面函数
     """""""""""""""
+    def game_window(self):
+        self.accept("escape",self.setting_menu)
+        self.__game = BulletEngine(self)
+        self.__game.scene_1()
+
 
 
 
