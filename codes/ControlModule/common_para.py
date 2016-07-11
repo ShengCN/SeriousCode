@@ -4,14 +4,14 @@ modelRootPath = "/d/SeriousPresent"
 """""""""""""""
 主角模型
 """""""""""""""
-HUNTER_PATH = modelRootPath + "/Material/ModelEGGS/Hunter/hunter_Alarm1.egg"
+HUNTER_PATH = modelRootPath + "/Material/ModelEGGS/Hunter/hunter_AlarmPos1.egg"
 HUNTER_ACTION_PATH = {
-    "run" : modelRootPath + "/Material/ModelEGGS/Hunter/Run.egg",
-    "run_back" : modelRootPath + "/Material/ModelEGGS/Hunter/RunBack.egg",
-    "rda" : modelRootPath + "/Material/ModelEGGS/Hunter/rightDefenceActionUpdate.egg",
-    "lda" : modelRootPath + "/Material/ModelEGGS/Hunter/leftDefenceActionUpdate",
-    "bda" : modelRootPath + "/Material/ModelEGGS/Hunter/backDefenceActionUpdate.egg",
-    "attack":modelRootPath+ "/Material/ModelEGGS/Hunter/Attack.egg"
+    "run" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_RunWithGun1.egg",
+    "run_back" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_RunBackWithGun1.egg",
+    "rda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WithGunRightDefence.egg",
+    "lda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WithGunLeftDefenceUpdate.egg",
+    "attack":modelRootPath+ "/Material/ModelEGGS/Hunter/hunter_Attack1.egg",
+    "stand":modelRootPath+"/Material/ModelEGGS/Hunter/hunter_AlarmPos1.egg"
 }
 
 """""""""""""""
@@ -34,7 +34,7 @@ STEALER = modelRootPath + "/Material/ModelEGGS/Stealer"
 """""""""""""""
 VILLAGE场景
 """""""""""""""
-VILLAGE = modelRootPath + "/Material/village/village.egg"
+VILLAGE = modelRootPath + "/Material/ModelEGGS/Village/village.egg"
 
 """""""""""""""
 OUTER场景

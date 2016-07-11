@@ -206,7 +206,7 @@ class MainMenu(ShowBase):
     """""""""""""""
     def game_window(self):
         self.accept("escape",self.setting_menu)
-        self.__game.room_scene()
+        self.__game.village_scene()
 
 
 
