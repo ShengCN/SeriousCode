@@ -98,6 +98,7 @@ class BulletEngine(DirectObject):
     # 初始化 AI
     def init_AI(self):
         self.AIworld = AIWorld(self.worldNP)
+        self.AI_Character = dict()
 
     # _____HANDLER_____
     def doExit(self):
@@ -187,40 +188,9 @@ class BulletEngine(DirectObject):
         lodnp  = NodePath(lod)
         lodnp.reparentTo(self.base.render)
 
-    def init_bullet_engine(self):
-        self.worldNP = self.base.render.attachNewNode('World')
-        self.world = BulletWorld()
-        self.world.setGravity(Vec3(0, 0, -9.81))
-        # World
-        self.debugNP = self.worldNP.attachNewNode(BulletDebugNode('Debug'))
-        self.debugNP.show()
-        self.debugNP.node().showWireframe(True)
-        self.debugNP.node().showConstraints(True)
-        self.debugNP.node().showBoundingBoxes(False)
-        self.debugNP.node().showNormals(True)
-        self.world.setDebugNode(self.debugNP.node())
-        # 玩家
-        self.crouching = False
-        self.omega = 0.0
-
-    def create_box_rigid(self,name,size,pos,isCCD):
-        shape = BulletBoxShape(size)
-        body = BulletRigidBodyNode(name)
-        bodyNP = self.worldNP.attachNewNode(body)
-        bodyNP.node().addShape(shape)
-        bodyNP.node().setMass(2.0)
-        bodyNP.setPos(pos)
-        bodyNP.setCollideMask(BitMask32.allOn())
-
-        if isCCD:
-            bodyNP.node().setCcdMotionThreshold(1e-7);
-            bodyNP.node().setCcdSweptSphereRadius(0.50);
-        return bodyNP
-
     def doRemove(self,bulletNP,task):
         self.world.removeRigidBody(bulletNP.node())
         return task.done
-
 
     def doShoot(self):
         pFrom = Point3(0,0,0)
@@ -268,8 +238,38 @@ class BulletEngine(DirectObject):
         self.actorNP.setScale(Vec3(1,1,sz) * 0.3048)
 
     """""""""""""""
-    碰撞体部分
+    物理引擎部分
     """""""""""""""
+    def init_bullet_engine(self):
+        self.worldNP = self.base.render.attachNewNode('World')
+        self.world = BulletWorld()
+        self.world.setGravity(Vec3(0, 0, -9.81))
+        # World
+        self.debugNP = self.worldNP.attachNewNode(BulletDebugNode('Debug'))
+        self.debugNP.show()
+        self.debugNP.node().showWireframe(True)
+        self.debugNP.node().showConstraints(True)
+        self.debugNP.node().showBoundingBoxes(False)
+        self.debugNP.node().showNormals(True)
+        self.world.setDebugNode(self.debugNP.node())
+        # 玩家
+        self.crouching = False
+        self.omega = 0.0
+
+    def create_box_rigid(self,name,size,pos,isCCD):
+        shape = BulletBoxShape(size)
+        body = BulletRigidBodyNode(name)
+        bodyNP = self.worldNP.attachNewNode(body)
+        bodyNP.node().addShape(shape)
+        bodyNP.node().setMass(2.0)
+        bodyNP.setPos(pos)
+        bodyNP.setCollideMask(BitMask32.allOn())
+
+        if isCCD:
+            bodyNP.node().setCcdMotionThreshold(1e-7);
+            bodyNP.node().setCcdSweptSphereRadius(0.50);
+        return bodyNP
+
     def add_plane_collide(self,pos,normal):
         d = 0
         shape = BulletPlaneShape(normal,d)
@@ -323,44 +323,55 @@ class BulletEngine(DirectObject):
         pass
 
     """""""""""""""
-    玩家的游戏参数
+    AI 设置
     """""""""""""""
-    def setAI(self,enemy_np):
-        self.AI_wander(enemy_np)
-        taskMgr.add(self.AIUpdate,"AIUpate")
+    def setAI(self,id,enemy_np):
+        self.AI_wander(id,enemy_np)
 
     # AI 闲逛
-    def AI_wander(self, enemy_np):
-        self.AIchar = AICharacter("wanderer", enemy_np, 100, 0.05, 5)
-        self.AIworld.addAiChar(self.AIchar)
-        self.AIbehaviors = self.AIchar.getAiBehaviors()
-        self.AIbehaviors.wander(5, 0, 10, 1)
+    def AI_wander(self,id, enemy_np):
+        self.AI_Character[id] = AICharacter(str(id), enemy_np, 100, 0.05, 5)
+        self.AIworld.addAiChar(self.AI_Character[id])
+        AIbehaviors = self.AI_Character[id].getAiBehaviors()
+        AIbehaviors.wander(5, 0, 10, 1)
 
     # AI 追踪
     def AI_seek(self, enemy_np):
-        self.AIchar = AICharacter("pursuer", enemy_np, 100, 0.05, 5)
-        self.AIworld.addAiChar(self.AIchar)
-        self.AIbehaviors = self.AIchar.getAiBehaviors()
-        self.AIbehaviors.pursue(self.actorNP)
+        self.AI_Character[id] = AICharacter(str(id), enemy_np, 100, 0.05, 5)
+        self.AIworld.addAiChar(self.AI_Character[id])
+        AIbehaviors = self.AI_Character[id].getAiBehaviors()
+        AIbehaviors.pursue(self.actorNP)
 
     def AIUpdate(self,task):
-        if self.isDanger():
-            # self.AIbehaviors.removeAiChar("wander")
-            self.AIbehaviors.pursue(self.actorNP)
-        else:
-            self.AIbehaviors.wander(5, 0, 10, 1)
-        self.AIworld.update()
+        for id in range(self.__amount):
+            if self.isDanger(id):
+                AIbehaviors = self.AI_Character[id].getAiBehaviors()
+                AIbehaviors.removeAi("wander")
+                AIbehaviors.pursue(self.actorNP)
+            else:
+                AIbehaviors = self.AI_Character[id].getAiBehaviors()
+                AIbehaviors.removeAi("pursue")
+                AIbehaviors.wander(5, 0, 10, 1)
+            self.AIworld.update()
         return task.cont
 
-    def isDanger(self):
-        # relativePos = self.actorNP.getPos(self.wife_character_NP)
-        # length = self.math_helper.get_length(relativePos)
-        # # print "他们的距离是: ",length
-        # if relativePos.length() < DANGER_LENGTH:
-        #     return True
-        # else:
-        #     return False
+    def isDanger(self,id):
+        relativePos = self.actorNP.getPos(self.__enemy_NP[id])
+        length = self.math_helper.get_length(relativePos)
+        # print "他们的距离是: ",length
+        if relativePos.length() < DANGER_LENGTH:
+            return True
+        else:
+            return False
         pass
+
+    """""""""""""""
+    Task Manager 管理
+    """""""""""""""
+    def taskMgr_set(self):
+        taskMgr.add(self.sceneMgr.update_scene, "update_scene")
+        taskMgr.add(self.update, 'updateWorld')
+        taskMgr.add(self.AIUpdate, 'AIUpdate')
 
     """""""""""""""
     场景部分
@@ -373,9 +384,7 @@ class BulletEngine(DirectObject):
         self.init_bullet_engine()
         self.init_AI()
         self.init_input()
-        # init all enemies
-        self.__enemy_list = dict()
-        self.__enemy_NP = dict()
+        self.init_roles()
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
 
@@ -411,13 +420,32 @@ class BulletEngine(DirectObject):
         self.add_actor_collide(self.actor_hunter, 3.5, 15)
         self.actorNP.setPos(-30, 30, 0)
 
-        # 怪物1~10
-        for id in range(10):
-            if id % 2 == 1:
-                self.add_enemy(id,Point3(id*20,0,0),WIFE_ZOMBIE_PATH,WIFE_ZOMBIE_ACTION_PATH)
-                self.setAI(self.__enemy_NP[id])
-            else:
-                self.add_enemy(id,Point3(0,id*20,0), WIFE_ZOMBIE_PATH, WIFE_ZOMBIE_ACTION_PATH)
+        # 怪物1~6
+        self.__amount = 6
+        # 0
+        id = 0
+        self.add_enemy(id,Point3(id*20,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 1
+        id = 1
+        self.add_enemy(id,Point3(id*20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 2
+        id = 2
+        self.add_enemy(id,Point3(id*20,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 3
+        id = 3
+        self.add_enemy(id,Point3(id*20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 4
+        id = 4
+        self.add_enemy(id,Point3(id*20,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 5
+        id = 5
+        self.add_enemy(id,Point3(id*20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
 
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
@@ -449,14 +477,15 @@ class BulletEngine(DirectObject):
 
         # create role
         self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(self.actor_hunter))
-        # self.actorRole2 = self.roleMgr.create_role("EnemyRole", self.sceneMgr.get_resId(self.actor_wife))
 
         print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
         print self.sceneMgr.get_ActorMgr().get_eventEffertRecord()
 
-        taskMgr.add(self.sceneMgr.update_scene, "update_scene")
-        taskMgr.add(self.update, 'updateWorld')
+        # taskMgr.add(self.sceneMgr.update_scene, "update_scene")
+        # taskMgr.add(self.update, 'updateWorld')
+        self.taskMgr_set()
 
+    # 第二个室外场景
     def outer_scene(self):
         # init
         self.init_shader()
@@ -465,6 +494,7 @@ class BulletEngine(DirectObject):
         self.init_bullet_engine()
         self.init_AI()
         self.init_input()
+        self.init_roles()
 
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
@@ -502,30 +532,41 @@ class BulletEngine(DirectObject):
         self.actorNP.setPos(-30, 30, 0)
 
         # 怪物
-        self.actor_wife = self.sceneMgr.add_actor_scene(WIFE_ZOMBIE_PATH,
-                                                        WIFE_ZOMBIE_ACTION_PATH,
-                                                        self.base.render)
-        self.actor_wife.setPos(0, 0, -10)
-        self.actor_wife.setScale(1)
-        self.actor_wife.setTwoSided(True)
-        self.actor_wife.setH(-90)
-        self.wife_character_NP = self.add_model_collide(self.actor_wife, 4, 18, 'WIFI')
-        print "怪物现在的位置：", self.actor_wife.getPos(self.base.render)
-        print "怪物现在的朝向：", self.actor_wife.getHpr(self.base.render)
-        # self.wifi_AI_wander()
-        self.setAI()
+        # 怪物1~6
+        self.__amount = 6
+        # 0
+        id = 0
+        self.add_enemy(id,Point3(id*20,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 1
+        id = 1
+        self.add_enemy(id,Point3(id*20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 2
+        id = 2
+        self.add_enemy(id,Point3(id*20,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 3
+        id = 3
+        self.add_enemy(id,Point3(id*20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 4
+        id = 4
+        self.add_enemy(id,Point3(id*20,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
+        # 5
+        id = 5
+        self.add_enemy(id,Point3(id*20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.setAI(id,self.__enemy_NP[id])
 
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
         actorId1 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_hunter)
-        actorId2 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_wife)
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId1, "run")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId1, "run_back")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
         self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_run", actorId2, "walk")
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", actorId2, "attack")
 
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
@@ -545,14 +586,10 @@ class BulletEngine(DirectObject):
 
         # create role
         self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(self.actor_hunter))
-        self.actorRole2 = self.roleMgr.create_role("EnemyRole", self.sceneMgr.get_resId(self.actor_wife))
 
-        print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
-        print self.sceneMgr.get_ActorMgr().get_eventEffertRecord()
+        self.taskMgr_set()
 
-        taskMgr.add(self.sceneMgr.update_scene, "update_scene")
-        taskMgr.add(self.update, 'updateWorld')
-
+    # 教堂室内场景
     def room_scene(self):
         # init
         self.init_shader()
@@ -663,18 +700,26 @@ class BulletEngine(DirectObject):
         taskMgr.add(self.update, 'updateWorld')
         taskMgr.add(self.AIUpdate, 'AIUpdate')
 
+    """""""""""""""
+    人物管理
+    """""""""""""""
     # 增加敌人
-    def add_enemy(self,id,pos,model_path,action_path):
-        # # self.wifi_AI_wander()
-        # self.setAI()
+    def add_enemy(self,id,pos,scale,model_path,action_path):
         self.__enemy_list[id] = self.sceneMgr.add_actor_scene(model_path,
                                                               action_path,
                                                               self.base.render)
-        self.__enemy_list[id].setScale(1)
-        self.__enemy_list[id].setH(-90)
+        self.__enemy_list[id].setScale(scale)
         self.__enemy_list[id].setZ(-10)
         self.__enemy_NP[id] = self.add_model_collide(self.__enemy_list[id],pos,4,18,id)
         self.__enemy_NP[id].setZ(10)
+
+        # 增加人物 role 到角色管理器
+        self.__role_dict[id] = self.roleMgr.create_role(str(id), self.sceneMgr.get_resId(self.__enemy_list[id]))
+
+    def init_roles(self):
+        self.__enemy_list = dict()
+        self.__enemy_NP = dict()
+        self.__role_dict = dict()
 
 # game = BulletEngine()
 # game.run()

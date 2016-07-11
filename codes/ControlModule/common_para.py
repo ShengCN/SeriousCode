@@ -22,7 +22,18 @@ WIFE_ZOMBIE_ACTION_PATH = {
     "walk" : modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Walk.egg",
     "attack": modelRootPath+"/Material/ModelEGGS/WifeZombie/WifeZombie_Attack2.egg"
 }
+
 HOOK_ZOMBIE = modelRootPath + "/Material/ModelEGGS/HookZombie/HookZombie_Pose.egg"
+HOOK_ZOMBIE_ACTION_PATH = {
+    "walk" : modelRootPath+"/Material/ModelEGGS/HookZombie/HookZombie_Walk_v2.egg",
+    "attack": modelRootPath+"/Material/ModelEGGS/HookZombie/HookZombie_Defence1.egg"
+}
+
+ZOMBIE = modelRootPath + "/Material/ModelEGGS/Zombie/Zombie_Pose.egg"
+ZOMBIE_ACTION_PATH = {
+    "walk" : modelRootPath+"/Material/ModelEGGS/Zombie/Zombie_Walk.egg",
+    "attack": modelRootPath+"/Material/ModelEGGS/Zombie/Zombie_Defence.egg"
+}
 
 """""""""""""""
 NPC模型
@@ -39,7 +50,7 @@ VILLAGE = modelRootPath + "/Material/ModelEGGS/Village/village.egg"
 """""""""""""""
 OUTER场景
 """""""""""""""
-OUTER = modelRootPath + "/Material/Outer_v2.egg"
+OUTER = modelRootPath + "/Material/ModelEGGS/Outer/Outer_v2.egg"
 
 # TERRAIN_H = modelRootPath + "/Material/Terrain/ground.jpg"
 # TERRAIN_Map = modelRootPath + "/Material/Terrain/ground.jpg"
