@@ -29,6 +29,7 @@ class Archives(object):
 
         self.__loadSceneArchive=dict()#需要加载的场景存档
         self.__loadRoleArchive=dict()#需要加载的角色存档
+        self.__loadPath=""#需要加载的剧情路径
         # self.__scene=SceneManager()
         # self.save_archive(self.__scene.export_sceneArcPkg())
         self.read_from_file()
@@ -46,22 +47,23 @@ class Archives(object):
             self.__showArchives[i]["id"]=self.__archives[i]["id"]
             self.__showArchives[i]["name"] = self.__archives[i]["name"]
             self.__showArchives[i]["time"] = self.__archives[i]["time"]
+            self.__showArchives[i]["progress"] = self.__archives[i]["progress"]
 
         return self.__showArchives
 
     #存档
-    def save_archive(self,sceneArchive,roleArchive,id,archiveName):
+    def save_archive(self,sceneArchive,roleArchive,id,path):
         #新存档
         if id==-1 :
             id = len(self.__archives)+1
-            self.new_archive(sceneArchive,roleArchive,id,archiveName)
+            self.new_archive(sceneArchive,roleArchive,id,path)
             self.__archives.append(self.__archive)
             return True
         #覆盖之前的存档
         else:
             for i in range(len(self.__archives)):
                 if (self.__archives[i]["id"] == id):
-                    self.new_archive(sceneArchive,roleArchive,id,archiveName)
+                    self.new_archive(sceneArchive,roleArchive,id,path)
                     self.__archives[i]=self.__archive
                     return True
         return False
@@ -69,7 +71,7 @@ class Archives(object):
         # self.write_to_file()
 
     #新建存档
-    def new_archive(self,sceneArchive,roleArchive,id,archiveName):
+    def new_archive(self,sceneArchive,roleArchive,id,path):
         #场景类存档
         self.__sceneArchive=dict()
         self.__roleArchive = dict()
@@ -81,7 +83,10 @@ class Archives(object):
         self.__archive = dict()
         self.__archive["id"] = id
         self.__archive["time"] = time.strftime('%Y/%m/%d %H:%M', time.localtime(time.time()))
-        self.__archive["name"] = archiveName
+        self.__archive["name"] = "Archive" + str(id)
+        #path/10
+        self.__archive["progress"]=str(path.len()*100/10)+"%"
+        self.__archive["path"] = path
         self.__archive["content"] = dict()
         self.__archive["content"]["scene"] = self.__sceneArchive
         self.__archive["content"]["role"] = self.__roleArchive
@@ -133,6 +138,7 @@ class Archives(object):
             self.init_archive()
             self.__loadSceneArchive = self.__initArchives["content"]["scene"]
             self.__loadRoleArchive = self.__initArchives["content"]["role"]
+            self.__loadPath = self.__initArchives["path"]
 
         else:
             for i in range(len(self.__archives)):
@@ -140,13 +146,14 @@ class Archives(object):
                     flag=True
                     self.__loadSceneArchive=self.__archives[i]["content"]["scene"]
                     self.__loadRoleArchive = self.__archives[i]["content"]["role"]
+                    self.__loadPath = self.__initArchives["path"]
                     break
 
         if flag==False:
             return False
         else:
             self.read_archive()
-            return [self.__selectedSceneArchive,self.__selectedRoleArchive]
+            return [self.__selectedSceneArchive,self.__selectedRoleArchive,self.__loadPath]
 
     #读取档案，加载游戏
     def read_archive(self):

@@ -6,6 +6,7 @@
 # Last Updated: 2016-06-28
 #
 # This tutorial shows resource module interface,
+
 from load_plot import LoadPlot
 from media_player import MediaPlayer
 from sound import MySound
@@ -23,6 +24,8 @@ class ResourcesManager(object):
         self.__media=MediaPlayer()
 
         self.__archive=Archives()
+
+        self.__path=""
 
         self.__id=1
 
@@ -107,12 +110,13 @@ class ResourcesManager(object):
         self.__dialogueFile.destroy_prompt()
 
     #设置剧情树路径
-    def set_path(self,path):
-        self.__dialogueFile.set_path(path)
+    def set_path(self):
+        self.__dialogueFile.set_path(self.__path)
 
     # 获取剧情树路径
     def get_path(self):
-        return self.get_path()
+        self.__path=self.__dialogueFile.get_path()
+        return self.__path
 
     """""""""""
     游戏存档读档函数
@@ -126,8 +130,8 @@ class ResourcesManager(object):
     #sceneArchive:场景存档
     #roleArchive:角色存档
     #id：档id，唯一标识，-1代表新的存档，0代表初始存档（开始新的游戏），>=1代表已经存在的存档
-    def save_archives(self,sceneArchive,roleArchive,id,archiveName):
-        if self.__archive.save_archive(sceneArchive,roleArchive,id,archiveName):
+    def save_archives(self,sceneArchive,roleArchive,id):
+        if self.__archive.save_archive(sceneArchive,roleArchive,id,self.__path):
             print "存档成功"
         else:
             print "存档失败"
@@ -135,11 +139,12 @@ class ResourcesManager(object):
     #读档
     #id：档id，唯一标识，-1代表新的存档，0代表初始存档（开始新的游戏），>=1代表已经存在的存档
     def select_archives(self,id):
-        if self.__archive.select_archive(id)!=False:
-            print "读档成功"
-            return self.__archive.select_archive(id)
-        else:
+        if self.__archive.select_archive(id)==False:
             print "读档失败"
+        else:
+            print "读档成功"
+            self.__path=self.__archive.select_archive(id)[2]
+            return [self.__archive.select_archive(id)[0],self.__archive.select_archive(id)[1]]
 
     #结束游戏,将存档内容写进文件
     def write_to_file(self):
