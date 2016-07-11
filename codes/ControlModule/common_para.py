@@ -20,7 +20,7 @@ HUNTER_ACTION_PATH = {
 WIFE_ZOMBIE_PATH = modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Stand.egg"
 WIFE_ZOMBIE_ACTION_PATH = {
     "walk" : modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Walk.egg",
-    "attack": modelRootPath+"/Material/ModelEGGS/WifeZombie/WifeZombie_Attack2.egg"
+    "attack": modelRootPath+"/Material/ModelEGGS/WifeZombie/WifeZombie_Attack3.egg"
 }
 
 HOOK_ZOMBIE = modelRootPath + "/Material/ModelEGGS/HookZombie/HookZombie_Pose.egg"
@@ -41,6 +41,11 @@ NPC模型
 GIRL = modelRootPath + "/Material/ModelEGGS/GIRL_Pose.egg"
 NUNV = modelRootPath + "/Material/ModelEGGS/NUNV/NUNV_Pose.egg"
 STEALER = modelRootPath + "/Material/ModelEGGS/Stealer"
+
+"""""""""""""""
+HOME场景
+"""""""""""""""
+HOME = modelRootPath + "/Material/ModelEGGS/Home/home.egg"
 
 """""""""""""""
 VILLAGE场景
@@ -78,7 +83,7 @@ JUMP_HEIGHT = 1.0
 JUMP_SPEED = 10.0
 BULLET_SPEED = 10000
 BULLET_SIZE = 3.0
-DANGER_LENGTH = 30
+DANGER_LENGTH = 100
 
 """""""""""""""
 AI 参数
