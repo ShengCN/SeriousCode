@@ -64,6 +64,8 @@ class ActorManager(ResManager):
         self.__actorMoveSpeed = 0
         self.__actorRotateSpeed = 0
 
+        self.__storyLine = 0
+
         self.__roleMgr = None
 
         self.__clock = None
@@ -77,6 +79,7 @@ class ActorManager(ResManager):
         self.__chestCanOpen = None
 
         self.isPlayerMoving = False
+        self.__isTalking = False
 
         self.__effertSwitch = {
             ACTOR_MOVE_FORWARD  : False,
@@ -593,6 +596,10 @@ class ActorManager(ResManager):
 
         return self.__roleMgr
 
+    def bind_ResourcesManager(self, resMgr):
+
+        self.__resMgr = resMgr
+
     def bind_CameraController(self, camCtrlr):
 
         self.__camCtrlr = camCtrlr
@@ -853,31 +860,94 @@ class ActorManager(ResManager):
         if self.__NPCCanTalkWith is not None:
 
 
+            NPCId = self.get_actorId(self.__NPCCanTalkWith)
 
-            return
+            NPCRole = self.__roleMgr.get_role_by_model(NPCId)
+
+            NPCName = NPCRole.get_attr_value("characterName")
+
+            if NPCName == "nun":
+
+                if (self.__storyLine == 1 or self.__storyLine == 4) and self.__isTalking is True:
+
+                    self.__isTalking = self.__resMgr.dialog_next()
+
+                    self.__shouldDestroyPrompt = True
+
+                if self.__storyLine == 0 or self.__storyLine ==3:
+
+                    self.__storyLine += 1
+
+                    self.__resMgr.show_dialog(self.__storyLine)
+
+                    self.__isTalking = True
+
+            elif NPCName == "girl":
+
+                if self.__storyLine == 2 and self.__isTalking is True:
+
+                    self.__isTalking = self.__resMgr.dialog_next()
+
+                if self.__storyLine == 1:
+
+                    self.__storyLine += 1
+
+                    self.__resMgr.show_dialog(self.__storyLine)
+
+                    self.__isTalking = True
+
+            elif NPCName == "villager":
+
+                if self.__storyLine == 3 and self.__isTalking is True:
+
+                    self.__isTalking = self.__resMgr.dialog_next()
+
+                if self.__storyLine == 2:
+
+                    self.__storyLine += 1
+
+                    self.__resMgr.show_dialog(self.__storyLine)
+
+                    self.__isTalking = True
+
+            elif NPCName == "stealer":
+
+                if self.__storyLine == 7 and self.__isTalking is True:
+
+                    self.__isTalking = self.__resMgr.dialog_next()
+
+                if self.__storyLine == 6:
+
+                    self.__storyLine += 1
+
+                    self.__resMgr.show_dialog(self.__storyLine)
+
+                    self.__isTalking = True
 
         if self.__chestCanOpen is not None:
 
             self.__shouldDestroyPrompt = False
 
-            self.__chestCanOpen.play("open")
-
             chestId = self.get_actorId(self.__chestCanOpen)
 
             chestRole = self.__roleMgr.get_role_by_model(chestId)
 
-            money = random.randint(40, 60)
+            if chestRole.get_attr_value("opened") is False:
 
-            self.__resMgr.destroy_prompt()
-            self.__resMgr.show_prompt_box("获得" + str(money) + "金币")
+                self.__chestCanOpen.play("open")
 
-            self.__roleMgr.obtain_money(money)
+                money = random.randint(40, 60)
 
-            self.__shouldDestroyPrompt = False
+                self.__resMgr.destroy_prompt()
+                self.__resMgr.show_prompt_box("获得" + str(money) + "金币")
 
-            print self.__roleMgr.get_role("PlayerRole").get_attr_value("money")
+                self.__roleMgr.obtain_money(money)
 
-            chestRole.set_attr_value(key="opened", value=True)
+                self.__shouldDestroyPrompt = False
+
+                print self.__roleMgr.get_role("PlayerRole").get_attr_value("money")
+
+                chestRole.set_attr_value(key="opened", value=True)
 
     # 监测玩家角色可触碰区域内的其他角色, 监测到的不同事件具有不同优先级
     # 优先级1：发现Enemy

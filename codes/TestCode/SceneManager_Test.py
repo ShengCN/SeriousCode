@@ -277,7 +277,8 @@ class GameWorld_Test(ShowBase):
         sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", sceneMgr.get_resId(normalZombie), "walk")
         sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", sceneMgr.get_resId(normalZombie), "attack")
         npc1 = roleMgr.create_role(roleType = "NPCRole",
-                                   modelId = sceneMgr.get_resId(_stealer))
+                                   modelId = sceneMgr.get_resId(_stealer),
+                                   characterName = "nun")
         print roleMgr.get_role_face_hpr(roleMgr.get_roleId(npc1))
         # npc1.print_all_attr()
 
@@ -291,6 +292,8 @@ class GameWorld_Test(ShowBase):
         # self.cam.reparentTo(self.render)
 
         self.taskMgr.add(sceneMgr.update_scene, "update_scene")
+
+        #camCtrlr.fix_on((100, 100, 100), (0, 0, 0), (0, 0, 0))
 
         self.accept("l", self.__save_archive, [sceneMgr, roleMgr])
 
