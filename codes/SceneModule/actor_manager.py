@@ -787,15 +787,21 @@ class ActorManager(ResManager):
         v = enemy.getPos(player)
         v.setZ(0)
 
+        print "v.length : ", v.length(), " attackRange : ", enemyRole.get_attr_value("attackRange")
+        print "currState : ", enemyRole.get_attr_value("currState")
         if v.length() > enemyRole.get_attr_value("attackRange"):
 
             if enemyRole.get_attr_value("currState") == "attacking":
 
-                messenger.send("enemy_attack_" + enemyId +"-up")
-
                 enemyRole.set_attr_value("currState", "closing")
 
-                messenger.send("enemy_walk_" + enemyId)
+                messenger.send("enemy_attack_" + enemyId + "-up")
+                #messenger.send("enemy_walk_" + enemyId)
+
+            # elif enemyRole.get_attr_value("currState") == "wandering":
+            #
+            #     #messenger.send("enemy_attack_" + enemyId + "-up")
+            #     messenger.send("enemy_walk_" + enemyId)
 
             enemyRunSpeed = enemyRole.get_attr_value("runSpeed") * 1.5
 
@@ -849,6 +855,7 @@ class ActorManager(ResManager):
                     remainCd = max(remainCd - self.__clock.getDt(), 0)
 
                     if remainCd == 0:
+
                         remainCd = cd
 
                     enemyRole.set_attr_value("remainCd", remainCd)
@@ -857,8 +864,9 @@ class ActorManager(ResManager):
 
     def __talk_or_open(self):
 
-        if self.__NPCCanTalkWith is not None:
+        playerRole = self.__roleMgr.get_role("PlayerRole")
 
+        if self.__NPCCanTalkWith is not None:
 
             NPCId = self.get_actorId(self.__NPCCanTalkWith)
 
@@ -872,11 +880,11 @@ class ActorManager(ResManager):
 
                     self.__isTalking = self.__resMgr.dialog_next()
 
-                    self.__shouldDestroyPrompt = True
-
-                if self.__storyLine == 0 or self.__storyLine ==3:
+                if self.__storyLine == 0 or self.__storyLine == 3:
 
                     self.__storyLine += 1
+
+                    playerRole.set_attr_value(key = "storyLine", value = self.__storyLine)
 
                     self.__resMgr.show_dialog(self.__storyLine)
 
@@ -884,27 +892,15 @@ class ActorManager(ResManager):
 
             elif NPCName == "girl":
 
-                if self.__storyLine == 2 and self.__isTalking is True:
+                if (self.__storyLine == 2 or self.__storyLine == 5) and self.__isTalking is True:
 
                     self.__isTalking = self.__resMgr.dialog_next()
 
-                if self.__storyLine == 1:
+                if self.__storyLine == 1 or self.__storyLine == 4:
 
                     self.__storyLine += 1
 
-                    self.__resMgr.show_dialog(self.__storyLine)
-
-                    self.__isTalking = True
-
-            elif NPCName == "villager":
-
-                if self.__storyLine == 3 and self.__isTalking is True:
-
-                    self.__isTalking = self.__resMgr.dialog_next()
-
-                if self.__storyLine == 2:
-
-                    self.__storyLine += 1
+                    playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
 
                     self.__resMgr.show_dialog(self.__storyLine)
 
@@ -912,17 +908,51 @@ class ActorManager(ResManager):
 
             elif NPCName == "stealer":
 
-                if self.__storyLine == 7 and self.__isTalking is True:
+                if self.__isTalking is True:
 
                     self.__isTalking = self.__resMgr.dialog_next()
 
-                if self.__storyLine == 6:
+                else:
 
-                    self.__storyLine += 1
+                    self.__storyLine = 7
 
-                    self.__resMgr.show_dialog(self.__storyLine)
+                    self.__resMgr.show_dialog(7)
 
                     self.__isTalking = True
+
+            return
+
+        if self.__storyLine == 2 or self.__isTalking is True:
+
+            if self.__storyLine == 3 and self.__isTalking is True:
+
+                self.__isTalking = self.__resMgr.dialog_next()
+
+            if self.__storyLine == 2:
+
+                self.__storyLine += 1
+
+                playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
+
+                self.__resMgr.show_dialog(self.__storyLine)
+
+                self.__isTalking = True
+
+        if self.__storyLine == 5 or self.__isTalking is True:
+
+            if self.__storyLine == 6 and self.__isTalking is True:
+
+                self.__isTalking = self.__resMgr.dialog_next()
+
+            if self.__storyLine == 5:
+
+                self.__storyLine += 1
+
+                playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
+
+                self.__resMgr.show_dialog(self.__storyLine)
+
+                self.__isTalking = True
 
         if self.__chestCanOpen is not None:
 

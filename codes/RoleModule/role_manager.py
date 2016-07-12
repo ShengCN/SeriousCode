@@ -456,7 +456,7 @@ class RoleManager(object):
 
             player.set_attr_value("weapon3", 1)
 
-    # 更换武器
+    # 更换武器, weapon为武器编号1、2或3
     def change_weapon(self, weapon):
 
         player = self.get_role("PlayerRole")
