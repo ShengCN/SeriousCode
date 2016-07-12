@@ -213,9 +213,10 @@ class BulletEngine(DirectObject):
         print '玩家位置z %s' % z
         print '玩家方向hpr %s' % hpr
         print '胶囊包围体r %s' % self.actor_character_Node.getShape().getRadius()
-        cosOmg = 10*math.cos(omega*math.pi/180)
-        sinOmg = 10*math.sin(omega*math.pi/180)
-        bulletNP = self.create_box_rigid('Bullet',BULLET_SIZE,Point3(x+cosOmg,y+sinOmg,10),True)
+        cosOmg = 18*math.cos(omega*math.pi/180)
+        sinOmg = 18*math.sin(omega*math.pi/180)
+        bulletNP = self.create_bullet('Bullet', BULLET_SIZE, Point3(x + cosOmg, y + sinOmg, 15), True)
+        bulletNP.setHpr(self.actorNP,Vec3(0,0,0))
         bulletNP.node().setLinearVelocity(v)
         self.world.attachRigidBody(bulletNP.node())
         bulletNP.setCollideMask(BitMask32.allOff())
@@ -251,15 +252,20 @@ class BulletEngine(DirectObject):
         # 玩家
         self.crouching = False
         self.omega = 0.0
+        # 子弹
+        self.bullet_model = loader.loadModel(BULLET_PATH)
+        self.bullet_model.setScale(0.5)
 
-    def create_box_rigid(self,name,size,pos,isCCD):
+    def create_bullet(self, name, size, pos, isCCD):
         shape = BulletBoxShape(size)
         body = BulletRigidBodyNode(name)
         bodyNP = self.worldNP.attachNewNode(body)
         bodyNP.node().addShape(shape)
-        bodyNP.node().setMass(2.0)
+        bodyNP.node().setMass(BULLET_MASS)
         bodyNP.setPos(pos)
         bodyNP.setCollideMask(BitMask32.allOn())
+        self.bullet_model.reparentTo(bodyNP)
+        self.bullet_model.setHpr(bodyNP,Vec3(-90,0,-90))
 
         if isCCD:
             bodyNP.node().setCcdMotionThreshold(1e-7);
@@ -298,7 +304,7 @@ class BulletEngine(DirectObject):
         actor_np.setPos(pos)
         actor_np.node().addShape(actor_shape)
         actor_np.setCollideMask(BitMask32.allOn())
-        actor_np.node().setMass(10.0)
+        actor_np.node().setMass(300.0)
         actor.reparentTo(actor_np)
         #加入物理引擎
         self.world.attachRigidBody(actor_np.node())
@@ -412,10 +418,6 @@ class BulletEngine(DirectObject):
         self.add_plane_collide(Point3(-300, 0, 0), Vec3(1, 0, 0))  ##测试碰撞平面(北)
         self.add_plane_collide(Point3(330, 0, 0), Vec3(-1, 0, 0))  ##测试碰撞平面(南)
 
-        # 房子包围体
-        house1NP = self.create_box_rigid('house1', Vec3(5, 5, 5), Vec3(0, 0, 5), False)
-        self.world.attachRigidBody(house1NP.node())
-        house1NP.node().setDeactivationEnabled(False)
 
         # 猎人
         self.actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
@@ -485,9 +487,7 @@ class BulletEngine(DirectObject):
         self.add_plane_collide(Point3(330, 0, 0), Vec3(-1, 0, 0))  ##测试碰撞平面(南)
 
         # 房子包围体
-        house1NP = self.create_box_rigid('house1', Vec3(5, 5, 5), Vec3(0, 0, 5), False)
-        self.world.attachRigidBody(house1NP.node())
-        house1NP.node().setDeactivationEnabled(False)
+
 
         # 猎人
         self.actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
@@ -535,8 +535,8 @@ class BulletEngine(DirectObject):
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
         self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
-        # self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_run", actorId2, "walk")
-        # self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", actorId2, "attack")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", actorId2, "walk")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", actorId2, "attack")
 
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
@@ -574,7 +574,9 @@ class BulletEngine(DirectObject):
         self.init_AI()
         self.init_input()
         self.init_roles()
-
+        # 背景为黑色
+        self.base.setBackgroundColor(0, 0, 0, 1)
+        # self.base.disableMouse()
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
 
@@ -636,7 +638,7 @@ class BulletEngine(DirectObject):
         id = 5
         self.add_enemy(id,Point3(360,0,0),1.0,WIFE_ZOMBIE_PATH,WIFE_ZOMBIE_ACTION_PATH)
         self.setAI(id,self.__enemy_NP[id])
-        self.__enemy_list[id].setH(-90)
+        # self.__enemy_list[id].setH(-90)
 
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
@@ -650,8 +652,7 @@ class BulletEngine(DirectObject):
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
         camCtrlr = CameraController()
-        camCtrlr.bind_camera(self.base.cam)
-        camCtrlr.bind_ToggleHost(self)
+        camCtrlr.bind_ShowBase(self.base)
         camCtrlr.set_clock(globalClock)
         camCtrlr.focus_on(self.actor_hunter, 100)
         camCtrlr.set_rotateSpeed(10)
@@ -699,9 +700,6 @@ class BulletEngine(DirectObject):
         self.add_plane_collide(Point3(330, 0, 0), Vec3(-1, 0, 0))  ##测试碰撞平面(南)
 
         # 房子包围体
-        house1NP = self.create_box_rigid('house1', Vec3(5, 5, 5), Vec3(0, 0, 5), False)
-        self.world.attachRigidBody(house1NP.node())
-        house1NP.node().setDeactivationEnabled(False)
 
         # 猎人
         self.actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
@@ -722,8 +720,7 @@ class BulletEngine(DirectObject):
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
         self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_run", actorId2, "walk")
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", actorId2, "attack")
+
 
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
@@ -778,7 +775,11 @@ class BulletEngine(DirectObject):
         self.__enemy_NP[id] = self.add_model_collide(self.__enemy_list[id],pos,4,18,id)
         self.__enemy_NP[id].setZ(14)
         # 增加人物 role 到角色管理器
-        self.__role_dict[id] = self.roleMgr.create_role(str(id), self.sceneMgr.get_resId(self.__enemy_list[id]))
+        id = self.sceneMgr.get_resId(self.__enemy_list[id])
+        self.__role_dict[id] = self.roleMgr.create_role("EnemyRole", id)
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", id, "walk")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", id, "attack")
+
 
     def init_roles(self):
         self.__enemy_list = dict()
