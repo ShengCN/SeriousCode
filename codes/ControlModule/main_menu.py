@@ -51,8 +51,8 @@ class MainMenu(ShowBase):
             # {"name":"Archive4","progress":"80%","time":"2016/07/05 09:52","id":"4"},
             # {"name":"Archive5","progress":"90%","time":"2016/07/05 09:53","id":"5"}
         ]
-        self.accept("a",self.trade_menu)
-        self.accept("b",self.archive_menu,[self,False,archiveList])
+        self.accept("z",self.trade_menu)
+        self.accept("x",self.archive_menu,[self,False,archiveList])
         self.accept("c",self.main_game)
 
     """""""""""""""
@@ -840,8 +840,8 @@ class MainMenu(ShowBase):
     """""""""""""""
     def game_window(self):
         self.accept("escape",self.setting_menu)
-        self.__game.room_scene()
-
+        self.__game.outer_scene()
+        self.main_game()
 
 
 

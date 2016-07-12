@@ -4,14 +4,14 @@ modelRootPath = "/d/SeriousPresent"
 """""""""""""""
 主角模型
 """""""""""""""
-HUNTER_PATH = modelRootPath + "/Material/ModelEGGS/Hunter/hunter_Alarm1.egg"
+HUNTER_PATH = modelRootPath + "/Material/ModelEGGS/Hunter/hunter_AlarmPos1.egg"
 HUNTER_ACTION_PATH = {
-    "run" : modelRootPath + "/Material/ModelEGGS/Hunter/Run.egg",
-    "run_back" : modelRootPath + "/Material/ModelEGGS/Hunter/RunBack.egg",
-    "rda" : modelRootPath + "/Material/ModelEGGS/Hunter/rightDefenceActionUpdate.egg",
-    "lda" : modelRootPath + "/Material/ModelEGGS/Hunter/leftDefenceActionUpdate",
-    "bda" : modelRootPath + "/Material/ModelEGGS/Hunter/backDefenceActionUpdate.egg",
-    "attack":modelRootPath+ "/Material/ModelEGGS/Hunter/Attack.egg"
+    "run" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_RunWithGun1.egg",
+    "run_back" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_RunBackWithGun1.egg",
+    "rda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WithGunRightDefence.egg",
+    "lda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WithGunLeftDefenceUpdate.egg",
+    "attack":modelRootPath+ "/Material/ModelEGGS/Hunter/hunter_Attack1.egg",
+    "stand":modelRootPath+"/Material/ModelEGGS/Hunter/hunter_AlarmPos1.egg"
 }
 
 """""""""""""""
@@ -20,9 +20,20 @@ HUNTER_ACTION_PATH = {
 WIFE_ZOMBIE_PATH = modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Stand.egg"
 WIFE_ZOMBIE_ACTION_PATH = {
     "walk" : modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Walk.egg",
-    "attack": modelRootPath+"/Material/ModelEGGS/WifeZombie/WifeZombie_Attack2.egg"
+    "attack": modelRootPath+"/Material/ModelEGGS/WifeZombie/WifeZombie_Attack3.egg"
 }
+
 HOOK_ZOMBIE = modelRootPath + "/Material/ModelEGGS/HookZombie/HookZombie_Pose.egg"
+HOOK_ZOMBIE_ACTION_PATH = {
+    "walk" : modelRootPath+"/Material/ModelEGGS/HookZombie/HookZombie_Walk_v2.egg",
+    "attack": modelRootPath+"/Material/ModelEGGS/HookZombie/HookZombie_Defence1.egg"
+}
+
+ZOMBIE = modelRootPath + "/Material/ModelEGGS/Zombie/Zombie_Pose.egg"
+ZOMBIE_ACTION_PATH = {
+    "walk" : modelRootPath+"/Material/ModelEGGS/Zombie/Zombie_Walk.egg",
+    "attack": modelRootPath+"/Material/ModelEGGS/Zombie/Zombie_Defence.egg"
+}
 
 """""""""""""""
 NPC模型
@@ -32,14 +43,19 @@ NUNV = modelRootPath + "/Material/ModelEGGS/NUNV/NUNV_Pose.egg"
 STEALER = modelRootPath + "/Material/ModelEGGS/Stealer"
 
 """""""""""""""
+HOME场景
+"""""""""""""""
+HOME = modelRootPath + "/Material/ModelEGGS/Home/home.egg"
+
+"""""""""""""""
 VILLAGE场景
 """""""""""""""
-VILLAGE = modelRootPath + "/Material/village/village.egg"
+VILLAGE = modelRootPath + "/Material/ModelEGGS/Village/village.egg"
 
 """""""""""""""
 OUTER场景
 """""""""""""""
-OUTER = modelRootPath + "/Material/Outer_v2.egg"
+OUTER = modelRootPath + "/Material/ModelEGGS/Outer/Outer_v2.egg"
 
 # TERRAIN_H = modelRootPath + "/Material/Terrain/ground.jpg"
 # TERRAIN_Map = modelRootPath + "/Material/Terrain/ground.jpg"
@@ -67,7 +83,7 @@ JUMP_HEIGHT = 1.0
 JUMP_SPEED = 10.0
 BULLET_SPEED = 10000
 BULLET_SIZE = 3.0
-DANGER_LENGTH = 30
+DANGER_LENGTH = 100
 
 """""""""""""""
 AI 参数
