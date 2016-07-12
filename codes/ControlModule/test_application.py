@@ -18,5 +18,5 @@ class testApplication(ShowBase):
         self.village.task_update()
         self.accept("3",self.village.destroy)
 
-app = testApplication()
-app.run()
+# app = testApplication()
+# app.run()

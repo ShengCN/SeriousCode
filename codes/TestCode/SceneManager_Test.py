@@ -18,11 +18,9 @@ framebuffer-multisample 1
 multisamples 2
 framebuffer-stencil #t
 threading-model Cull/Draw
-fullscreen #f
+fullscreen #t
 interpolate-frames 1
 window-title Reborn : The Soul Of Devil
-# preload-textures 0
-# preload-simple-textures 1
 texture-compression 1
 allow-incomplete-render 1
 allow-async-bind 1
@@ -34,7 +32,6 @@ display-list-animation 1
 display-lists 1
 gl-finish #f
 loader-num-threads 4
-show-occlusion #t
 """
 
 loadPrcFileData("", config)

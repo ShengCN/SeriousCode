@@ -129,7 +129,7 @@ class ActorManager(ResManager):
 
         self.__effertMsgDiptcr = EffertMsgDispatcher()
 
-        self.__resMgr = ResourcesManager()
+        self.__resMgr = None
 
         self.__arcPkg = ArchivePackage(arcPkgName = "actor",
                                        itemsName = [
@@ -912,9 +912,13 @@ class ActorManager(ResManager):
 
                     self.__isTalking = self.__resMgr.dialog_next()
 
+                    if self.__isTalking is False:
+
+                        messenger.send("trade_menu")
+
                 else:
 
-                    self.__storyLine = 8
+                    #self.__storyLine = 8
 
                     self.__resMgr.show_dialog(8)
 
@@ -985,6 +989,7 @@ class ActorManager(ResManager):
 
                 self.__resMgr.destroy_prompt()
                 self.__resMgr.show_prompt_box("获得" + str(money) + "金币")
+                self.__resMgr.play_sound(8)
 
                 self.__roleMgr.obtain_money(money)
 

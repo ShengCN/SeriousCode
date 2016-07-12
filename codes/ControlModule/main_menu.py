@@ -6,7 +6,11 @@
 
 from direct.showbase.ShowBase import ShowBase
 from direct.gui.OnscreenImage import OnscreenImage
+
+from BulletEngineModule.serious_game_scene import SeriousGameScene
 from ResourcesModule.resources_manager import ResourcesManager
+from RoleModule.role_manager import RoleManager
+from SceneModule.scene_manager import SceneManager
 from keyboard_mouse_handler import *
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui.OnscreenText import OnscreenText
@@ -15,12 +19,12 @@ from direct.gui.DirectGui import *
 from panda3d.core import *
 from direct.task import Task
 from ControlModule.bullet_engine import BulletEngine
+from ControlModule.common_para import *
 
 class MainMenu(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
-        self.__game = BulletEngine(self)
-        self.__rm = ResourcesManager()
+        # self.__game = BulletEngine(self)
         self.__destroyMainGame = False
         self.__destroySetting = False
         self.__destroyTrade = False
@@ -28,6 +32,15 @@ class MainMenu(ShowBase):
 
         self.__weapon2=0
         self.__weapon3=0
+        self.init_Mgr()
+
+    def init_Mgr(self):
+        self.__rm = ResourcesManager()
+        self.roleMgr = RoleManager()
+        self.sceneMgr = SceneManager()
+        self.sceneMgr.bind_RoleManager(self.roleMgr)
+        self.sceneMgr.get_ActorMgr().bind_ResourcesManager(self.__rm)
+        self.roleMgr.bind_ResourcesManager(self.__rm)
 
     """""""""""""""
     所有界面（菜单、设置、游戏中）
@@ -88,6 +101,7 @@ class MainMenu(ShowBase):
             self.__setFullscreen(800,600,150,50,0)
 
         # 私有函数，进入about界面
+
     def __description(self):
         print '进入description'
         messenger.send("serious_description")
@@ -125,7 +139,9 @@ class MainMenu(ShowBase):
     def setting_menu(self):
         if self.__destroySetting==False:
             # 关闭游戏场景帧更新
-            self.__game.stop_update()
+            # self.__game.stop_update()
+            self.sceneMgr.get_ActorMgr().stop_all_itvls()
+            self.village.stop_update()
             # 设置界面背景图
             self.__background = OnscreenImage(image='../../resources/images/settings/setting_frame.png', pos=(0, 0, 0),
                                               scale=(1.0, 0, 0.7))
@@ -203,7 +219,9 @@ class MainMenu(ShowBase):
     # 设置界面，私有函数,继续游戏
     def __continue_game(self):
         self.setting_destroy()
-        self.__game.reset_update()
+        # self.__game.reset_update()
+        self.village.reset_update()
+        self.sceneMgr.get_ActorMgr().restart_all_itvls()
         self.__rm.play_sound(7)
 
     # 设置界面，私有函数,存档
@@ -230,7 +248,7 @@ class MainMenu(ShowBase):
             #初始化路径，数量
             self.__imagePath = "../../resources/images/trade/"
 
-            self.__imageDict = dict()
+            # self.__imageDict = dict()
             self.__imageDict["tf"] = self.__imagePath + "trade_frame.png"
             self.__imageDict["tfbg"] = self.__imagePath + "trade_frame_bg.png"
             self.__imageDict["purchase1"] = self.__imagePath + "btn_perchase_0.png"
@@ -244,9 +262,9 @@ class MainMenu(ShowBase):
             self.__tradeGun1Number = 0
             self.__tradeGun2Number = 0
             #物品单价
-            self.__medicineUnitPrice = 800
-            self.__gun1UnitPrice = 800
-            self.__gun2UnitPrice = 800
+            self.__medicineUnitPrice = 20
+            self.__gun1UnitPrice = 20
+            self.__gun2UnitPrice = 20
 
             #交易金钱
             self.__medicineTotalPrice = 0
@@ -467,9 +485,10 @@ class MainMenu(ShowBase):
         self.set_money(money-self.__purchaseMoney)
         self.set_medicine_number(medicineNumber+self.__purchaseMedicineNumber)
 
-        #传输数据给角色
+        # 传输数据给角色
         # 涉及role_manager
-        # self.__roleMgr.buy_attachment(self.__purchaseMoney,self.__purchaseMedicineNumber,self.__weapon2,self.__weapon3)
+        print "money:",self.__purchaseMoney,"medicine:",self.__purchaseMedicineNumber
+        self.roleMgr.buy_attachment(self.__purchaseMoney,self.__purchaseMedicineNumber,self.__weapon2,self.__weapon3)
 
     # #获取购买数量与花费金钱
     # def get_purchase(self):
@@ -557,7 +576,7 @@ class MainMenu(ShowBase):
             self.__gunFrame = OnscreenImage(image=self.__imageDict["gf"], pos=(-0.95, 0, 0.72), scale=(0.27, 0, 0.09))
             self.__gunFrame.setTransparency(TransparencyAttrib.MAlpha)
 
-            self.__gun = OnscreenImage(image=self.__imageDict["gun2"], pos=(-0.95, 0, 0.72), scale=(0.27, 0, 0.09))
+            self.__gun = OnscreenImage(image=self.__imageDict["gun1"], pos=(-0.95, 0, 0.72), scale=(0.27, 0, 0.09))
             self.__gun.setTransparency(TransparencyAttrib.MAlpha)
 
             #金钱
@@ -579,18 +598,18 @@ class MainMenu(ShowBase):
 
     #监听人物血量，金钱，药物的变化
     # 涉及role_manager
-    def change_data_task(self):
-        money=self.__roleMgr.get_player_money()
-        medicine=self.__roleMgr.get_player_medicine_num()
-        hp=self.__roleMgr.get_player_hp()
+    def change_data_task(self,Task):
+        money=self.roleMgr.get_player_money()
+        medicine=self.roleMgr.get_player_medicine_num()
+        hp=self.roleMgr.get_player_hp()
         self.set_money(money)
         self.set_medicine_number(medicine)
         self.set_blood(hp)
 
         #怪物
-        if self.__destroyMonsterHpBar==True:
-            monsterBlood=self.__roleMgr.get_monster_hp()
-            self.set_monster_blood(monsterBlood)
+        # if self.__destroyMonsterHpBar==True:
+        #     monsterBlood=self.roleMgr.get_monster_hp()
+        #     self.set_monster_blood(monsterBlood)
         return Task.cont
 
     #显示怪物血条
@@ -664,23 +683,27 @@ class MainMenu(ShowBase):
         self.__gun.setTransparency(TransparencyAttrib.MAlpha)
 
         # 涉及role_manager
-        # self.__roleMgr.change_weapon(1)
+        self.roleMgr.change_weapon(1)
 
     #换成枪支2
     def set_gun2(self):
-        self.__gun.setImage(self.__imageDict["gun2"])
-        self.__gun.setTransparency(TransparencyAttrib.MAlpha)
+        if self.__weapon2==1:
+            print self.__imageDict
 
-        # 涉及role_manager
-        # self.__roleMgr.change_weapon(2)
+            self.__gun.setImage(self.__imageDict["gun2"])
+            self.__gun.setTransparency(TransparencyAttrib.MAlpha)
+
+            # 涉及role_manager
+            self.roleMgr.change_weapon(2)
 
     #换成枪支3
     def set_gun3(self):
-        self.__gun.setImage(self.__imageDict["gun3"])
-        self.__gun.setTransparency(TransparencyAttrib.MAlpha)
+        if self.__weapon3 == 1:
+            self.__gun.setImage(self.__imageDict["gun3"])
+            self.__gun.setTransparency(TransparencyAttrib.MAlpha)
 
-        #涉及role_manager
-        # self.__roleMgr.change_weapon(3)
+            #涉及role_manager
+            self.roleMgr.change_weapon(3)
 
     #设置血量
     def set_blood(self, blood):
@@ -934,9 +957,34 @@ class MainMenu(ShowBase):
     """""""""""""""
     def game_window(self):
         self.accept("escape",self.setting_menu)
-        self.__game.room_scene()
-        self.main_game()
+        # self.__game.room_scene()
+        # self.main_game()
+        self.game_begin()
+        # self.main_game()
 
+    def game_begin(self):
+        self.__rm.play_media(self, 1)
+        self.accept("movie_over1",self.village_scene)
+        self.accept("trade_menu", self.trade_menu)
+        self.accept("1", self.set_gun1)
+        self.accept("2", self.set_gun2)
+        self.accept("3", self.set_gun3)
+
+    def village_scene(self):
+        self.village = SeriousGameScene(self,self.sceneMgr,self.roleMgr)
+        self.village.load_game_scene(VILLAGE,5)
+        # 声音
+        self.__rm.play_sound(1)
+
+        # 人物
+        self.village.add_player_role()
+        # self.village.add_enemy_role(1,Point3(100,0,0),1.6,WIFE_ZOMBIE_PATH,WIFE_ZOMBIE_ACTION_PATH)
+        # self.village.add_enemy_role(1, Point3(0, 100, 0), 1.6, WIFE_ZOMBIE_PATH, WIFE_ZOMBIE_ACTION_PATH)
+        # self.village.add_enemy_role(1, Point3(-100, 0, 0), 1.6, WIFE_ZOMBIE_PATH, WIFE_ZOMBIE_ACTION_PATH)
+        self.village.add_NPC_role()
+        self.main_game()
+        self.show_monster_hp()
+        self.village.task_update()
 
 
 

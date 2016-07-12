@@ -91,6 +91,7 @@ class BulletEngineMgr(DirectObject):
         self.__enemy_list = dict()
         self.__enemy_NP = dict()
         self.__role_dict = dict()
+        self.__NPC_NP = dict()
         self.init_AI()
 
     # 新增游戏主角
@@ -128,6 +129,56 @@ class BulletEngineMgr(DirectObject):
 
         self.sceneMgr.bind_CameraController(camCtrlr)
         self.sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
+
+    # 新增 NPC
+    def add_NPC_role(self):
+        # 修女
+        self.__NPC_NP[0] = self.sceneMgr.add_actor_scene(NUN,
+                                                         {},
+                                                          self.base.render)
+        self.__NPC_NP[0].setPos(0, 1, -10)  # 相对于胶囊体坐标
+        self.__NPC_NP[0].setScale(1.6)
+        self.__NPC_NP[0].setPos(-30, 30, 0)
+
+        # create role
+        self.actorRole = self.roleMgr.create_role("NPCRole", self.sceneMgr.get_resId(self.__NPC_NP[0]),characterName="nun")
+
+        # 小女孩
+        self.__NPC_NP[1] = self.sceneMgr.add_actor_scene(GIRL,
+                                                         {},
+                                                         self.base.render)
+
+        self.__NPC_NP[1].setPos(0, 1, -10)  # 相对于胶囊体坐标
+        self.__NPC_NP[1].setScale(1.6)
+        self.__NPC_NP[1].setPos(30, -30, 0)
+
+        # create role
+        self.actorRole = self.roleMgr.create_role("NPCRole", self.sceneMgr.get_resId(self.__NPC_NP[1]), characterName="girl")
+
+        # 小偷
+        self.__NPC_NP[2] = self.sceneMgr.add_actor_scene(STEALER,
+                                                         {},
+                                                         self.base.render)
+
+        self.__NPC_NP[2].setPos(0, 1, -10)  # 相对于胶囊体坐标
+        self.__NPC_NP[2].setScale(1.6)
+        self.__NPC_NP[2].setPos(30, -90, 0)
+
+        # create role
+        self.actorRole = self.roleMgr.create_role("NPCRole", self.sceneMgr.get_resId(self.__NPC_NP[2]),
+                                                  characterName="stealer")
+        self.sceneMgr.get_ActorMgr().add_toggle_for_player_to_interact("e", self.sceneMgr.get_resId(self.actor_hunter))
+
+        # 宝箱
+        self.__NPC_NP[3] = self.sceneMgr.add_actor_scene(CHEST,
+                                                         CHEST_OPEN,
+                                                         self.base.render)
+        self.__NPC_NP[3].setPos(0, 1, -10)  # 相对于胶囊体坐标
+        self.__NPC_NP[3].setScale(1.6)
+        self.__NPC_NP[3].setPos(100, 100, 0)
+        # create role
+        self.actorRole = self.roleMgr.create_role("AttachmentRole", self.sceneMgr.get_resId(self.__NPC_NP[3]))
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("chest_open", self.sceneMgr.get_resId(self.__NPC_NP[3]), "open")
 
     # 新增怪物
     def add_enemy_role(self,pos,scale,model_path,model_action_path):
@@ -264,8 +315,8 @@ class BulletEngineMgr(DirectObject):
         self.accept('space', self.doJump)
         self.accept('mouse1',self.doShoot)
         # self.accept('control', self.doCrouch)
-        self.accept('1',self.getCurrentPos)
-        self.accept('2',self.all_collide_result)
+        self.accept('5',self.getCurrentPos)
+        self.accept('6',self.all_collide_result)
 
         inputState.watchWithModifiers('back', 's')
         inputState.watchWithModifiers('forward', 'w')

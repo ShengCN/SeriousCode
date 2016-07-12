@@ -15,7 +15,7 @@ class PlayerRole(Role):
                       )
 
         self.append_role_attr(key = "hp", value = 100)
-        self.append_role_attr(key = "money", value = 0)
+        self.append_role_attr(key = "money", value = 100)
         self.append_role_attr(key = "attackForce1", value = 30)
         self.append_role_attr(key = "attackForce2", value = 45)
         self.append_role_attr(key = "attackForce3", value = 60)

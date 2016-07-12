@@ -8,6 +8,7 @@
 # This tutorial shows play meida interface
 
 from direct.showbase.DirectObject import DirectObject
+from direct.showbase.MessengerGlobal import messenger
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import *
 from direct.task import Task
@@ -32,9 +33,9 @@ class MediaPlayer():
     #render:ShowBase属性，render2d
     #id:视频ID
     def playMedia(self,base,id):
-        id=str(id)
+        self.id=str(id)
         # self.__mediaFileName[id] = fileName
-        success = self.__tex.read(self.__mediaFileName[id])
+        success = self.__tex.read(self.__mediaFileName[self.id])
         # Set up a fullscreen card to set the video texture on.
         cm = CardMaker("My Fullscreen Card")
         cm.setFrameFullscreenQuad()
@@ -48,7 +49,7 @@ class MediaPlayer():
         self.__card.reparentTo(base.render2d)
         self.__card.setTexture(self.__tex)
 
-        self.__sound = loader.loadSfx(self.__mediaFileName[id])
+        self.__sound = loader.loadSfx(self.__mediaFileName[self.id])
         # Synchronize the video to the sound.
         self.__tex.synchronizeTo(self.__sound)
 
@@ -63,6 +64,7 @@ class MediaPlayer():
             return Task.cont
         else:
             self.destroy()
+            messenger.send("movie_over"+self.id)
 
     #移除视频
     def destroy(self):

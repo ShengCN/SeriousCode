@@ -1,6 +1,29 @@
 # coding=utf-8
 modelRootPath = "/d/SeriousPresent"
 
+CONFIG = """
+framebuffer-multisample 1
+multisamples 2
+framebuffer-stencil #t
+threading-model Cull/Draw
+fullscreen #f
+interpolate-frames 1
+window-title Reborn : The Soul Of Devil
+texture-compression 1
+allow-incomplete-render 1
+allow-async-bind 1
+restore-initial-pose 0
+hardware-animated-vertices #t
+model-cache-textures #t
+support-threads #t
+display-list-animation 1
+display-lists 1
+gl-finish #f
+loader-num-threads 4
+text-encoding utf8
+text-default-font /c/Windows/Fonts/FZSTK.ttf
+"""
+
 """""""""""""""
 主角模型
 """""""""""""""
@@ -39,10 +62,13 @@ ZOMBIE_ACTION_PATH = {
 """""""""""""""
 NPC模型
 """""""""""""""
-GIRL = modelRootPath + "/Material/ModelEGGS/GIRL_Pose.egg"
-NUNV = modelRootPath + "/Material/ModelEGGS/NUNV/NUNV_Pose.egg"
-STEALER = modelRootPath + "/Material/ModelEGGS/Stealer"
-
+GIRL = modelRootPath + "/Material/ModelEGGS/Girl/GIRL_Pose.egg"
+NUN = modelRootPath + "/Material/ModelEGGS/Nun/NUNV_Pose.egg"
+STEALER = modelRootPath + "/Material/ModelEGGS/Stealer/StealerWithPose.egg"
+CHEST = modelRootPath + "/Material/ModelEGGS/Chest/Chest1.egg"
+CHEST_OPEN = {
+    "open" : modelRootPath + "/Material/ModelEGGS/Chest/Chest1_Open.egg"
+}
 """""""""""""""
 HOME场景
 """""""""""""""
@@ -79,7 +105,7 @@ TEST_SECOND_SCENE = modelRootPath + "/house_test/Outer_v2.egg"
 """""""""""""""
 玩家的游戏参数
 """""""""""""""
-SPEED = 300.0
+SPEED = 100.0
 JUMP_HEIGHT = 1.0
 JUMP_SPEED = 10.0
 ENEMY_MASS = 300.0

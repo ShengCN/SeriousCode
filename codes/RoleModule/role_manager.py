@@ -442,11 +442,24 @@ class RoleManager(object):
     def buy_attachment(self, price, num = 1, weapon2 = 0, weapon3 = 0):
 
         player = self.get_role("PlayerRole")
-        money = player.get_role_attr("money")
-        medicineNum = player.get_role_attr("medicineNum")
+        money = player.get_attr_value("money")
+        medicineNum = player.get_attr_value("medicineNum")
 
         money -= price
+
+        if money < 0:
+
+            self.__resMgr.destroy_prompt()
+            self.__resMgr.show_prompt_box("金币不足！")
+
+            money += price
+
+            return
+
+        player.set_attr_value("money", money)
+
         medicineNum += num
+        player.set_attr_value("medicineNum", medicineNum)
 
         if weapon2 == 1:
 

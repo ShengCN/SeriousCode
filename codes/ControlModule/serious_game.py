@@ -10,6 +10,9 @@ from direct.showbase.DirectObject import DirectObject
 from keyboard_mouse_handler import GamePlayerMouseHandler
 from test_application import testApplication
 from main_menu import MainMenu
+from ControlModule.common_para import *
+
+loadPrcFileData("", CONFIG)
 
 class SeriousGame(DirectObject):
     def __init__(self):
