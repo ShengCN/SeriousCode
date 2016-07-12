@@ -51,9 +51,10 @@ class MainMenu(ShowBase):
             # {"name":"Archive4","progress":"80%","time":"2016/07/05 09:52","id":"4"},
             # {"name":"Archive5","progress":"90%","time":"2016/07/05 09:53","id":"5"}
         ]
-        self.accept("z",self.trade_menu)
-        self.accept("x",self.archive_menu,[self,False,archiveList])
-        self.accept("c",self.main_game)
+        self.accept("x",self.trade_menu)
+        self.accept("y",self.archive_menu,[self,False,archiveList])
+        self.accept("z",self.main_game)
+        self.accept("u", self.destroy_main_game)
 
     """""""""""""""
     菜单界面函数
@@ -447,16 +448,20 @@ class MainMenu(ShowBase):
         self.__purchaseMedicineNumber = self.__tradeMedicineNumber
         self.__purchaseMoney = self.__totalPrice
         self.destroy_trade()
+        money=self.get_money()
+        medicineNumber=self.get_medicine_number()
+        self.set_money(money-self.__purchaseMoney)
+        self.set_medicine_number(medicineNumber+self.__purchaseMedicineNumber)
 
-    #获取购买数量与花费金钱
-    def get_purchase(self):
-        medicineNumber = self.__purchaseMedicineNumber
-        money = self.__purchaseMoney
-        return [money, medicineNumber]
-
-    #判断是否关闭交易界面
-    def get_destroy_trade(self):
-        return self.__destroyTrade
+    # #获取购买数量与花费金钱
+    # def get_purchase(self):
+    #     medicineNumber = self.__purchaseMedicineNumber
+    #     money = self.__purchaseMoney
+    #     return [money, medicineNumber]
+    #
+    # #判断是否关闭交易界面
+    # def get_destroy_trade(self):
+    #     return self.__destroyTrade
 
     # #设置购买药品数量
     # def set_purchase_medicine_number(self):
@@ -481,6 +486,7 @@ class MainMenu(ShowBase):
             self.__imageDict["charactor"] = self.__imagePath + "charactor3.png"
             self.__imageDict["hpbg"] = self.__imagePath + "hp_bg.png"
             self.__imageDict["hp"] = self.__imagePath + "hp.png"
+            self.__imageDict["hp1"] = self.__imagePath + "hp1.png"
             self.__imageDict["mf"] = self.__imagePath + "medicine_frame.png"
             self.__imageDict["medicine"] = self.__imagePath + "medicine.png"
             self.__imageDict["gf"] = self.__imagePath + "gun_frame.png"
@@ -493,6 +499,7 @@ class MainMenu(ShowBase):
             self.__medicineNum = 10
 
             self.__blood = 100
+            self.__monsterBlood = 100
 
             #人物头像
             self.__charactorBg = OnscreenImage(image=self.__imageDict["cbg"], pos=(-1.6, 0, 0.8), scale=(0.16, 0, 0.16))
@@ -548,6 +555,17 @@ class MainMenu(ShowBase):
 
             self.__destroyMainGame = True
 
+    #显示怪物血条
+    def show_monster_hp(self):
+        if self.__destroyMainGame==True:
+            # 怪物血条
+            self.__monsterHpBg = OnscreenImage(image=self.__imageDict["hpbg"], pos=(-0.14, 0, 0.85),
+                                               scale=(-0.30, 0, 0.02))
+            self.__monsterHpBg.setTransparency(TransparencyAttrib.MAlpha)
+            self.__monsterHpBar = DirectWaitBar(text="", value=100, pos=(-0.14, 0, 0.85), scale=(-0.297, 0, 0.22),
+                                                barTexture=self.__imageDict["hp1"], frameColor=(0, 0, 0, 0))
+            self.__monsterHpBar.setTransparency(TransparencyAttrib.MAlpha)
+
     #移除游戏进行中主要界面
     def destroy_main_game(self):
         if self.__destroyMainGame == True:
@@ -570,6 +588,12 @@ class MainMenu(ShowBase):
             self.__coinNumber.destroy()
 
             self.__destroyMainGame = False
+
+    #移除怪物血条
+    def destroy_monster_hp(self):
+        if self.__destroyMainGame == True:
+            self.__monsterHpBg.destroy()
+            self.__monsterHpBar.destroy()
 
     #设置金钱
     def set_money(self, money):
@@ -611,6 +635,11 @@ class MainMenu(ShowBase):
         self.__blood = blood
         self.__hpBar['value'] = self.__blood
 
+    # 设置怪物血量
+    def set_monster_blood(self, blood):
+        self.__monsterBlood = blood
+        self.__monsterHpBar['value'] = self.__monsterBlood
+
     #获得当前血量
     def get_blood(self):
         return self.__blood
@@ -628,6 +657,7 @@ class MainMenu(ShowBase):
             self.__imageDict["abg"] = self.__imagePath + "archive_bg5.png"
             self.__imageDict["cube"] = self.__imagePath + "archive_cube.png"
             self.__imageDict["slider"] = self.__imagePath + "slider1.png"
+            self.__imageDict["close"] = self.__imagePath + "close.png"
 
             self.__archiveContentList = list()
             self.__archiveGuiList = list()
@@ -780,6 +810,12 @@ class MainMenu(ShowBase):
             self.__archiveGuiList[4]["progress"].setText(self.__archiveContentList[4]["progress"])
             self.__archiveGuiList[4]["time"].setText(self.__archiveContentList[4]["time"])
 
+            self.__closeArchiveBtn = DirectButton(pos=(1.7, 0, 0.9), text="", scale=(0.05, 0, 0.05),
+                                           command=self.destroy_archive,
+                                           image=self.__imageDict["close"],
+                                           frameColor=(0, 0, 0, 0))
+            self.__closeArchiveBtn.setTransparency(TransparencyAttrib.MAlpha)
+
             self.__destroyArchive = True
 
     #设置存档记录
@@ -810,6 +846,7 @@ class MainMenu(ShowBase):
 
             self.__archiveSlider.destroy()
             self.__archiveBg.destroy()
+            self.__closeArchiveBtn.destroy()
             self.__destroyArchive = False
 
     #滑动滑动条
@@ -840,8 +877,9 @@ class MainMenu(ShowBase):
     """""""""""""""
     def game_window(self):
         self.accept("escape",self.setting_menu)
-        self.__game.outer_scene()
+        self.__game.room_scene()
         self.main_game()
+
 
 
 
