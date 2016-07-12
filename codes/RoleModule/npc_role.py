@@ -15,6 +15,7 @@ class NPCRole(Role):
                       )
 
         self.append_role_attr(key="actions", value=dict())
+        self.append_role_attr(key="characterName", value="")
 
 
 

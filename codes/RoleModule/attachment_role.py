@@ -11,8 +11,8 @@ class AttachmentRole(Role):
 
     def __init__(self,
                  attachmentType,
-                 modelId,
-                 num
+                 modelId = None,
+                 num = 1
                  ):
 
         Role.__init__(self,
@@ -24,12 +24,9 @@ class AttachmentRole(Role):
                       )
 
         self.append_role_attr(key = "attachmentType", value = attachmentType)
-        self.append_role_attr(key = "num", value = num)
-        self.append_role_attr(key = "price", value = 0)
-        self.append_role_attr(key = "sold", value = False)
         self.append_role_attr(key = "touchRadius", value=5)
         self.append_role_attr(key = "opened", value = False)
-        self.append_role_attr(key = "effert", value = dict())
+
 
     def add_holderId(self, holderId):
 

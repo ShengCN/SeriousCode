@@ -24,4 +24,3 @@ class EnemyRole(Role):
         self.append_role_attr(key="cd", value = -1)
         self.append_role_attr(key="remainCd", value = -1)
         self.append_role_attr(key="currState", value="wandering")
-        self.append_role_attr(key="actions", value=dict())
