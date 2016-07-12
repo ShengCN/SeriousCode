@@ -41,8 +41,6 @@ class SeriousGameScene(DirectObject):
         self.__init_shader()
         self.__init_light_camear()
 
-
-
     # shader 初始化
     def __init_shader(self):
         self.base.backfaceCullingOn()
@@ -93,12 +91,12 @@ class SeriousGameScene(DirectObject):
     def add_player_role(self):
         self.bullet_mgr.add_player_role()
 
-    def add_NPC_role(self):
-        self.bullet_mgr.add_NPC_role()
+    def add_NPC_role(self,character_name,pos,scale):
+        self.bullet_mgr.add_NPC_role(character_name,pos,scale)
 
     # 新增怪物
-    def add_enemy_role(self,id,pos,scale,model_path,model_action_path):
-        self.bullet_mgr.add_enemy_role(id,pos,scale,model_path,model_action_path)
+    def add_enemy_role(self,pos,scale,model_path,model_action_path):
+        self.bullet_mgr.add_enemy_role(pos,scale,model_path,model_action_path)
 
     def task_update(self):
         self.bullet_mgr.task_update()
@@ -110,8 +108,12 @@ class SeriousGameScene(DirectObject):
         self.bullet_mgr.reset_update()
 
     def destroy(self):
-        self.stop_update()
-        # 停止监听
+        # destory bullet
+        self.bullet_mgr.cleanup()
+        # destory game scene
+        self.base.render.node().removeAllChildren()
+
+
 
 # 世界碰撞体
 class BoxWorld(object):

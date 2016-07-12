@@ -32,7 +32,6 @@ class MainMenu(ShowBase):
         self.__weapon2=0
         self.__weapon3=0
         self.init_Mgr()
-        self.__game = BulletEngine(self,self.sceneMgr,self.roleMgr)
 
     def init_Mgr(self):
         self.__rm = ResourcesManager()
@@ -140,7 +139,7 @@ class MainMenu(ShowBase):
         if self.__destroySetting==False:
             # 关闭游戏场景帧更新
             self.sceneMgr.get_ActorMgr().stop_all_itvls()
-            self.__game.stop_update()
+            self.village.stop_update()
             # 设置界面背景图
             self.__background = OnscreenImage(image='../../resources/images/settings/setting_frame.png', pos=(0, 0, 0),
                                               scale=(1.0, 0, 0.7))
@@ -219,7 +218,7 @@ class MainMenu(ShowBase):
     def __continue_game(self):
         self.setting_destroy()
         # self.__game.reset_update()
-        self.__game.reset_update()
+        self.village.reset_update()
         self.sceneMgr.get_ActorMgr().restart_all_itvls()
         self.__rm.play_sound(7)
 
@@ -957,12 +956,10 @@ class MainMenu(ShowBase):
     def game_window(self):
         self.accept("escape",self.setting_menu)
         self.game_begin()
-        # self.__game.room_scene()
-        # self.main_game()
 
     def game_begin(self):
         self.__rm.play_media(self, 1)
-        self.accept("movie_over1",self.village_scene)
+        self.accept("movie_over1",self.outer_scene)
         self.accept("trade_menu", self.trade_menu)
         self.accept("1", self.set_gun1)
         self.accept("2", self.set_gun2)
@@ -970,39 +967,38 @@ class MainMenu(ShowBase):
 
     def village_scene(self):
         # 原
-        # self.village = SeriousGameScene(self,self.sceneMgr,self.roleMgr)
-        # self.village.load_game_scene(VILLAGE,5)
-        # # 人物
-        # self.village.add_player_role()
-        # self.village.add_NPC_role()
-        # self.main_game()
-        # self.show_monster_hp()
-        # self.village.task_update()
+        self.village = SeriousGameScene(self,self.sceneMgr,self.roleMgr)
+        self.village.load_game_scene(VILLAGE,5)
+        # 人物
+        self.village.add_player_role()
+        self.village.add_enemy_role(Point3(10,10,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.main_game()
+        self.show_monster_hp()
+        self.accept('r',self.destory_scene,extraArgs = [self.village])
+        self.village.task_update()
 
         # 声音
         self.__rm.play_sound(1)
-        self.__game.village_scene()
+
+
+    def home_scene(self):
+        pass
+
+    def outer_scene(self):
+        self.home = SeriousGameScene(self, self.sceneMgr, self.roleMgr)
+        self.home.load_game_scene(OUTER, 5)
+        # 人物
+        self.home.add_player_role()
+        self.home.add_enemy_role(Point3(10, 10, 0), 3, WIFE_ZOMBIE_PATH, WIFE_ZOMBIE_ACTION_PATH)
         self.main_game()
+        self.show_monster_hp()
+        self.accept('r', self.destory_scene, extraArgs=[self.home])
+        self.home.task_update()
 
+    def room_scene(self):
+        pass
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def destory_scene(self,serious_scene):
+        serious_scene.destroy()
+        # 确定是否 destory main_game
+        self.destroy_main_game()

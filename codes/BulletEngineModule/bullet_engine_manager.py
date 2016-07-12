@@ -91,7 +91,8 @@ class BulletEngineMgr(DirectObject):
         self.__enemy_list = dict()
         self.__enemy_NP = dict()
         self.__role_dict = dict()
-        self.__NPC_NP = dict()
+        self.__NPC_Actor = dict()
+        self.__chest_list = dict()
         self.init_AI()
 
     # 新增游戏主角
@@ -131,59 +132,48 @@ class BulletEngineMgr(DirectObject):
         self.sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
 
     # 新增 NPC
-    def add_NPC_role(self):
+    def add_NPC_role(self,character_name,pos,scale):
+        NPC_dic={
+            "nun":NUN,
+            "girl":GIRL,
+            "stealer":STEALER
+        }
+        self.__NPC_amount = self.__NPC_amount + 1
+        id = self.__NPC_amount - 1
         # 修女
-        self.__NPC_NP[0] = self.sceneMgr.add_actor_scene(NUN,
-                                                         {},
-                                                          self.base.render)
-        self.__NPC_NP[0].setPos(0, 1, -10)  # 相对于胶囊体坐标
-        self.__NPC_NP[0].setScale(1.6)
-        self.__NPC_NP[0].setPos(-30, 30, 0)
+        self.__NPC_Actor[id] = self.sceneMgr.add_actor_scene(NPC_dic[character_name],
+                                                                            {},
+                                                                            self.base.render)
+        self.__NPC_Actor[id].setPos(pos)
+        self.__NPC_Actor[id].setScale(scale)
 
         # create role
-        self.actorRole = self.roleMgr.create_role("NPCRole", self.sceneMgr.get_resId(self.__NPC_NP[0]),characterName="nun")
-
-        # 小女孩
-        self.__NPC_NP[1] = self.sceneMgr.add_actor_scene(GIRL,
-                                                         {},
-                                                         self.base.render)
-
-        self.__NPC_NP[1].setPos(0, 1, -10)  # 相对于胶囊体坐标
-        self.__NPC_NP[1].setScale(1.6)
-        self.__NPC_NP[1].setPos(30, -30, 0)
-
-        # create role
-        self.actorRole = self.roleMgr.create_role("NPCRole", self.sceneMgr.get_resId(self.__NPC_NP[1]), characterName="girl")
-
-        # 小偷
-        self.__NPC_NP[2] = self.sceneMgr.add_actor_scene(STEALER,
-                                                         {},
-                                                         self.base.render)
-
-        self.__NPC_NP[2].setPos(0, 1, -10)  # 相对于胶囊体坐标
-        self.__NPC_NP[2].setScale(1.6)
-        self.__NPC_NP[2].setPos(30, -90, 0)
-
-        # create role
-        self.actorRole = self.roleMgr.create_role("NPCRole", self.sceneMgr.get_resId(self.__NPC_NP[2]),
-                                                  characterName="stealer")
+        self.actorRole = self.roleMgr.create_role("NPCRole",
+                                                  self.sceneMgr.get_resId(self.__NPC_Actor[id]),
+                                                  characterName=character_name)
+        # 主角与 NPC 时间监听
         self.sceneMgr.get_ActorMgr().add_toggle_for_player_to_interact("e", self.sceneMgr.get_resId(self.actor_hunter))
 
+    # 新增 宝箱到场景
+    def add_chest_role(self,pos,scale,):
         # 宝箱
-        self.__NPC_NP[3] = self.sceneMgr.add_actor_scene(CHEST,
-                                                         CHEST_OPEN,
-                                                         self.base.render)
-        self.__NPC_NP[3].setPos(0, 1, -10)  # 相对于胶囊体坐标
-        self.__NPC_NP[3].setScale(1.6)
-        self.__NPC_NP[3].setPos(100, 100, 0)
+        self.__chest_amount = self.__chest_amount + 1
+        self.__chest_list[self.__chest_amount] = self.sceneMgr.add_actor_scene(CHEST,
+                                                            CHEST_OPEN,
+                                                            self.base.render)
+        self.__chest_list[self.__chest_amount].setScale(scale)
+        self.__chest_list[self.__chest_amount].setPos(pos)
         # create role
-        self.actorRole = self.roleMgr.create_role("AttachmentRole", self.sceneMgr.get_resId(self.__NPC_NP[3]))
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("chest_open", self.sceneMgr.get_resId(self.__NPC_NP[3]), "open")
+        self.actorRole = self.roleMgr.create_role("AttachmentRole",
+                                                  self.sceneMgr.get_resId(self.__chest_list[self.__chest_amount]))
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("chest_open",
+                                                         self.sceneMgr.get_resId(self.__chest_list[self.__chest_amount]),
+                                                         "open")
 
     # 新增怪物
     def add_enemy_role(self,pos,scale,model_path,model_action_path):
         self.__amount = self.__amount + 1
-        id = self.__amount
+        id = self.__amount - 1
         self.add_enemy(id,pos,scale,model_path,model_action_path)
         self.setAI(id,self.__enemy_NP[id])
 
@@ -252,6 +242,8 @@ class BulletEngineMgr(DirectObject):
         self.AIworld = AIWorld(self.worldNP)
         self.AI_Character = dict()
         self.__amount = 0
+        self.__NPC_amount = 0
+        self.__chest_amount = 0
         self.math_helper = MathHelper()
 
     # 为人物加上 AI 效果
@@ -287,6 +279,22 @@ class BulletEngineMgr(DirectObject):
                 self.AIworld.update()
         return task.cont
 
+    # 所有攻击的碰撞检测
+    def all_collide_result(self):
+        for id in range(self.__amount):
+            self.result = self.world.contactTest(self.__enemy_NP[id].node())
+            for contact in self.result.getContacts():
+                if type(contact.getNode1()) != type(self.actor_character_Node):
+                    if contact.getNode1().isStatic() == False:
+                        print "人物所有的碰撞结果：%s" % self.result.getNumContacts()
+                        print "wifi 受到了攻击"
+                        print "%s%s 发生了碰撞" % (contact.getNode0(), contact.getNode1())
+                        roleId = self.sceneMgr.get_resId(self.__enemy_list[id])
+                        print "role id is : "
+                        self.roleMgr.calc_attack("PlayerRole", self.__role_dict[roleId].get_attr_value("roleId"))
+                        print "怪物血量:%s" %self.__role_dict[roleId].get_attr_value("hp")
+            # todo 血量计算
+
     # AI 的距离判断
     def isDanger(self,id):
         relativePos = self.actorNP.getPos(self.__enemy_NP[id])
@@ -305,14 +313,13 @@ class BulletEngineMgr(DirectObject):
     # 输入初始化
     def init_input(self):
         # self.accept('escape', self.doExit)
-        self.accept('r', self.doReset)
         self.accept('f1', self.base.toggleWireframe)
         self.accept('f2', self.base.toggleTexture)
         self.accept('f3', self.toggleDebug)
         self.accept('f5', self.doScreenshot)
 
         # 事件管理
-        self.accept('space', self.doJump)
+        # self.accept('space', self.doJump)
         self.accept('mouse1',self.doShoot)
         # self.accept('control', self.doCrouch)
         self.accept('5',self.getCurrentPos)
@@ -353,11 +360,11 @@ class BulletEngineMgr(DirectObject):
 
     def cleanup(self):
         ###todo
-        ###1.destroy all actor
-        ###2.destroy all collison node
+        self.stop_update()
+        self.ignore('mouse1')
         self.world = None
         self.worldNP.removeNode()
-        self.base.taskMgr.remove("updateWorld")
+
 
     def doShoot(self):
         pFrom = Point3(0,0,0)
@@ -470,16 +477,3 @@ class BulletEngineMgr(DirectObject):
         self.actorNP.node().setAngularMovement(omega)
         self.actorNP.node().setLinearMovement(speed,True)
 
-    # 所有攻击的碰撞检测
-    def all_collide_result(self):
-        # self.result = self.world.contactTest(self.wife_character_NP.node())
-        # for contact in self.result.getContacts():
-        #     if type(contact.getNode1()) != type(self.actor_character_Node):
-        #         if contact.getNode1().isStatic() == False:
-        #             print "人物所有的碰撞结果：%s" % self.result.getNumContacts()
-        #             print "wifi 受到了攻击"
-        #             print "%s%s 发生了碰撞" % (contact.getNode0(), contact.getNode1())
-        #             self.roleMgr.calc_attack("PlayerRole", self.actorRole2.get_attr_value("roleId"))
-        #             print "怪物血量:%s" %self.actorRole2.get_attr_value("hp")
-        # todo 血量计算
-        pass
