@@ -78,8 +78,6 @@ class MainMenu(ShowBase):
         self.accept("e", self.__rm.show_dialog, [5])
         self.accept("f", self.__rm.show_dialog, [6])
         self.accept("g", self.__rm.show_dialog, [7])
-        self.accept("h", self.__rm.show_dialog, [8])
-        self.accept("i", self.__rm.show_dialog, [9])
         self.accept("x", self.__rm.dialog_next)
         # self.accept("d", self.__rm.play_sound,[2])
         # self.accept("e", self.__rm.stop_sound,[2])
@@ -88,12 +86,19 @@ class MainMenu(ShowBase):
 
         self.accept("z",self.__rm.set_path,["123"])
 
-        self.accept("0", self.__blood.init_blood)
-        self.accept("1",self.__blood.bloodAdd)
-        self.accept("2", self.__blood.bloodMinu)
+        self.__index=1
+        self.accept("1",self.__rm.play_sound,[1])
+        self.accept("2",self.__rm.play_sound,[2])
+        self.accept("3", self.__rm.play_sound, [3])
+        self.accept("4", self.__rm.play_sound, [4])
+        self.accept("5", self.__rm.play_sound, [5])
+        self.accept("6", self.__rm.play_sound, [6])
+        self.accept("7", self.__rm.play_sound, [7])
+        self.accept("8", self.__rm.play_sound, [8])
+        self.accept("9", self.__rm.play_sound, [9])
+        self.accept("0", self.__rm.play_sound, [10])
+        # self.accept("x", self.__rm.play_sound, [11])
 
-        self.accept("5",self.__rm.show_prompt_box,["注意"])
-        self.accept("6", self.__rm.destroy_prompt)
 
 
         #调用对话
@@ -105,7 +110,11 @@ class MainMenu(ShowBase):
         #调用视频
         # self.accept("h", self.__rm.play_media, [self,1])
         # self.accept("i", self.__rm.play_media, [self,2])
-        # self.accept("i", self.__rm.destroy_media)
+        # self.accept("j", self.__rm.destroy_media)
+
+    def add(self):
+        self.__index+=1
+        print self.__index
 
     def select_archives(self):
         self.destroy__all()

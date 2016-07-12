@@ -13,6 +13,7 @@ from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.DirectObject import DirectObject
 from direct.gui.DirectGui import *
 from panda3d.core import *
+from direct.task import Task
 from ControlModule.bullet_engine import BulletEngine
 
 class MainMenu(ShowBase):
@@ -24,6 +25,9 @@ class MainMenu(ShowBase):
         self.__destroySetting = False
         self.__destroyTrade = False
         self.__destroyArchive = False
+
+        self.__weapon2=0
+        self.__weapon3=0
 
     """""""""""""""
     所有界面（菜单、设置、游戏中）
@@ -200,18 +204,22 @@ class MainMenu(ShowBase):
     def __continue_game(self):
         self.setting_destroy()
         self.__game.reset_update()
+        self.__rm.play_sound(7)
 
     # 设置界面，私有函数,存档
     def __save_game(self):
         self.setting_destroy()
+        self.__rm.play_sound(7)
 
     # 设置界面，私有函数,游戏帮助
     def __help(self):
         self.setting_destroy()
+        self.__rm.play_sound(7)
 
     # 设置界面，私有函数,回到主界面
     def __return_home(self):
         self.setting_destroy()
+        self.__rm.play_sound(7)
 
     """""""""""""""
     交易界面函数
@@ -346,6 +354,7 @@ class MainMenu(ShowBase):
 
     #移除交易界面控件
     def destroy_trade(self):
+        self.__rm.play_sound(7)
         if self.__destroyTrade == True:
             self.__tradeFrame.destroy()
             self.__tradeMedicine.destroy()
@@ -444,14 +453,23 @@ class MainMenu(ShowBase):
             self.set_gun2_total_price(str(self.__tradeGun2Number))
 
     #点击购买按钮
+    # 涉及role_manager
     def purchase(self):
         self.__purchaseMedicineNumber = self.__tradeMedicineNumber
         self.__purchaseMoney = self.__totalPrice
+        if self.__weapon2==0:
+            self.__weapon2=self.__tradeGun1Number
+        if self.__weapon3 == 0:
+            self.__weapon3=self.__tradeGun2Number
         self.destroy_trade()
         money=self.get_money()
         medicineNumber=self.get_medicine_number()
         self.set_money(money-self.__purchaseMoney)
         self.set_medicine_number(medicineNumber+self.__purchaseMedicineNumber)
+
+        #传输数据给角色
+        # 涉及role_manager
+        # self.__roleMgr.buy_attachment(self.__purchaseMoney,self.__purchaseMedicineNumber,self.__weapon2,self.__weapon3)
 
     # #获取购买数量与花费金钱
     # def get_purchase(self):
@@ -477,6 +495,8 @@ class MainMenu(ShowBase):
     """""""""""""""
     def main_game(self):
         if self.__destroyMainGame == False:
+
+            self.__destroyMonsterHpBar=False
             #初始化路径
             self.__imagePath = "../../resources/images/main/"
 
@@ -553,11 +573,29 @@ class MainMenu(ShowBase):
                                              shadow=(0, 0, 0, 1),
                                              mayChange=True)
 
+            self.taskMgr.add(self.change_data_task, 'changeDataTask')
+
             self.__destroyMainGame = True
+
+    #监听人物血量，金钱，药物的变化
+    # 涉及role_manager
+    def change_data_task(self):
+        money=self.__roleMgr.get_player_money()
+        medicine=self.__roleMgr.get_player_medicine_num()
+        hp=self.__roleMgr.get_player_hp()
+        self.set_money(money)
+        self.set_medicine_number(medicine)
+        self.set_blood(hp)
+
+        #怪物
+        if self.__destroyMonsterHpBar==True:
+            monsterBlood=self.__roleMgr.get_monster_hp()
+            self.set_monster_blood(monsterBlood)
+        return Task.cont
 
     #显示怪物血条
     def show_monster_hp(self):
-        if self.__destroyMainGame==True:
+        if self.__destroyMonsterHpBar==False:
             # 怪物血条
             self.__monsterHpBg = OnscreenImage(image=self.__imageDict["hpbg"], pos=(-0.14, 0, 0.85),
                                                scale=(-0.30, 0, 0.02))
@@ -565,6 +603,8 @@ class MainMenu(ShowBase):
             self.__monsterHpBar = DirectWaitBar(text="", value=100, pos=(-0.14, 0, 0.85), scale=(-0.297, 0, 0.22),
                                                 barTexture=self.__imageDict["hp1"], frameColor=(0, 0, 0, 0))
             self.__monsterHpBar.setTransparency(TransparencyAttrib.MAlpha)
+
+            self.__destroyMonsterHpBar = True
 
     #移除游戏进行中主要界面
     def destroy_main_game(self):
@@ -587,13 +627,16 @@ class MainMenu(ShowBase):
             self.__coin.destroy()
             self.__coinNumber.destroy()
 
+            taskMgr.remove('changeDataTask')
+
             self.__destroyMainGame = False
 
     #移除怪物血条
     def destroy_monster_hp(self):
-        if self.__destroyMainGame == True:
+        if self.__destroyMonsterHpBar == True:
             self.__monsterHpBg.destroy()
             self.__monsterHpBar.destroy()
+            self.__destroyMonsterHpBar = False
 
     #设置金钱
     def set_money(self, money):
@@ -620,15 +663,24 @@ class MainMenu(ShowBase):
         self.__gun.setImage(self.__imageDict["gun1"])
         self.__gun.setTransparency(TransparencyAttrib.MAlpha)
 
+        # 涉及role_manager
+        # self.__roleMgr.change_weapon(1)
+
     #换成枪支2
     def set_gun2(self):
         self.__gun.setImage(self.__imageDict["gun2"])
         self.__gun.setTransparency(TransparencyAttrib.MAlpha)
 
+        # 涉及role_manager
+        # self.__roleMgr.change_weapon(2)
+
     #换成枪支3
     def set_gun3(self):
         self.__gun.setImage(self.__imageDict["gun3"])
         self.__gun.setTransparency(TransparencyAttrib.MAlpha)
+
+        #涉及role_manager
+        # self.__roleMgr.change_weapon(3)
 
     #设置血量
     def set_blood(self, blood):
@@ -837,6 +889,7 @@ class MainMenu(ShowBase):
 
     #移除存档界面控件
     def destroy_archive(self):
+        self.__rm.play_sound(7)
         if self.__destroyArchive == True:
             for index in range(len(self.__archiveGuiList)):
                 self.__archiveGuiList[index]["button"].destroy()
@@ -861,13 +914,17 @@ class MainMenu(ShowBase):
 
     #点击存档条
     def clickArchive(self, id):
-        if self.__loadOrSave == False:
+        if self.__loadOrSave == False:#读档
             print self.__archiveContentList[id - 1]["id"]
-            pass
+            sceneArchive=self.__rm.select_archives(int(self.__archiveContentList[id - 1]["id"]))[0]
+            roleArchive=self.__rm.select_archives(int(self.__archiveContentList[id - 1]["id"]))[1]
+            #archive函数
             # resource_manager,读档,id=id
             self.destroy_archive()
-        else:
+        else:#存档
             print self.__archiveContentList[id - 1]["id"]
+            #sceneArchive,roleArchive
+            self.__rm.save_archives(sceneArchive,roleArchive,int(self.__archiveContentList[id - 1]["id"]))
             # resource_manager,存档,id=0
             self.destroy_archive()
 

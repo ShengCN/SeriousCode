@@ -203,7 +203,7 @@ class LoadPlot(DirectObject):
 
     #选择第几部分对话
     def selectPart(self):
-        if self.__id==7:
+        if self.__id==8:
             self.__part = self.__id
             self.__index = 1
             return True
@@ -304,7 +304,7 @@ class LoadPlot(DirectObject):
         # dialoguePart[4].add(dialoguePart[5])
         # dialoguePart[5].add(dialoguePart[6])
         # dialoguePart[6].add(dialoguePart[7])
-        dialoguePart[0].add(dialoguePart[6])
+        dialoguePart[0].add(dialoguePart[7])
 
         self.__dialogueTree = Tree()
         self.__dialogueTree.link_to_head(dialoguePart[0])
