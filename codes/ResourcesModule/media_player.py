@@ -23,9 +23,9 @@ class MediaPlayer():
         # but we want to make sure we get a MovieTexture, since it
         # implements synchronizeTo.
         self.__mediaFileName=dict()
-        self.__mediaFileName["1"]="../../resources/media/PandaSneezes.ogv"
-        self.__mediaFileName["2"]="../../resources/media/Animation2.mp4"
-        self.__mediaFileName["3"] = "../../resources/media/PandaSneezes.ogv"
+        self.__mediaFileName["1"]="../../resources/media/1.mp4"
+        self.__mediaFileName["2"]="../../resources/media/2.mp4"
+        self.__mediaFileName["3"] = "../../resources/media/3.mp4"
         self.__tex = MovieTexture("name")
 
     # 播放视频文件
