@@ -535,8 +535,8 @@ class BulletEngine(DirectObject):
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
         self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
-        # self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_run", actorId2, "walk")
-        # self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", actorId2, "attack")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", actorId2, "walk")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", actorId2, "attack")
 
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
@@ -576,6 +576,7 @@ class BulletEngine(DirectObject):
         self.init_roles()
         # 背景为黑色
         self.base.setBackgroundColor(0, 0, 0, 1)
+        # self.base.disableMouse()
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
 
@@ -637,7 +638,7 @@ class BulletEngine(DirectObject):
         id = 5
         self.add_enemy(id,Point3(360,0,0),1.0,WIFE_ZOMBIE_PATH,WIFE_ZOMBIE_ACTION_PATH)
         self.setAI(id,self.__enemy_NP[id])
-        self.__enemy_list[id].setH(-90)
+        # self.__enemy_list[id].setH(-90)
 
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
@@ -651,8 +652,7 @@ class BulletEngine(DirectObject):
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
         camCtrlr = CameraController()
-        camCtrlr.bind_camera(self.base.cam)
-        camCtrlr.bind_ToggleHost(self)
+        camCtrlr.bind_ShowBase(self.base)
         camCtrlr.set_clock(globalClock)
         camCtrlr.focus_on(self.actor_hunter, 100)
         camCtrlr.set_rotateSpeed(10)
@@ -720,8 +720,7 @@ class BulletEngine(DirectObject):
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
         self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_run", actorId2, "walk")
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", actorId2, "attack")
+
 
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
@@ -776,7 +775,11 @@ class BulletEngine(DirectObject):
         self.__enemy_NP[id] = self.add_model_collide(self.__enemy_list[id],pos,4,18,id)
         self.__enemy_NP[id].setZ(14)
         # 增加人物 role 到角色管理器
-        self.__role_dict[id] = self.roleMgr.create_role(str(id), self.sceneMgr.get_resId(self.__enemy_list[id]))
+        id = self.sceneMgr.get_resId(self.__enemy_list[id])
+        self.__role_dict[id] = self.roleMgr.create_role("EnemyRole", id)
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", id, "walk")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", id, "attack")
+
 
     def init_roles(self):
         self.__enemy_list = dict()

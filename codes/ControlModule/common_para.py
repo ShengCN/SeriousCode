@@ -11,7 +11,7 @@ HUNTER_ACTION_PATH = {
     "rda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WithGunRightDefence.egg",
     "lda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WithGunLeftDefenceUpdate.egg",
     "attack":modelRootPath+ "/Material/ModelEGGS/Hunter/hunter_Attack1.egg",
-    "stand":modelRootPath+"/Material/ModelEGGS/Hunter/hunter_AlarmPos1.egg"
+    "stand":modelRootPath+"/Material/ModelEGGS/Hunter/hunter_Alarm1Pose.egg"
 }
 BULLET_PATH = modelRootPath + "/Material/ModelEGGS/Bullet/Bullet.egg"
 
@@ -27,13 +27,13 @@ WIFE_ZOMBIE_ACTION_PATH = {
 HOOK_ZOMBIE = modelRootPath + "/Material/ModelEGGS/HookZombie/HookZombie_Pose.egg"
 HOOK_ZOMBIE_ACTION_PATH = {
     "walk" : modelRootPath+"/Material/ModelEGGS/HookZombie/HookZombie_Walk_v2.egg",
-    "attack": modelRootPath+"/Material/ModelEGGS/HookZombie/HookZombie_Defence1.egg"
+    "attack": modelRootPath+"/Material/ModelEGGS/HookZombie/HookZombie_OffencePose.egg"
 }
 
 ZOMBIE = modelRootPath + "/Material/ModelEGGS/Zombie/Zombie_Pose.egg"
 ZOMBIE_ACTION_PATH = {
     "walk" : modelRootPath+"/Material/ModelEGGS/Zombie/Zombie_Walk.egg",
-    "attack": modelRootPath+"/Material/ModelEGGS/Zombie/Zombie_Defence.egg"
+    "attack": modelRootPath+"/Material/ModelEGGS/Zombie/Zombie_Offence.egg"
 }
 
 """""""""""""""
