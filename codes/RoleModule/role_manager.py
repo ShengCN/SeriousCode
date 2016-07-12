@@ -108,6 +108,7 @@ class RoleManager(object):
                     actions = None,
                     attachments = None,
                     attachmentType = None,
+                    characterName = None,
                     hp=-1,
                     num = 1):
 
@@ -190,6 +191,10 @@ class RoleManager(object):
                 roleId = _roleId
 
             npcRole.set_attr_value("roleId", roleId)
+
+            if characterName is not None:
+
+                npcRole.set_attr_value("characterName", characterName)
 
             self.__roleMap[roleId] = npcRole
             self.__roleModelMap[roleId] = modelId
@@ -413,14 +418,9 @@ class RoleManager(object):
 
         player = self.get_role("PlayerRole")
 
-        medicineId = player.get_attachments("medicine")
-
-        medicine = self.get_role(medicineId)
-
-        medicineNum = medicine.get_role_attr("num")
-        recoverHP = medicine.get_effert("recoverHP")
-
-        hp = player.get_role_attr("hp")
+        medicineNum = player.get_attr_value("medicineNum")
+        recoverHP = player.get_attr_value("recoverHP")
+        hp = player.get_attr_value("hp")
 
         if medicineNum == 0:
 
@@ -432,70 +432,46 @@ class RoleManager(object):
 
                 medicineNum -= 1
 
-                player.set_attr_value("num", medicineNum)
+                player.set_attr_value("medicineNum", medicineNum)
+                player.set_attr_value("hp", min(PLAYER_MAX_HP, hp + recoverHP))
 
             return [RECOVER_HP, min(PLAYER_MAX_HP, hp + recoverHP)]
 
 
     # 玩家角色购买物品
-    def buy_attachment(self, attachmentId):
+    def buy_attachment(self, price, num = 1, weapon2 = 0, weapon3 = 0):
+
+        player = self.get_role("PlayerRole")
+        money = player.get_role_attr("money")
+        medicineNum = player.get_role_attr("medicineNum")
+
+        money -= price
+        medicineNum += num
+
+        if weapon2 == 1:
+
+            player.set_attr_value("weapon2", 1)
+
+        if weapon3 == 1:
+
+            player.set_attr_value("weapon3", 1)
+
+    # 更换武器, weapon为武器编号1、2或3
+    def change_weapon(self, weapon):
 
         player = self.get_role("PlayerRole")
 
-        attachment = self.get_role(attachmentId)
+        if weapon == 1 and player.get_attr_value("weapon1") == 1:
 
-        attachmentType = attachment.get_role_attr("attachmentType")
+            player.set_attr_value("attackForce", player.get_attr_value("attackForce1"))
 
-        money = player.get_role_attr("money")
-        price = attachment.get_role_attr("price")
+        elif weapon == 2 and player.get_attr_value("weapon2") == 1:
 
-        if money < price:
+            player.set_attr_value("attackForce", player.get_attr_value("attackForce2"))
 
-            return LACK_OF_MONEY
+        elif weapon == 3 and player.get_attr_value("weapon3") == 1:
 
-        else:
-
-            money -= price
-
-            player.set_attr_value("money", money)
-
-        playerAttachment = player.get_role_attr("attachments")
-
-        if attachmentType == "medicine":
-
-            if playerAttachment["medicine"] is None:
-
-                playerAttachment["medicine"] = attachmentId
-
-            else:
-
-                playerMedicine = self.get_role(playerAttachment["medicine"])
-
-                num = playerMedicine.get_role_attr("num") + 1
-
-                playerMedicine.set_attr_value("num", num)
-
-            return BUY_MEDICINE
-
-        elif attachmentType == "weapon2":
-
-            if playerAttachment["weapon2"] is None:
-
-                playerAttachment["weapon2"] = attachmentId
-
-            attachment.set_attr_value("sold", True)
-
-            return BUY_WEAPON2
-
-        elif attachmentType == "weapon3":
-
-            if playerAttachment["weapon3"] is None:
-
-                playerAttachment["weapon3"] = attachmentId
-
-            attachment.set_attr_value("sold", True)
-
-            return BUY_WEAPON3
+            player.set_attr_value("attackForce", player.get_attr_value("attackForce3"))
 
     # 玩家角色获得金钱
     def obtain_money(self, increase):
@@ -511,29 +487,29 @@ class RoleManager(object):
         return [OBTAIN_MONEY, money]
 
     # 玩家更换武器
-    def change_weapon(self, weaponId):
-
-        player = self.get_role("PlayerRole")
-
-        prevWeapon = self.get_role(player.get_role_attr("currWeapon"))
-
-        currWeapon = self.get_role(weaponId)
-        currType = currWeapon.get_role_attr("attachmentType")
-
-        player.set_attr_value("currWeapon", weaponId)
-        player.set_attr_value("attackForce", player.get_role_attr("attackForce") - prevWeapon.get_role_attr("attackForce") + currWeapon.get_role_attr("attackForce"))
-
-        if currType == "weapon1":
-
-            return CHANGE_WEAPON1
-
-        elif currType == "weapon2":
-
-            return CHANGE_WEAPON2
-
-        elif currType == "weapon3":
-
-            return CHANGE_WEAPON3
+    # def change_weapon(self, weaponId):
+    #
+    #     player = self.get_role("PlayerRole")
+    #
+    #     prevWeapon = self.get_role(player.get_role_attr("currWeapon"))
+    #
+    #     currWeapon = self.get_role(weaponId)
+    #     currType = currWeapon.get_role_attr("attachmentType")
+    #
+    #     player.set_attr_value("currWeapon", weaponId)
+    #     player.set_attr_value("attackForce", player.get_role_attr("attackForce") - prevWeapon.get_role_attr("attackForce") + currWeapon.get_role_attr("attackForce"))
+    #
+    #     if currType == "weapon1":
+    #
+    #         return CHANGE_WEAPON1
+    #
+    #     elif currType == "weapon2":
+    #
+    #         return CHANGE_WEAPON2
+    #
+    #     elif currType == "weapon3":
+    #
+    #         return CHANGE_WEAPON3
 
     """""""""""""""""""""
     成员变量的set和get函数
@@ -597,6 +573,23 @@ class RoleManager(object):
 
         return LVecBase3f(math.cos(h), 0, 0)
 
+    def get_player_money(self):
+
+        player = self.get_role("PlayerRole")
+
+        return player.get_attr_value("money")
+
+    def get_player_hp(self):
+
+        player = self.get_role("PlayerRole")
+
+        return player.get_attr_value("hp")
+
+    def get_player_medicine_num(self):
+
+        player = self.get_role("PlayerRole")
+
+        return player.get_attr_value("medicineNum")
 
     """""""""""
     角色信息打印

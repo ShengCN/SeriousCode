@@ -24,11 +24,9 @@ class MediaPlayer():
         # implements synchronizeTo.
         self.__mediaFileName=dict()
         self.__mediaFileName["1"]="../../resources/media/PandaSneezes.ogv"
-        self.__mediaFileName["2"]="../../resources/media/PandaSneezes.ogv"
+        self.__mediaFileName["2"]="../../resources/media/Animation2.mp4"
         self.__mediaFileName["3"] = "../../resources/media/PandaSneezes.ogv"
         self.__tex = MovieTexture("name")
-
-        self.__time=14.0
 
     # 播放视频文件
     #render:ShowBase属性，render2d
@@ -62,7 +60,6 @@ class MediaPlayer():
 
     def getTime(self,task):
         if self.__sound.status() == self.__sound.PLAYING:
-        # if self.__time!=self.__sound.getTime():
             return Task.cont
         else:
             self.destroy()

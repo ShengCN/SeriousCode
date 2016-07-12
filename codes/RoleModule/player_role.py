@@ -16,22 +16,23 @@ class PlayerRole(Role):
 
         self.append_role_attr(key = "hp", value = 100)
         self.append_role_attr(key = "money", value = 0)
-        self.append_role_attr(key = "attackForce", value = 10)
+        self.append_role_attr(key = "attackForce1", value = 30)
+        self.append_role_attr(key = "attackForce2", value = 45)
+        self.append_role_attr(key = "attackForce3", value = 60)
+        self.append_role_attr(key = "attackForce", value = 30)
         self.append_role_attr(key = "walkSpeed", value = 5)
         self.append_role_attr(key = "runSpeed", value = 20)
         self.append_role_attr(key = "rotateSpeed", value = 100)
-        self.append_role_attr(key = "touchRadius", value = 20)
+        self.append_role_attr(key = "touchRadius", value = 15)
         self.append_role_attr(key = "cd", value = -1)
         self.append_role_attr(key = "remainCd", value = -1)
-        self.append_role_attr(key = "actions", value = dict())
-        self.append_role_attr(key = "currWeapon", value = None)
-        self.append_role_attr(key = "story", value = None)
-        self.append_role_attr(key = "attachments", value = {
-                                                    "medicine" : None,
-                                                    "weapon1" : None,
-                                                    "weapon2" : None,
-                                                    "weapon3" : None
-                                                    })
+        self.append_role_attr(key = "currWeapon", value = 1)
+        self.append_role_attr(key = "weapon1", value = 1)
+        self.append_role_attr(key = "weapon2", value = 0)
+        self.append_role_attr(key = "weapon3", value = 0)
+        self.append_role_attr(key = "storyLine", value = 0)
+        self.append_role_attr(key = "recoverHp", value = 35)
+        self.append_role_attr(key = "medicineNum", value = 0)
 
     # 添加附属物
     def add_attachment(self, attachmentType, attachmentId):

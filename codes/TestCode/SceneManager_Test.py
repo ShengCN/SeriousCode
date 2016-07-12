@@ -195,6 +195,14 @@ class GameWorld_Test(ShowBase):
         normalZombie.setPos(-30, -30, 0)
         normalZombie.setScale(3)
 
+        girl = sceneMgr.add_actor_scene(girlPath, {}, self.render)
+        girl.setScale(1.4)
+        girl.setPos(80, 100, 0)
+
+        nun = sceneMgr.add_actor_scene(nunv, {}, self.render)
+        nun.setScale(2.2)
+        nun.setPos(120, 120, 0)
+
         camCtrlr = CameraController()
         camCtrlr.bind_camera(self.cam)
         camCtrlr.bind_ShowBase(self)
@@ -277,7 +285,14 @@ class GameWorld_Test(ShowBase):
         sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", sceneMgr.get_resId(normalZombie), "walk")
         sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", sceneMgr.get_resId(normalZombie), "attack")
         npc1 = roleMgr.create_role(roleType = "NPCRole",
-                                   modelId = sceneMgr.get_resId(_stealer))
+                                   modelId = sceneMgr.get_resId(nun),
+                                   characterName = "nun")
+        npc2 = roleMgr.create_role(roleType = "NPCRole",
+                                   modelId = sceneMgr.get_resId(girl),
+                                   characterName = "girl")
+        npc3 = roleMgr.create_role(roleType = "NPCRole",
+                                   modelId = sceneMgr.get_resId(_stealer),
+                                   characterName = "stealer")
         print roleMgr.get_role_face_hpr(roleMgr.get_roleId(npc1))
         # npc1.print_all_attr()
 
@@ -291,6 +306,8 @@ class GameWorld_Test(ShowBase):
         # self.cam.reparentTo(self.render)
 
         self.taskMgr.add(sceneMgr.update_scene, "update_scene")
+
+        #camCtrlr.fix_on((100, 100, 100), (0, 0, 0), (0, 0, 0))
 
         self.accept("l", self.__save_archive, [sceneMgr, roleMgr])
 
