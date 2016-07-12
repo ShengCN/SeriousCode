@@ -866,6 +866,7 @@ class ActorManager(ResManager):
 
         playerRole = self.__roleMgr.get_role("PlayerRole")
 
+        # 与NPC对话
         if self.__NPCCanTalkWith is not None:
 
             NPCId = self.get_actorId(self.__NPCCanTalkWith)
@@ -883,7 +884,6 @@ class ActorManager(ResManager):
                 if self.__storyLine == 0 or self.__storyLine == 3:
 
                     self.__storyLine += 1
-
                     playerRole.set_attr_value(key = "storyLine", value = self.__storyLine)
 
                     self.__resMgr.show_dialog(self.__storyLine)
@@ -892,11 +892,11 @@ class ActorManager(ResManager):
 
             elif NPCName == "girl":
 
-                if (self.__storyLine == 2 or self.__storyLine == 5) and self.__isTalking is True:
+                if (self.__storyLine == 2 or self.__storyLine == 6) and self.__isTalking is True:
 
                     self.__isTalking = self.__resMgr.dialog_next()
 
-                if self.__storyLine == 1 or self.__storyLine == 4:
+                if self.__storyLine == 1 or self.__storyLine == 5:
 
                     self.__storyLine += 1
 
@@ -914,9 +914,9 @@ class ActorManager(ResManager):
 
                 else:
 
-                    self.__storyLine = 7
+                    self.__storyLine = 8
 
-                    self.__resMgr.show_dialog(7)
+                    self.__resMgr.show_dialog(8)
 
                     self.__isTalking = True
 
@@ -938,13 +938,27 @@ class ActorManager(ResManager):
 
                 self.__isTalking = True
 
-        if self.__storyLine == 5 or self.__isTalking is True:
+        if self.__storyLine == 4 or self.__isTalking is True:
 
-            if self.__storyLine == 6 and self.__isTalking is True:
+            if self.__storyLine == 5 and self.__isTalking is True:
+                self.__isTalking = self.__resMgr.dialog_next()
+
+            if self.__storyLine == 4:
+                self.__storyLine += 1
+
+                playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
+
+                self.__resMgr.show_dialog(self.__storyLine)
+
+                self.__isTalking = True
+
+        if self.__storyLine == 6 or self.__isTalking is True:
+
+            if self.__storyLine == 7 and self.__isTalking is True:
 
                 self.__isTalking = self.__resMgr.dialog_next()
 
-            if self.__storyLine == 5:
+            if self.__storyLine == 6:
 
                 self.__storyLine += 1
 
@@ -954,6 +968,7 @@ class ActorManager(ResManager):
 
                 self.__isTalking = True
 
+        # 打开宝箱
         if self.__chestCanOpen is not None:
 
             self.__shouldDestroyPrompt = False
