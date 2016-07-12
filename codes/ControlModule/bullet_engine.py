@@ -38,17 +38,21 @@ from pandac.PandaModules import Material
 from pandac.PandaModules import VBase4
 
 class BulletEngine(DirectObject):
-    def __init__(self, base):
+    def __init__(self, base,sceneMgr,roleMgr):
         DirectObject.__init__(self)
         # ShowBase.__init__(self)
         self.base = base
         self.math_helper = MathHelper()
+        self.init_mgr(sceneMgr,roleMgr)
+        self.init_shader()
+        self.init_light_camera()
+        self.init_bullet_engine()
+        self.init_AI()
+        self.init_input()
 
-
-    def init_mgr(self):
-        self.sceneMgr = SceneManager()
-        self.roleMgr = RoleManager()
-        self.sceneMgr.bind_RoleManager(self.roleMgr)
+    def init_mgr(self,sceneMgr,roleMgr):
+        self.sceneMgr = sceneMgr
+        self.roleMgr = roleMgr
 
     # 灯光镜头初始化
     def init_light_camera(self):
@@ -390,13 +394,6 @@ class BulletEngine(DirectObject):
     场景部分
     """""""""""""""
     def home_scene(self):
-        # init
-        self.init_shader()
-        self.init_light_camera()
-        self.init_mgr()
-        self.init_bullet_engine()
-        self.init_AI()
-        self.init_input()
         self.init_roles()
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
@@ -432,18 +429,18 @@ class BulletEngine(DirectObject):
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
         actorId1 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_hunter)
-        # actorId2 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_wife)
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId1, "run")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId1, "run_back")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
         self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
 
+        self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
+
         camCtrlr = CameraController()
-        camCtrlr.bind_camera(self.base.cam)
-        camCtrlr.bind_ToggleHost(self)
+        camCtrlr.bind_ShowBase(self.base)
         camCtrlr.set_clock(globalClock)
-        camCtrlr.focus_on(self.actor_hunter, 5)
+        camCtrlr.focus_on(self.actor_hunter, 100)
         camCtrlr.set_rotateSpeed(10)
         camCtrlr.add_toggle_to_opt("u", "rotate_around_up")
         camCtrlr.add_toggle_to_opt("j", "rotate_around_down")
@@ -452,19 +449,13 @@ class BulletEngine(DirectObject):
 
         self.sceneMgr.bind_CameraController(camCtrlr)
         self.sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
+
         # create role
         self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(self.actor_hunter))
 
         self.taskMgr_set()
 
     def village_scene(self):
-        # init
-        self.init_shader()
-        self.init_light_camera()
-        self.init_mgr()
-        self.init_bullet_engine()
-        self.init_AI()
-        self.init_input()
         self.init_roles()
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
@@ -529,20 +520,16 @@ class BulletEngine(DirectObject):
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
         actorId1 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_hunter)
-        # actorId2 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_wife)
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId1, "run")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId1, "run_back")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
         self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", actorId2, "walk")
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", actorId2, "attack")
 
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
         camCtrlr = CameraController()
-        camCtrlr.bind_camera(self.base.cam)
-        camCtrlr.bind_ToggleHost(self)
+        camCtrlr.bind_ShowBase(self.base)
         camCtrlr.set_clock(globalClock)
         camCtrlr.focus_on(self.actor_hunter, 100)
         camCtrlr.set_rotateSpeed(10)
@@ -557,22 +544,10 @@ class BulletEngine(DirectObject):
         # create role
         self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(self.actor_hunter))
 
-        print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
-        print self.sceneMgr.get_ActorMgr().get_eventEffertRecord()
-
-        # taskMgr.add(self.sceneMgr.update_scene, "update_scene")
-        # taskMgr.add(self.update, 'updateWorld')
         self.taskMgr_set()
 
     # 第二个室外场景
     def outer_scene(self):
-        # init
-        self.init_shader()
-        self.init_light_camera()
-        self.init_mgr()
-        self.init_bullet_engine()
-        self.init_AI()
-        self.init_input()
         self.init_roles()
         # 背景为黑色
         self.base.setBackgroundColor(0, 0, 0, 1)
@@ -671,14 +646,7 @@ class BulletEngine(DirectObject):
 
     # 教堂室内场景
     def room_scene(self):
-        # init
-        self.init_shader()
-        self.init_light_camera()
-        self.init_mgr()
-        self.init_bullet_engine()
-        self.init_AI()
-        self.init_input()
-
+        self.init_roles()
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
 
@@ -714,19 +682,16 @@ class BulletEngine(DirectObject):
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
         actorId1 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_hunter)
-        actorId2 = self.sceneMgr.get_ActorMgr().get_resId(self.actor_wife)
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId1, "run")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId1, "run_back")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
         self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
 
-
         self.sceneMgr.get_ActorMgr().print_eventEffertRecord()
 
         camCtrlr = CameraController()
-        camCtrlr.bind_camera(self.base.cam)
-        camCtrlr.bind_ToggleHost(self)
+        camCtrlr.bind_ShowBase(self.base)
         camCtrlr.set_clock(globalClock)
         camCtrlr.focus_on(self.actor_hunter, 100)
         camCtrlr.set_rotateSpeed(10)
@@ -740,13 +705,8 @@ class BulletEngine(DirectObject):
 
         # create role
         self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(self.actor_hunter))
-        self.actorRole2 = self.roleMgr.create_role("EnemyRole", self.sceneMgr.get_resId(self.actor_wife))
 
-        print self.sceneMgr.get_ActorMgr().get_eventActionRecord()
-        print self.sceneMgr.get_ActorMgr().get_eventEffertRecord()
-
-        taskMgr.add(self.sceneMgr.update_scene, "update_scene")
-        taskMgr.add(self.update, 'updateWorld')
+        self.taskMgr_set()
 
     # 设置界面暂停帧更新
     def stop_update(self):
@@ -779,7 +739,6 @@ class BulletEngine(DirectObject):
         self.__role_dict[id] = self.roleMgr.create_role("EnemyRole", id)
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", id, "walk")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", id, "attack")
-
 
     def init_roles(self):
         self.__enemy_list = dict()
