@@ -23,13 +23,18 @@ class MySound(DirectObject):
     def __init__(self):
 
         self.__music=dict()
-        self.__music["1"]=loader.loadMusic("../../resources/music/test.mp3")#主界面背景音乐
-        self.__music["2"] = loader.loadMusic('../../resources/music/test.mp3')#平时音乐
-        self.__music["3"] = loader.loadMusic('../../resources/music/test.mp3')#战斗音乐
+        self.__music["1"]=loader.loadMusic("../../resources/music/Main.mp3")#主界面背景音乐
+        self.__music["2"] = loader.loadMusic('../../resources/music/Peace.mp3')#平时音乐
+        self.__music["3"] = loader.loadMusic('../../resources/music/Battle.mp3')#战斗音乐
         # self.__music["4"] = loader.loadSfx('../../resources/music/openclose.ogg')#对话音效
-        self.__music["4"] = loader.loadSfx('../../resources/music/openclose.ogg')#枪击音效
-        self.__music["5"] = loader.loadSfx('../../resources/music/openclose.ogg')#载入游戏音效
-        self.__music["6"] = loader.loadSfx('../../resources/music/openclose.ogg')#退出游戏音效
+        self.__music["4"] = loader.loadSfx('../../resources/music/sound/weapon1.wav')#枪击音效1
+        self.__music["5"] = loader.loadSfx('../../resources/music/sound/weapon2.mp3')#枪击音效2
+        self.__music["6"] = loader.loadSfx('../../resources/music/sound/weapon3.mp3')#枪击音效3
+        self.__music["7"] = loader.loadSfx('../../resources/music/sound/click.ogg')  # 点击按钮音效
+        self.__music["8"] = loader.loadSfx('../../resources/music/sound/chestopen.ogg')  # 打开箱子音效
+        self.__music["9"] = loader.loadSfx('../../resources/music/sound/chestclosed.ogg')  # 关闭箱子音效
+        self.__music["10"] = loader.loadSfx('../../resources/music/sound/door_open.ogg')  # 开门音效
+        self.__music["11"] = loader.loadSfx('../../resources/music/sound/door_close.ogg')  # 关门音效
 
         #设置音乐与音效的音量
         for index in self.__music:
@@ -39,9 +44,14 @@ class MySound(DirectObject):
         self.__music["1"].setLoop(0)
         self.__music["2"].setLoop(0)
         self.__music["3"].setLoop(0)
-        self.__music["4"].setLoop(1)
-        self.__music["5"].setLoop(1)
-        self.__music["6"].setLoop(1)
+        # self.__music["4"].setLoop(1)
+        # self.__music["5"].setLoop(1)
+        # self.__music["6"].setLoop(1)
+        # self.__music["7"].setLoop(1)
+        # self.__music["8"].setLoop(1)
+        # self.__music["9"].setLoop(1)
+        # self.__music["10"].setLoop(1)
+        # self.__music["11"].setLoop(1)
 
         self.__volume=0.5#滑动条值
 
