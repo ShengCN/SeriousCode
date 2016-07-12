@@ -13,6 +13,7 @@ HUNTER_ACTION_PATH = {
     "attack":modelRootPath+ "/Material/ModelEGGS/Hunter/hunter_Attack1.egg",
     "stand":modelRootPath+"/Material/ModelEGGS/Hunter/hunter_AlarmPos1.egg"
 }
+BULLET_PATH = modelRootPath + "/Material/ModelEGGS/Bullet/Bullet.egg"
 
 """""""""""""""
 僵尸模型
@@ -81,7 +82,8 @@ TEST_SECOND_SCENE = modelRootPath + "/house_test/Outer_v2.egg"
 SPEED = 300.0
 JUMP_HEIGHT = 1.0
 JUMP_SPEED = 10.0
-BULLET_SPEED = 10000
+BULLET_MASS = 10.0
+BULLET_SPEED = 1000.0
 BULLET_SIZE = 3.0
 DANGER_LENGTH = 100
 
