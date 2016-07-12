@@ -5,6 +5,10 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="ControlModule.bullet_engine.globalClock" />
+          <option value="BulletEngineModule.serious_game_scene.base" />
+          <option value="BulletEngineModule.bullet_engine_manager.loader" />
+          <option value="BulletEngineModule.bullet_engine_manager.globalClock" />
+          <option value="BulletEngineModule.serious_game_scene.globalClock" />
         </list>
       </option>
     </inspection_tool>

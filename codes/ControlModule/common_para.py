@@ -65,7 +65,7 @@ OUTER = modelRootPath + "/Material/ModelEGGS/Outer/Outer_v2.egg"
 """""""""""""""
 教堂场景
 """""""""""""""
-ROOM = modelRootPath + "/Material/Room/Room.egg"
+ROOM = modelRootPath + "/Material/ModelEGGS/Room/Room.egg"
 
 """""""""""""""
 test 用
@@ -82,6 +82,7 @@ TEST_SECOND_SCENE = modelRootPath + "/house_test/Outer_v2.egg"
 SPEED = 300.0
 JUMP_HEIGHT = 1.0
 JUMP_SPEED = 10.0
+ENEMY_MASS = 300.0
 BULLET_MASS = 10.0
 BULLET_SPEED = 1000.0
 BULLET_SIZE = 3.0
