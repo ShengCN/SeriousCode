@@ -1,15 +1,12 @@
 # -*- coding:utf-8 -*-
 
-import sys
-sys.path.append('../')
 from player_role import PlayerRole
 from enemy_role import EnemyRole
 from npc_role import NPCRole
 from attachment_role import AttachmentRole
 from ArchiveModule.archive_package import ArchivePackage
 import SeriousTools.SeriousTools as SeriousTools
-# from ResourcesModule.resources_manager import ResourcesManager
-# from ResourcesModule.resources_manager import ResourcesManager
+from ResourcesModule.resources_manager import ResourcesManager
 
 from panda3d.core import *
 
@@ -61,7 +58,7 @@ ROLE_ATTR_LIST = [
     "price",
     "soild",
     "effert", # 20
-    "story"
+    "story",
 ]
 
 class RoleManager(object):
@@ -387,6 +384,7 @@ class RoleManager(object):
 
         attackForce = attacker.get_attr_value("attackForce")
         hp = victim.get_attr_value("hp")
+
         hp = max(hp - attackForce, 0)
 
         victim.set_attr_value("hp", hp)
@@ -409,7 +407,6 @@ class RoleManager(object):
             else:
 
                 return [BE_ATTACKED, ATTACK]
-
 
     # 玩家角色使用药物
     def take_medicine(self):
@@ -505,7 +502,7 @@ class RoleManager(object):
 
         player = self.get_role("PlayerRole")
 
-        money = player.get_role_attr("money")
+        money = player.get_attr_value("money")
 
         money += increase
 

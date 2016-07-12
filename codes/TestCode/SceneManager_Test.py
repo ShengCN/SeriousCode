@@ -16,11 +16,13 @@ import sys
 config = """
 framebuffer-multisample 1
 multisamples 2
+framebuffer-stencil #t
+threading-model Cull/Draw
 fullscreen #f
 interpolate-frames 1
 window-title Reborn : The Soul Of Devil
-preload-textures 0
-preload-simple-textures 1
+# preload-textures 0
+# preload-simple-textures 1
 texture-compression 1
 allow-incomplete-render 1
 allow-async-bind 1
@@ -28,55 +30,65 @@ restore-initial-pose 0
 hardware-animated-vertices #t
 model-cache-textures #t
 support-threads #t
-#want-directtools #t
-#want-tk #t
-#want-pstat #t
+display-list-animation 1
+display-lists 1
+gl-finish #f
+loader-num-threads 4
+show-occlusion #t
 """
 
 loadPrcFileData("", config)
 
-modelRootPath = "/e/Serious"
+modelRootPath = "/e/Serious2/Material/ModelEGGS/"
 
-village = modelRootPath + "/Material/ModelEGGS/Outer/Outer.egg"
+village = modelRootPath + "Outer/Outer.egg"
 
-hunterPath = modelRootPath + "/Material/ModelEGGS/Hunter/hunter_AlarmPos1.egg"
+hunterPath = modelRootPath + "Hunter/hunter_Alarm1.egg"
 hunterActionsPath = {
-    "run_forward" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_RunWithGun1.egg",
-    "run_backward" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_RunBackWithGun1.egg",
-    "rda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WithGunRightDefenceUpdate.egg",
-    "lda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WithGunLeftDefenceUpdate",
-    "bda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WithGunBackDefenceUpdate.egg",
-    "attack" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_Attack1.egg",
-    "stand" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_Stand.egg"
+    "run_forward" : modelRootPath + "Hunter/hunter_RunWithGun1.egg",
+    "run_backward" : modelRootPath + "Hunter/hunter_RunBackWithGun1.egg",
+    "rda" : modelRootPath + "Hunter/hunter_WithGunRightDefence.egg",
+    "lda" : modelRootPath + "Hunter/hunter_WithGunLeftDefenceUpdate",
+    "bda" : modelRootPath + "Hunter/hunter_WithGunBackDefenceUpdate.egg",
+    "attack" : modelRootPath + "Hunter/hunter_Attack1.egg",
+    "stand" : modelRootPath + "Hunter/hunter_Alarm1Pose.egg"
 }
 
-wifeZombiePath = modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Stand.egg"
+wifeZombiePath = modelRootPath + "WifeZombie/WifeZombie_Stand.egg"
 wifeZombieActionsPath = {
-    "run" : modelRootPath + "/Material/ModelEGGS/WifeZombie/WifeZombie_Walk.egg",
-    "attack" : modelRootPath + "/Materal/ModelEGGS/WifeZombie/WifeZombie_Attack3.egg"
+    "run" : modelRootPath + "WifeZombie/WifeZombie_Walk.egg",
+    "attack" : modelRootPath + "WifeZombie/WifeZombie_Attack3.egg"
 }
-
-terrainH = modelRootPath + "/Material/Terrain/ground.jpg"
-terrainMap = modelRootPath + "/Material/Terrain/ground.jpg"
 
 # house1Path = modelRootPath + "/Material/ModelEGGS/Village/house1.egg"
 
-hookZombiePath = modelRootPath + "/Material/ModelEGGS/HookZombie/HookZombie_Walk.egg"
+hookZombiePath = modelRootPath + "HookZombie/HookZombie_Pose.egg"
 hookZombieActionsPath = {
-    "walk" : modelRootPath + "/Material/ModelEGGS/HookZombie/HookZombie_Walk_v2.egg",
-    "attack" : modelRootPath + "/Material/ModelEGGS/HookZombie/HookZombie_OffencePose.egg"
+    "walk" : modelRootPath + "HookZombie/HookZombie_Walk_v2.egg",
+    "attack" : modelRootPath + "HookZombie/HookZombie_OffencePose.egg"
 }
 
-girlPath = modelRootPath + "/Material/ModelEGGS/Girl/GIRL_Pose.egg"
+normalZombiePath = modelRootPath + "Zombie/Zombie_Pose.egg"
+normalZombieActionsPath = {
+    "walk"   : modelRootPath + "Zombie/Zombie_Walk.egg",
+    "attack" : modelRootPath + "Zombie/Zombie_Offence.egg"
+}
+
+girlPath = modelRootPath + "Girl/GIRL_Pose.egg"
 
 
-nunv = modelRootPath + "/Material/ModelEGGS/NUNV/NUNV_Pose.egg"
+nunv = modelRootPath + "NUNV/NUNV_Pose.egg"
 
-stealer = modelRootPath + "/Material/ModelEGGS/Stealer/StealerWithPos.egg"
+stealer = modelRootPath + "Stealer2/StealerWithPose.egg"
 
-roomPath = modelRootPath + "/Material/ModelEGGS/Room/Room.egg"
+roomPath = modelRootPath + "Room/Room.egg"
 
-coinPath = modelRootPath + "/Material/ModelEGGS/Coin/Coin.egg"
+coinPath = modelRootPath + "Coin/Coin.egg"
+
+chestPath = modelRootPath + "Chest/Chest1.egg"
+chestActionsPath = {
+    "open" : modelRootPath + "Chest/Chest1_Open.egg"
+}
 
 EMPTY_NODEPATH = NodePath("EmptyNodePath")
 
@@ -92,7 +104,7 @@ class GameWorld_Test(ShowBase):
         self.setFrameRateMeter(True)
         #self.setSceneGraphAnalyzerMeter(True)
         self.render.flattenStrong()
-        #self.render.setAttrib(LightRampAttrib.makeDefault())
+        self.render.setAttrib(LightRampAttrib.makeDefault())
         self.render.setTwoSided(True)
         self.render.setAntialias(AntialiasAttrib.MAuto)
 
@@ -130,9 +142,9 @@ class GameWorld_Test(ShowBase):
         actorId = sceneMgr.get_ActorMgr().get_resId(actor)
         sceneMgr.get_ActorMgr().add_toggle_to_actor("w", actorId, "run_forward")
         sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId, "run_backward")
-        sceneMgr.get_ActorMgr().add_toggle_to_actor("z", actorId, "rda")
-        sceneMgr.get_ActorMgr().add_toggle_to_actor("x", actorId, "lda")
-        sceneMgr.get_ActorMgr().add_toggle_to_actor("c", actorId, "bda")
+        sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId, "rda")
+        sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId, "lda")
+        #sceneMgr.get_ActorMgr().add_toggle_to_actor("c", actorId, "bda")
         print "actorId : ", actorId
 
         sceneMgr.get_ActorMgr().add_effert_to_actor("w", actorId, "actor_move_forward")
@@ -140,13 +152,14 @@ class GameWorld_Test(ShowBase):
         sceneMgr.get_ActorMgr().add_effert_to_actor("a", actorId, "actor_rotate_cw")
         sceneMgr.get_ActorMgr().add_effert_to_actor("d", actorId, "actor_rotate_ccw")
         sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId)
+        sceneMgr.get_ActorMgr().add_toggle_for_player_to_interact("e", actorId)
 
         # _zombieWife = sceneMgr.add_actor_scene(wifeZombiePath,
         #                                        wifeZombieActionsPath,
         #                                        self.render)
         # _zombieWife.setPos(120, 120, 0)
         # zId = sceneMgr.get_resId(_zombieWife)
-        # #sceneMgr.get_ActorMgr().enemy_die_interval_play(zId)
+        #sceneMgr.get_ActorMgr().enemy_die_interval_play(zId)
         # sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_run", zId, "run")
         # sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", zId, "attack")
         # #sceneMgr.get_ActorMgr().add_effert_to_actor("b", zId, "actor_move_forward")
@@ -160,7 +173,8 @@ class GameWorld_Test(ShowBase):
         hookzombie.setScale(3)
         hookzombie.setPos(40, 50, 0)
         hzId = sceneMgr.get_resId(hookzombie)
-        sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_run", hzId, "walk")
+        #sceneMgr.get_ActorMgr().enemy_die_interval_play(hzId)
+        sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", hzId, "walk")
         sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", hzId, "attack")
         #
         # _girl = sceneMgr.add_model_scene(girl, self.render)
@@ -172,13 +186,18 @@ class GameWorld_Test(ShowBase):
         _stealer = sceneMgr.add_actor_scene(stealer, {},  self.render)
         _stealer.setPos(70, 50, 0)
         _stealer.setH(60)
-        #
-        # coin = sceneMgr.add_model_scene(coinPath, self.render)
-        # coin.setPos(100, 100, 0)
-        # coin.setScale(0.5)
+
+        chest = sceneMgr.add_actor_scene(chestPath, chestActionsPath, self.render)
+        chest.setPos(-100, -100, 0)
+        sceneMgr.get_ActorMgr().add_toggle_to_actor("open_chest", sceneMgr.get_resId(chest), "open")
+
+        normalZombie = sceneMgr.add_actor_scene(normalZombiePath, normalZombieActionsPath, self.render)
+        normalZombie.setPos(-30, -30, 0)
+        normalZombie.setScale(3)
 
         camCtrlr = CameraController()
         camCtrlr.bind_camera(self.cam)
+        camCtrlr.bind_ShowBase(self)
         camCtrlr.bind_ToggleHost(self)
         camCtrlr.set_clock(globalClock)
         camCtrlr.focus_on(actor, 200)
@@ -231,27 +250,10 @@ class GameWorld_Test(ShowBase):
         print sceneMgr.get_ActorMgr().get_eventEffertRecord()
         sceneMgr.get_ActorMgr().print_all_itvl_duration()
 
-        # terra = sceneMgr.add_terrain_scene(terrainH,
-        #                                    terrainMap,
-        #                                    self.render)
-        # terra.getRoot().setPos(-50, -50, 0)
-
-        # model6.clearLight(light2)
-        # model6.clearLight(light3)
-        # model6.clearLight(light4)
-
-        # print "terrain pos : ", terra.getRoot().getPos()
-        # print "terrain hpr : ", terra.getRoot().getHpr()
-        # print "terrain scale : ", terra.getRoot().getScale()
-        # print "terrain parent : ", terra.getRoot().getParent()
-        #
-        # print "render name : ", self.render.getName()
-        # print "terrain name : ", terra.getRoot().getName()
-        # #print "model name : ", model.getName()
-        # print "actor name : ", actor.getName()
-
         self.cam.setPos(200, 200, 5)
         self.cam.lookAt(0, 0, 0)
+
+        #actor.setRenderMode(RenderModeAttrib.MWireframe, 1)
 
         camCtrlr.add_toggle_to_opt("u", "rotate_around_up")
         camCtrlr.add_toggle_to_opt("j", "rotate_around_down")
@@ -270,46 +272,30 @@ class GameWorld_Test(ShowBase):
         #roleMgr.bind_SceneManager(sceneMgr)
         hookZombieRole = roleMgr.create_role(roleType = "EnemyRole",
                                              modelId = sceneMgr.get_resId(hookzombie))
-        #
+        normalZombieRole = roleMgr.create_role(roleType = "EnemyRole",
+                                               modelId = sceneMgr.get_resId(normalZombie))
+        sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", sceneMgr.get_resId(normalZombie), "walk")
+        sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", sceneMgr.get_resId(normalZombie), "attack")
         npc1 = roleMgr.create_role(roleType = "NPCRole",
                                    modelId = sceneMgr.get_resId(_stealer))
         print roleMgr.get_role_face_hpr(roleMgr.get_roleId(npc1))
         # npc1.print_all_attr()
 
+        chest1 = roleMgr.create_role(roleType = "AttachmentRole",
+                                     modelId = sceneMgr.get_resId(chest))
 
-        # roleArcPkg = roleMgr.export_arcPkg()
-        # arcPkgs.append(roleArcPkg)
-
-        # f = open("ArcPkgs.txt", "w")
-        # f.write("---------- Archive Package ----------\n")
-        # for arcPkg in arcPkgs:
-        #     f.write("===========\n")
-        #     f.write(arcPkg.get_ArchivePackageName() + "\n")
-        #     f.write("itemsName : ")
-        #     for name in arcPkg.get_itemsName():
-        #         f.write(name+", ")
-        #     f.write("\n===========\n")
-        #     for data in arcPkg.get_itemsData():
-        #         f.write(str(data)+"\n")
-        #     f.write("==========\n")
-        # f.write("------------------------------\n")
-
-        #self.taskMgr.setupTaskChain("actorTaskChain", numThreads = 3)
-        #self.taskMgr.setupTaskChain("terraTaskChain")
-        #self.taskMgr.setupTaskChain("cameraTaskChain", numThreads = 3)
-
+        # print self.render.getChildren()
+        #
+        # self.render.node().removeAllChildren()
+        # actor.reparentTo(self.render)
+        # self.cam.reparentTo(self.render)
 
         self.taskMgr.add(sceneMgr.update_scene, "update_scene")
 
         self.accept("l", self.__save_archive, [sceneMgr, roleMgr])
 
-        self.accept("space", self.dialog_show)
-        self.accept("find_npc", self.print_accept_event, ["find_npc"])
-        #self.accept("find_nothing", self.print_accept_event, ["find_nothing"])
-
-        #self.accept("w_effert", self.check_event, ["w_effert"])
-
-        self.render.analyze()
+        self.accept("t", sceneMgr.get_ActorMgr().stop_all_itvls)
+        self.accept("y", sceneMgr.get_ActorMgr().restart_all_itvls)
 
     def __save_archive(self, sceneMgr, roleMgr):
 

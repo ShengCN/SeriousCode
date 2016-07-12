@@ -59,6 +59,8 @@ class CameraController(object):
 
         self.__camToggleHost = None
         self.__parentNode = None
+        self.__showbase = None
+        self.__render = None
 
         self.__camFixed = False
 
@@ -140,6 +142,14 @@ class CameraController(object):
         self.__camCurrH = self.__camToCtrl.getH()
         self.__camCurrP = self.__camToCtrl.getP()
         self.__camCurrR = self.__camToCtrl.getR()
+
+    def bind_ShowBase(self, showbase):
+
+        self.__showbase = showbase
+        self.__render = showbase.render
+
+        self.bind_ToggleHost(showbase)
+        self.bind_camera(showbase.cam)
 
     """""""""""""""""""""
     相机控制事件处理函数
@@ -260,7 +270,7 @@ class CameraController(object):
         #     self.__rotate_r_ccw()
 
 
-        self.__update_camera()
+        self.__update_camera(task)
 
         return task.cont
 
@@ -270,18 +280,18 @@ class CameraController(object):
         self.__objectToFocus = target
         self.__radius = radius
 
-        self.__objectPrevPos = target.getPos()
-
-        targetPos = target.getPos()
         cameraPos = self.__camToCtrl.getPos()
+
+        self.__objectPrevPos = target.getPos(self.__render)
 
         #print "The Pos of Camera : ", cameraPos
         #print "The Pos of Target : ", targetPos
 
-        ctVector = cameraPos - targetPos
+        ctVector = self.__camToCtrl.getPos() - target.getPos(self.__render)
         ctvLen = ctVector.length()
         ctVector.normalize()
-
+        print "the target pos relative to render : ", target.getPos(self.__render)
+        print "the target pos : ", target.getPos()
         #print "The e Vector : ", ctVector
 
         disOffset = math.fabs(ctvLen - radius)
@@ -440,7 +450,7 @@ class CameraController(object):
         deltaAngle = self.__dt * self.__rotateSpeed * self.__correctionFactorV
         deltaAngle *= (math.pi / 180)
 
-        ctVector = self.__camToCtrl.getPos() - self.__objectToFocus.getPos()
+        ctVector = self.__camToCtrl.getPos() - self.__objectToFocus.getPos(self.__render)
 
         e = Vec3(ctVector)
         e.normalize()
@@ -467,35 +477,41 @@ class CameraController(object):
 
         deltaZ = deltaDis * math.cos(b)
 
+        if self.__camCurrZ > 60:
+
+            deltaZ = 0
+
         cosH = math.fabs(self.__camCurrX) / ((self.__camCurrX) ** 2 + (self.__camCurrY) ** 2) ** 0.5
         sinH = math.fabs(self.__camCurrY) / ((self.__camCurrX) ** 2 + (self.__camCurrY) ** 2) ** 0.5
 
         deltaX = deltaDis * math.sin(b) * cosH
         deltaY = deltaDis * math.sin(b) * sinH
 
-        if self.__camCurrX - self.__objectToFocus.getX() > 0 and \
-            self.__camCurrY - self.__objectToFocus.getY() > 0:
+        if self.__camCurrX - self.__objectToFocus.getX(self.__render) > 0 and \
+            self.__camCurrY - self.__objectToFocus.getY(self.__render) > 0:
 
             self.__camCurrX -= deltaX
             self.__camCurrY -= deltaY
 
-        elif self.__camCurrX - self.__objectToFocus.getX() < 0 and \
-              self.__camCurrY - self.__objectToFocus.getY() > 0:
+        elif self.__camCurrX - self.__objectToFocus.getX(self.__render) < 0 and \
+              self.__camCurrY - self.__objectToFocus.getY(self.__render) > 0:
 
             self.__camCurrX += deltaX
             self.__camCurrY -= deltaY
 
-        elif self.__camCurrX - self.__objectToFocus.getX() < 0 and \
-              self.__camCurrY - self.__objectToFocus.getY() < 0:
+        elif self.__camCurrX - self.__objectToFocus.getX(self.__render) < 0 and \
+              self.__camCurrY - self.__objectToFocus.getY(self.__render) < 0:
 
             self.__camCurrX += deltaX
             self.__camCurrY += deltaY
 
-        elif self.__camCurrX - self.__objectToFocus.getX() > 0 and \
-              self.__camCurrY - self.__objectToFocus.getY() < 0:
+        elif self.__camCurrX - self.__objectToFocus.getX(self.__render) > 0 and \
+              self.__camCurrY - self.__objectToFocus.getY(self.__render) < 0:
 
             self.__camCurrX -= deltaX
             self.__camCurrY += deltaY
+
+        # print "camCurrZ : ", self.__camCurrZ, " deltaZ : ", deltaZ
 
         self.__camCurrZ += deltaZ
 
@@ -505,7 +521,7 @@ class CameraController(object):
         deltaAngle = self.__dt * self.__rotateSpeed * self.__correctionFactorV
         deltaAngle *= ( math.pi / 180 )
 
-        ctVector = self.__camToCtrl.getPos() - self.__objectToFocus.getPos()
+        ctVector = self.__camToCtrl.getPos() - self.__objectToFocus.getPos(self.__render)
 
         e = Vec3(ctVector)
         e.normalize()
@@ -532,37 +548,46 @@ class CameraController(object):
 
         deltaZ = deltaDis * math.cos(b)
 
+        #print "camCurrZ : ", self.__camCurrZ
+
+        if self.__camCurrZ < 5:
+
+            deltaZ = 0
+
         cosH = math.fabs(self.__camCurrX) / ((self.__camCurrX) ** 2 + (self.__camCurrY) ** 2) ** 0.5
         sinH = math.fabs(self.__camCurrY) / ((self.__camCurrX) ** 2 + (self.__camCurrY) ** 2) ** 0.5
 
         deltaX = deltaDis * math.sin(b) * cosH
         deltaY = deltaDis * math.sin(b) * sinH
 
-        if self.__camCurrX - self.__objectToFocus.getX() > 0 and \
-            self.__camCurrY - self.__objectToFocus.getY() > 0:
+        if self.__camCurrX - self.__objectToFocus.getX(self.__render) > 0 and \
+            self.__camCurrY - self.__objectToFocus.getY(self.__render) > 0:
 
             self.__camCurrX += deltaX
             self.__camCurrY += deltaY
 
-        elif self.__camCurrX - self.__objectToFocus.getX() < 0 and \
-              self.__camCurrY - self.__objectToFocus.getY() > 0:
+        elif self.__camCurrX - self.__objectToFocus.getX(self.__render) < 0 and \
+              self.__camCurrY - self.__objectToFocus.getY(self.__render) > 0:
 
             self.__camCurrX -= deltaX
             self.__camCurrY += deltaY
 
-        elif self.__camCurrX - self.__objectToFocus.getX() < 0 and \
-              self.__camCurrY - self.__objectToFocus.getY() < 0:
+        elif self.__camCurrX - self.__objectToFocus.getX(self.__render) < 0 and \
+              self.__camCurrY - self.__objectToFocus.getY(self.__render) < 0:
 
             self.__camCurrX -= deltaX
             self.__camCurrY -= deltaY
 
-        elif self.__camCurrX - self.__objectToFocus.getX() > 0 and \
-              self.__camCurrY - self.__objectToFocus.getY() < 0:
+        elif self.__camCurrX - self.__objectToFocus.getX(self.__render) > 0 and \
+              self.__camCurrY - self.__objectToFocus.getY(self.__render) < 0:
 
             self.__camCurrX += deltaX
             self.__camCurrY -= deltaY
+
+        #print "camCurrZ : ", self.__camCurrZ, " deltaZ : ", deltaZ
 
         self.__camCurrZ -= deltaZ
+        print self.__camCurrZ
 
     # 绕聚焦物体顺时针旋转
     def __rotate_around_cw(self):
@@ -576,8 +601,8 @@ class CameraController(object):
 
         deltaB = math.acos(1 - 0.5 * deltaR ** 2 / r ** 2)
 
-        objX = self.__objectToFocus.getX()
-        objY = self.__objectToFocus.getY()
+        objX = self.__objectToFocus.getX(self.__render)
+        objY = self.__objectToFocus.getY(self.__render)
 
         camCurrX = (self.__camCurrX - objX) * math.cos(deltaB) - (self.__camCurrY - objY) * math.sin(deltaB) + objX
         camCurrY = (self.__camCurrX - objX) * math.sin(deltaB) + (self.__camCurrY - objY) * math.cos(deltaB) + objY
@@ -597,8 +622,8 @@ class CameraController(object):
 
         deltaB = math.acos(1 - 0.5 * deltaR ** 2 / r ** 2)
 
-        objX = self.__objectToFocus.getX()
-        objY = self.__objectToFocus.getY()
+        objX = self.__objectToFocus.getX(self.__render)
+        objY = self.__objectToFocus.getY(self.__render)
 
         camCurrX = (self.__camCurrX - objX) * math.cos(deltaB) + (self.__camCurrY - objY) * math.sin(deltaB) + objX
         camCurrY = (self.__camCurrY - objY) * math.cos(deltaB) - (self.__camCurrX - objX) * math.sin(deltaB) + objY
@@ -649,7 +674,7 @@ class CameraController(object):
     #         self.focus_on(self.__objectToFocus, self.__radius)
 
     # 只有执行更新函数后相机的状态才会发生改变
-    def __update_camera(self):
+    def __update_camera(self, task):
 
         # 如果相机没有聚焦在某个物体上，则相机的移动和旋转是相对于其前一个状态的
         if self.__objectToFocus is None:
@@ -666,7 +691,7 @@ class CameraController(object):
         # 并且镜头始终朝向该物体，并且如果由玩家控制相机镜头的话，只能够将相机
         # 进行上下左右旋转，因此镜头的变化速度取决于self.__camRotateSpeed
         else:
-            pass
+
             if self.__optsSwitch[CAM_ROTATE_AROUND_UP][0] and \
                     self.__optsSwitch[CAM_ROTATE_AROUND_UP][1]:
 
@@ -699,11 +724,16 @@ class CameraController(object):
 
                 self.__update_directionsVector()
 
-            objCurrPos = self.__objectToFocus.getPos()
+            else:
+                pass
+                #print "they are all not true"
+
             camCurrPos = self.__camToCtrl.getPos()
-            dVector = objCurrPos - camCurrPos
+            dVector = self.__objectToFocus.getPos(self.__render) - camCurrPos
+            #print "camera pos : ",camCurrPos, ", obj pos : ", self.__objectToFocus.getPos(self.__render)
             dVector.setZ(0)
             dist = dVector.length()
+            #print "dist : ", dist
             dVector.normalize()
             if dist > 120:
                 self.__camToCtrl.setPos(camCurrPos + dVector * (dist - 120))
@@ -721,6 +751,8 @@ class CameraController(object):
             # self.__camToCtrl.setPos(self.__camToCtrl.getPos() + objCurrPos - self.__objectPrevPos)
             #
             # self.focus_on(self.__objectToFocus, self.__radius)
+
+        return task.cont
 
     def __update_cam_pos(self):
 
@@ -743,7 +775,7 @@ class CameraController(object):
         # f = open("DirectionsVector.txt", "w")
         # f.write("----- DirectionsVector -----\n")
 
-        dVector = self.__camToCtrl.getPos() - self.__objectToFocus.getPos()
+        dVector = self.__camToCtrl.getPos() - self.__objectToFocus.getPos(self.__render)
 
         dVector.setZ(0)
         dVector.normalize()

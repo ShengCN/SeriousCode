@@ -13,16 +13,19 @@ class Demo(ShowBase):
 
         ShowBase.__init__(self)
 
-        actorPath = "/e/Material/hunter_WithGun.egg"
+        self.render.setTwoSided(True)
 
-        actionsPath = {"attack" : "/e/Material/hunter_Attack2.egg"}
+        actorPath = "/e/Serious2/Material/ModelEGGS/Chest/Chest3.egg"
+
+        actionsPath = {"open" : "/e/Serious2/Material/ModelEGGS/Chest/Chest3_Open.egg"}
 
         self.disableMouse()
 
         self.actor = Actor(actorPath, actionsPath)
-
         self.actor.setPos(0, 0, 0)
         self.actor.reparentTo(self.render)
+
+        self.actor.play("open")
 
         self.accept("a", self.turn_true, [1])
         self.accept("d", self.turn_true, [2])
@@ -64,9 +67,7 @@ class Demo(ShowBase):
 
         if event == "mouse1":
 
-            self.actor.play("attack")
-
-
+            self.actor.play("open")
 
     def update_hpr(self, task):
 

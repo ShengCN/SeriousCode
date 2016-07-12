@@ -94,3 +94,17 @@ def extract_name_from_Id(Id):
 
         return None
 
+def is_device_event(event):
+
+    if len(event) == 1 and \
+            event.isalpha() or \
+            event.isdigit() or \
+            event == "mouse1" or \
+            event == "mouse2" or \
+            event == "mouse3":
+
+        return True
+
+    return False
+
+print is_device_event("mouse1-up")
