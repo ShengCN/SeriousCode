@@ -18,7 +18,9 @@ from direct.interval.IntervalGlobal import *
 from pandac.PandaModules import TransparencyAttrib
 from panda3d.core import *
 
+import sys
 import math
+import time
 import random
 
 # 角色行为常量
@@ -57,6 +59,7 @@ class ActorManager(ResManager):
         ResManager.__init__(self, resType)
 
         self.__itvlMap = dict()
+        self.__itvlState = dict()
 
         self.__actorMoveSpeed = 0
         self.__actorRotateSpeed = 0
@@ -68,8 +71,10 @@ class ActorManager(ResManager):
         self.__playerMovingState = dict()
 
         self.__attackLock = False
+        self.__playerFoundChest = False
 
         self.__NPCCanTalkWith = None
+        self.__chestCanOpen = None
 
         self.isPlayerMoving = False
 
@@ -117,6 +122,8 @@ class ActorManager(ResManager):
         self.__playerMovingForward = False
         self.__playerMovingBackward = False
 
+        self.__shouldDestroyPrompt = False
+
         self.__effertMsgDiptcr = EffertMsgDispatcher()
 
         self.__resMgr = ResourcesManager()
@@ -138,7 +145,6 @@ class ActorManager(ResManager):
     """""""""""""""
     动态模型管理函数
     """""""""""""""
-
     # 加载动态模型
     def load_res(self,
                  resPath,
@@ -164,6 +170,7 @@ class ActorManager(ResManager):
         self._resMap[resId] = res
         self._resPath[resId] = [resPath, extraResPath]
         self.__itvlMap[resId] = self.__gen_interval_for_actor(res)
+        self.print_all_itvl_duration()
 
         return res
 
@@ -196,13 +203,13 @@ class ActorManager(ResManager):
 
                     itvl = self.__get_actor_interval(actorId, actionName)
 
+                    if SeriousTools.is_device_event(toggleEvent) is False:
+
+                        toggleEvent += "_" + actorId
+
                     actor.accept(event=toggleEvent,
                                  method=self.__move_interval_loop,
                                  extraArgs=[actor, toggleEvent, itvl])
-
-                    # actor.accept(event=toggleEvent + "-repeat",
-                    #              method=self.__move_interval_loop,
-                    #              extraArgs=[actor, toggleEvent, itvl])
 
                     actor.accept(event=toggleEvent + "-up",
                                  method=self.__move_interval_stop,
@@ -226,13 +233,13 @@ class ActorManager(ResManager):
 
                     itvl = self.__get_actor_interval(actorId, actionName)
 
+                    if SeriousTools.is_device_event(toggleEvent) is False:
+
+                        toggleEvent += actorId
+
                     actor.accept(event=toggleEvent,
                                  method=self.__move_interval_loop,
                                  extraArgs=[actor, toggleEvent, itvl])
-
-                    # actor.accept(event=toggleEvent + "-repeat",
-                    #              method=self.__move_interval_loop,
-                    #              extraArgs=[actor, toggleEvent, itvl])
 
                     actor.accept(event=toggleEvent + "-up",
                                  method=self.__move_interval_stop,
@@ -243,6 +250,18 @@ class ActorManager(ResManager):
                         self.__eventActionRecord[actorId] = dict()
 
                     self.__eventActionRecord[actorId][toggleEvent] = actionName
+
+    def add_toggle_to_group_actors(self, toggleEvent, actorList, actionName):
+
+        for actorId in actorList:
+
+            self.add_toggle_to_actor(toggleEvent, actorId, actionName)
+
+    def add_toggle_for_player_to_interact(self, toggleEvent, playerId):
+
+        player = self.get_actor(playerId)
+
+        player.accept(toggleEvent, self.__talk_or_open)
 
     #########################################
 
@@ -346,6 +365,39 @@ class ActorManager(ResManager):
         #             self.__turn_effert_switch(actorId, toggleEvent, "actor_move_backward", False)
 
         attackItvl.start()
+
+    #########################################
+
+    def stop_all_itvls(self):
+
+        for actorId, itvls in self.__itvlMap.iteritems():
+
+            if self.__itvlState.has_key(actorId) is False:
+
+                self.__itvlState[actorId] = dict()
+
+            for actionName, itvl in itvls.iteritems():
+
+                if itvl.isPlaying():
+
+                    self.__itvlState[actorId][actionName] = True
+
+                    itvl.finish()
+
+                else:
+
+                    self.__itvlState[actorId][actionName] = False
+
+
+    def restart_all_itvls(self):
+
+        for actorId, stateMap in self.__itvlState.iteritems():
+
+            for actionName, state in stateMap.iteritems():
+
+                if state is True:
+
+                    self.__itvlMap[actorId][actionName].loop()
 
     #########################################
 
@@ -719,22 +771,24 @@ class ActorManager(ResManager):
         enemyId = self.get_resId(enemy)
         enemyRole = self.__roleMgr.get_role_by_model(enemyId)
 
-        # playerPos = player.getPos(self.render)
-        # enemyPos = enemy.getPos(self.render)
+        playerPos = player.getPos()
+        enemyPos = enemy.getPos()
 
+        playerPos.setZ(0)
+        enemyPos.setZ(0)
 
-        v = player.getPos(enemy)
+        v = enemy.getPos(player)
         v.setZ(0)
 
         if v.length() > enemyRole.get_attr_value("attackRange"):
 
             if enemyRole.get_attr_value("currState") == "attacking":
 
-                messenger.send("enemy_attack-up")
+                messenger.send("enemy_attack_" + enemyId +"-up")
 
                 enemyRole.set_attr_value("currState", "closing")
 
-                messenger.send("enemy_run")
+                messenger.send("enemy_walk_" + enemyId)
 
             enemyRunSpeed = enemyRole.get_attr_value("runSpeed") * 1.5
 
@@ -755,8 +809,8 @@ class ActorManager(ResManager):
 
                 enemyRole.set_attr_value("currState", "attacking")
 
-                messenger.send("enemy_run-up")
-                messenger.send("enemy_attack")
+                messenger.send("enemy_walk_" + enemyId +"-up")
+                messenger.send("enemy_attack_" + enemyId)
 
                 # if random.randint(0, 1) == 0:
                 #
@@ -794,12 +848,44 @@ class ActorManager(ResManager):
 
         return task.cont
 
+    def __talk_or_open(self):
+
+        if self.__NPCCanTalkWith is not None:
+
+
+
+            return
+
+        if self.__chestCanOpen is not None:
+
+            self.__shouldDestroyPrompt = False
+
+            self.__chestCanOpen.play("open")
+
+            chestId = self.get_actorId(self.__chestCanOpen)
+
+            chestRole = self.__roleMgr.get_role_by_model(chestId)
+
+            money = random.randint(40, 60)
+
+            self.__resMgr.destroy_prompt()
+            self.__resMgr.show_prompt_box("获得" + str(money) + "金币")
+
+            self.__roleMgr.obtain_money(money)
+
+            self.__shouldDestroyPrompt = False
+
+            print self.__roleMgr.get_role("PlayerRole").get_attr_value("money")
+
+            chestRole.set_attr_value(key="opened", value=True)
+
     # 监测玩家角色可触碰区域内的其他角色, 监测到的不同事件具有不同优先级
     # 优先级1：发现Enemy
     # 优先级2：发现NPC
     # 优先级3：发现Attachment
     def __check_player_touch_area(self, task):
 
+        minDist = sys.maxint
 
         playerRole = self.__roleMgr.get_role("PlayerRole")
 
@@ -821,8 +907,13 @@ class ActorManager(ResManager):
 
             enemyPos = enemy.getPos()
 
-            dVector = playerPos - enemyPos
+            dVector = enemy.getPos(player)
             dVector.setZ(0)
+
+            if self.__itvlMap[enemyId]["walk"].isPlaying() is False and \
+                self.__itvlMap[enemyId]["attack"].isPlaying() is False :
+
+                messenger.send("enemy_walk_" + enemyId)
 
             if dVector.length() <= touchRadius and enemy.isHidden() is False:
 
@@ -832,7 +923,7 @@ class ActorManager(ResManager):
 
                 if enemyRole.get_attr_value("currState") == "wandering":
 
-                    messenger.send("enemy_run")
+                    #messenger.send("enemy_walk_" + enemyId)
 
                     enemyRole.set_attr_value("currState", "closing")
 
@@ -844,16 +935,27 @@ class ActorManager(ResManager):
 
                 self.set_enemyCanAttack(enemyId, False)
 
-                messenger.send("enemy_run-up")
+                #messenger.send("enemy_walk_" + enemyId + "-up")
 
                 enemyRole.set_attr_value("currState", "wandering")
 
         if enemyFoundPlayer is True:
 
+            self.__resMgr.destroy_prompt()
+
+            self.__NPCCanTalkWith = None
+            self.__chestCanOpen = None
+
             return task.cont
+
+        else:
+
+            self.__shouldDestroyPrompt = False
 
         # 然后监测NPC
         NPCs = self.__roleMgr.get_one_kind_of_roles("NPCRole")
+
+        playerFoundNPC = False
 
         for NPCRole in NPCs:
 
@@ -861,21 +963,79 @@ class ActorManager(ResManager):
 
             NPCPos = NPC.getPos()
 
-            dVector = playerPos - NPCPos
+            dVector = NPC.getPos(player)
             dVector.setZ(0)
 
-            if dVector.length() <= touchRadius:
+            if dVector.length() <= minDist and dVector.length() <= touchRadius:
+
+                minDist = dVector.length()
 
                 self.__resMgr.show_prompt_box("发现NPC")
 
                 self.__NPCCanTalkWith = NPC
 
+                self.__shouldDestroyPrompt = True
+
+                playerFoundNPC = True
+
                 messenger.send(FIND_NPC)
 
-                return task.cont
+            # else:
+            #
+            #     if self.__shouldDestroyPrompt is True:
+            #
+            #         self.__resMgr.destroy_prompt()
 
-            else:
-                self.__resMgr.destroy_prompt()
+        if playerFoundNPC is False:
+
+            self.__NPCCanTalkWith = None
+
+        else:
+
+            self.__shouldDestroyPrompt = False
+
+            return task.cont
+
+        chests = self.__roleMgr.get_one_kind_of_roles("AttachmentRole")
+
+
+
+        for chest in chests:
+
+            chestTouchRadius = chest.get_attr_value("touchRadius")
+
+            _chest = self.get_actor(chest.get_attr_value("modelId"))
+
+            chestPos = _chest.getPos()
+
+            dVector = _chest.getPos(player)
+            dVector.setZ(0)
+
+            if dVector.length() <= chestTouchRadius:
+
+                if chest.get_attr_value("opened") is False:
+
+                    self.__resMgr.show_prompt_box("发现宝箱")
+
+                    self.__playerFoundChest = True
+
+                    self.__shouldDestroyPrompt = False
+
+                    self.__chestCanOpen = _chest
+
+                    return task.cont
+
+            elif dVector.length() > chestTouchRadius:
+
+                self.__playerFoundChest = False
+
+        if self.__playerFoundChest is False:
+
+            self.__shouldDestroyPrompt = True
+
+            self.__chestCanOpen = None
+
+            self.__resMgr.destroy_prompt()
 
         messenger.send(FIND_NOTHING)
 

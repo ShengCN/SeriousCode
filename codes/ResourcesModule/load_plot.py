@@ -190,7 +190,7 @@ class LoadPlot(DirectObject):
 
             #如果行中包含Part，则扩充数组
             if (line[4] == "1" or line[4] == "2" or line[4] == "3" or line[4] == "4" or line[4] == "5"
-                or line[4] == "6" or line[4] == "7" or line[4] == "8" or line[4] == "9"):
+                or line[4] == "6" or line[4] == "7" or line[4] == "8"):
                 part=part+1
                 self.__dialogueList.append({"id":part+1,"dialogue":[]})
                 index = 0
@@ -203,7 +203,7 @@ class LoadPlot(DirectObject):
 
     #选择第几部分对话
     def selectPart(self):
-        if self.__id==9:
+        if self.__id==7:
             self.__part = self.__id
             self.__index = 1
             return True
@@ -304,7 +304,7 @@ class LoadPlot(DirectObject):
         # dialoguePart[4].add(dialoguePart[5])
         # dialoguePart[5].add(dialoguePart[6])
         # dialoguePart[6].add(dialoguePart[7])
-        dialoguePart[0].add(dialoguePart[8])
+        dialoguePart[0].add(dialoguePart[6])
 
         self.__dialogueTree = Tree()
         self.__dialogueTree.link_to_head(dialoguePart[0])

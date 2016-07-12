@@ -27,21 +27,29 @@ class SceneManager(object):
     场景管理函数，包括创建、更新、剔除、隐藏等
     """""""""""""""""""""""""""""""""""""""
 
+    def reset(self):
+
+        self = SceneManager()
+
     def build_on(self, showbase):
 
         self.__showbase = showbase
 
         self.__render = self.__showbase.render
 
+        #self.__camCtrlr.bind_ShowBase(showbase)
+
     # 添加动态模型场景
     def add_actor_scene(self,
                         resPath,
                         extraResPath,
-                        parentNode):
+                        parentNode=None):
 
         actor = self.__actorMgr.load_res(resPath, extraResPath)
 
-        actor.reparentTo(parentNode)
+        if parentNode != None:
+
+            actor.reparentTo(parentNode)
 
         return actor
 
@@ -50,11 +58,13 @@ class SceneManager(object):
     # 添加静态模型场景
     def add_model_scene(self,
                         resPath,
-                        parentNode):
+                        parentNode = None):
 
         model = self.__modelMgr.load_res(resPath)
 
-        model.reparentTo(parentNode)
+        if parentNode != None:
+
+            model.reparentTo(parentNode)
 
         return model
 
@@ -562,6 +572,9 @@ class SceneManager(object):
 
             model.reparentTo(self.__render)
 
+    def clear_screen(self):
+
+        self.__showbase.render.node().removeAllChildren()
 
     def set_render(self, render):
 
