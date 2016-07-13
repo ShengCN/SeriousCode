@@ -7,6 +7,8 @@ from camera_controller import CameraController
 from light_controller import LightController
 import SeriousTools.SeriousTools as SeriousTools
 
+from direct.showbase.MessengerGlobal import messenger
+
 class SceneManager(object):
 
     def __init__(self):
@@ -22,6 +24,8 @@ class SceneManager(object):
 
         self.__camCtrlr = None
         self.__lightCtrlr = None
+
+        self.__checkCircleList = []
 
     """""""""""""""""""""""""""""""""""""""
     场景管理函数，包括创建、更新、剔除、隐藏等
@@ -93,6 +97,31 @@ class SceneManager(object):
         self.__actorMgr.update_actors(task)
 
         self.__camCtrlr.update_camera(task)
+
+        self.__check_change_the_scene(task)
+
+        return task.cont
+
+    def add_CheckCircle(self, circle):
+
+        self.__checkCircleList.append(circle)
+
+    def __check_change_the_scene(self, task):
+
+        player = self.get_res("actor1")
+
+        playerPos = player.getPos(self.__render)
+
+        for circle in self.__checkCircleList:
+
+            dVector = playerPos - circle[0]
+            dVector.setZ(0)
+
+            if dVector.length() < 2.5:
+
+                messenger.send("change_to_scene_" + circle[1])
+                #print "change_to_scene_" + circle[1]
+                return task.cont
 
         return task.cont
 

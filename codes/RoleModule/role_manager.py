@@ -260,104 +260,116 @@ class RoleManager(object):
     """""""""""""""""""""
 
     # 导入角色属性，用于读档
-    def import_arcPkg(self, roleArcPkg):
-
-        roleArcPkg = roleArcPkg[0]
-
-        # 重置某些内部变量
-        self.reset()
-
-        for roleItem in roleArcPkg.get_itemsData():
-
-            roleType = SeriousTools.extract_name_from_Id(roleItem[0])
-
-            if roleType == "PlayerRole":
-
-                player = self.create_role(_roleId = roleItem[0],
-                                          roleType = "PlayerRole",
-                                          modelId = roleItem[1])
-
-                player.set_attr_value("ableToTalk", roleItem[2])
-                player.set_attr_value("ableToCtrl", roleItem[3])
-                player.set_attr_value("ableToAtck", roleItem[4])
-                player.set_attr_value("states", roleItem[5])
-                player.set_attr_value("hp", roleItem[6])
-                player.set_attr_value("money", roleItem[7])
-                player.set_attr_value("attackForce", roleItem[8])
-                player.set_attr_value("walkSpeed", roleItem[9])
-                player.set_attr_value("runSpeed", roleItem[10])
-                player.set_attr_value("rotateSpeed", roleItem[11])
-                player.set_attr_value("touchRadius", roleItem[12])
-                player.set_attr_value("actions", roleItem[13])
-                player.set_attr_value("currWeapon", roleItem[14])
-                player.set_attr_value("attachments", roleItem[15])
-                player.set_attr_value("story", roleItem[21])
-
-            elif roleType == "EnemyRole":
-
-                enemy = self.create_role(_roleId=roleItem[0],
-                                          roleType="EnemyRole",
-                                          modelId=roleItem[1])
-
-                enemy.set_attr_value("ableToTalk", roleItem[2])
-                enemy.set_attr_value("ableToCtrl", roleItem[3])
-                enemy.set_attr_value("ableToAtck", roleItem[4])
-                enemy.set_attr_value("states", roleItem[5])
-                enemy.set_attr_value("hp", roleItem[6])
-                enemy.set_attr_value("attackForce", roleItem[8])
-                enemy.set_attr_value("walkSpeed", roleItem[9])
-                enemy.set_attr_value("runSpeed", roleItem[10])
-                enemy.set_attr_value("actions", roleItem[13])
-
-            elif roleType == "NPCRole":
-
-                npc = self.create_role(_roleId=roleItem[0],
-                                       roleType="NPCRole",
-                                       modelId=roleItem[1])
-
-                npc.set_attr_value("ableToTalk", roleItem[2])
-                npc.set_attr_value("ableToCtrl", roleItem[3])
-                npc.set_attr_value("ableToAtck", roleItem[4])
-                npc.set_attr_value("states", roleItem[5])
-                npc.set_attr_value("actions", roleItem[13])
-
-            elif roleType == "AttachmentRole":
-
-                attachment = self.create_role(_roleId=roleItem[0],
-                                              roleType="AttachmentRole",
-                                              modelId=roleItem[1])
-
-                attachment.set_attr_value("ableToTalk", roleItem[2])
-                attachment.set_attr_value("ableToCtrl", roleItem[3])
-                attachment.set_attr_value("ableToAtck", roleItem[4])
-                attachment.set_attr_value("attachmentType", roleItem[16])
-                attachment.set_attr_value("num", roleItem[17])
-                attachment.set_attr_value("price", roleItem[18])
-                attachment.set_attr_value("sold", roleItem[19])
-                attachment.set_attr_value("effert", roleItem[20])
+    # def import_arcPkg(self, roleArcPkg):
+    #
+    #     roleArcPkg = roleArcPkg[0]
+    #
+    #     # 重置某些内部变量
+    #     self.reset()
+    #
+    #     for roleItem in roleArcPkg.get_itemsData():
+    #
+    #         roleType = SeriousTools.extract_name_from_Id(roleItem[0])
+    #
+    #         if roleType == "PlayerRole":
+    #
+    #             player = self.create_role(_roleId = roleItem[0],
+    #                                       roleType = "PlayerRole",
+    #                                       modelId = roleItem[1])
+    #
+    #             player.set_attr_value("ableToTalk", roleItem[2])
+    #             player.set_attr_value("ableToCtrl", roleItem[3])
+    #             player.set_attr_value("ableToAtck", roleItem[4])
+    #             player.set_attr_value("states", roleItem[5])
+    #             player.set_attr_value("hp", roleItem[6])
+    #             player.set_attr_value("money", roleItem[7])
+    #             player.set_attr_value("attackForce", roleItem[8])
+    #             player.set_attr_value("walkSpeed", roleItem[9])
+    #             player.set_attr_value("runSpeed", roleItem[10])
+    #             player.set_attr_value("rotateSpeed", roleItem[11])
+    #             player.set_attr_value("touchRadius", roleItem[12])
+    #             player.set_attr_value("actions", roleItem[13])
+    #             player.set_attr_value("currWeapon", roleItem[14])
+    #             player.set_attr_value("attachments", roleItem[15])
+    #             player.set_attr_value("story", roleItem[21])
+    #
+    #         elif roleType == "EnemyRole":
+    #
+    #             enemy = self.create_role(_roleId=roleItem[0],
+    #                                       roleType="EnemyRole",
+    #                                       modelId=roleItem[1])
+    #
+    #             enemy.set_attr_value("ableToTalk", roleItem[2])
+    #             enemy.set_attr_value("ableToCtrl", roleItem[3])
+    #             enemy.set_attr_value("ableToAtck", roleItem[4])
+    #             enemy.set_attr_value("states", roleItem[5])
+    #             enemy.set_attr_value("hp", roleItem[6])
+    #             enemy.set_attr_value("attackForce", roleItem[8])
+    #             enemy.set_attr_value("walkSpeed", roleItem[9])
+    #             enemy.set_attr_value("runSpeed", roleItem[10])
+    #             enemy.set_attr_value("actions", roleItem[13])
+    #
+    #         elif roleType == "NPCRole":
+    #
+    #             npc = self.create_role(_roleId=roleItem[0],
+    #                                    roleType="NPCRole",
+    #                                    modelId=roleItem[1])
+    #
+    #             npc.set_attr_value("ableToTalk", roleItem[2])
+    #             npc.set_attr_value("ableToCtrl", roleItem[3])
+    #             npc.set_attr_value("ableToAtck", roleItem[4])
+    #             npc.set_attr_value("states", roleItem[5])
+    #             npc.set_attr_value("actions", roleItem[13])
+    #
+    #         elif roleType == "AttachmentRole":
+    #
+    #             attachment = self.create_role(_roleId=roleItem[0],
+    #                                           roleType="AttachmentRole",
+    #                                           modelId=roleItem[1])
+    #
+    #             attachment.set_attr_value("ableToTalk", roleItem[2])
+    #             attachment.set_attr_value("ableToCtrl", roleItem[3])
+    #             attachment.set_attr_value("ableToAtck", roleItem[4])
+    #             attachment.set_attr_value("attachmentType", roleItem[16])
+    #             attachment.set_attr_value("num", roleItem[17])
+    #             attachment.set_attr_value("price", roleItem[18])
+    #             attachment.set_attr_value("sold", roleItem[19])
+    #             attachment.set_attr_value("effert", roleItem[20])
 
     #####################
 
-    # 导出角色属性，用于存档
+    def import_arcPkg(self, arcPkg):
+
+        playerRole = self.get_role("PlayerRole")
+
+        playerRole.set_all_attr(arcPkg)
+
     def export_arcPkg(self):
 
-        for roleId, role in self.__roleMap.iteritems():
+        playerRole = self.get_role("PlayerRole")
 
-            roleItem = []
+        return playerRole.get_all_attr()
 
-            for attrName in ROLE_ATTR_LIST:
-
-                if role.has_attr(attrName):
-
-                    roleItem.append(role.get_attr_value(attrName))
-
-                else:
-
-                    roleItem.append(None)
-
-            self.__arcPkg.add_item(roleItem)
-
-        return self.__arcPkg
+    # 导出角色属性，用于存档
+    # def export_arcPkg(self):
+    #
+    #     for roleId, role in self.__roleMap.iteritems():
+    #
+    #         roleItem = []
+    #
+    #         for attrName in ROLE_ATTR_LIST:
+    #
+    #             if role.has_attr(attrName):
+    #
+    #                 roleItem.append(role.get_attr_value(attrName))
+    #
+    #             else:
+    #
+    #                 roleItem.append(None)
+    #
+    #         self.__arcPkg.add_item(roleItem)
+    #
+    #     return self.__arcPkg
 
     """""""""""""""
     角色属性管理函数
@@ -603,6 +615,14 @@ class RoleManager(object):
         player = self.get_role("PlayerRole")
 
         return player.get_attr_value("medicineNum")
+
+    def get_Boss_hp(self):
+
+        for enemyRole in self.get_one_kind_of_roles("EnemyRole"):
+
+            if enemyRole.get_attr_value("Boss") == 1:
+
+                return enemyRole.get_attr_value("hp")
 
     """""""""""
     角色信息打印

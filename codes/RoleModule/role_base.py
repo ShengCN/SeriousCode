@@ -81,6 +81,10 @@ class Role(DirectObject):
 
     #########################################
 
+    def set_all_attr(self, roleAttr):
+
+        self._roleAttr = roleAttr
+
     # 获取所有属性
     def get_all_attr(self):
 

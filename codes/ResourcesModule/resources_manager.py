@@ -124,7 +124,7 @@ class ResourcesManager(object):
 
     # 存档界面展示存档
     def show_archives(self):
-        self.__archive.show_archives()
+        return self.__archive.show_archives()
 
     #存档
     #sceneArchive:场景存档

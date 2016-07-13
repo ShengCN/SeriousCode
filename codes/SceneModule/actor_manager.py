@@ -129,7 +129,7 @@ class ActorManager(ResManager):
 
         self.__effertMsgDiptcr = EffertMsgDispatcher()
 
-        self.__resMgr = None
+        self.__resMgr = ResourcesManager()
 
         self.__arcPkg = ArchivePackage(arcPkgName = "actor",
                                        itemsName = [
@@ -173,7 +173,7 @@ class ActorManager(ResManager):
         self._resMap[resId] = res
         self._resPath[resId] = [resPath, extraResPath]
         self.__itvlMap[resId] = self.__gen_interval_for_actor(res)
-        self.print_all_itvl_duration()
+        #self.print_all_itvl_duration()
 
         return res
 
@@ -404,6 +404,18 @@ class ActorManager(ResManager):
 
     #########################################
 
+    def __check_enemy_die(self, task):
+
+        enemies = self.__roleMgr.get_one_kind_of_roles("EnemyRole")
+
+        for enemyRole in enemies:
+
+            if enemyRole.get_attr_value("hp") == 0:
+
+                self.enemy_die_interval_play(enemyRole.get_attr_value("modelId"))
+
+        return task.cont
+
     def enemy_die_interval_play(self, actorId):
 
         enemy = self.get_actor(actorId)
@@ -425,7 +437,7 @@ class ActorManager(ResManager):
         colorSeq = Sequence(
             colorItvl,
             FunctionInterval(self.__actor_hide, extraArgs = [enemy]),
-            Wait(120),
+            Wait(12000),
             FunctionInterval(self.__actor_show, extraArgs = [enemy]),
             colorItvl2
         )
@@ -562,6 +574,8 @@ class ActorManager(ResManager):
         for enemyId, able in self.__enemyCanAttack.iteritems():
 
             self.__enemy_attack_player(enemyId, task)
+
+        self.__check_enemy_die(task)
 
         return task.cont
 
@@ -787,8 +801,8 @@ class ActorManager(ResManager):
         v = enemy.getPos(player)
         v.setZ(0)
 
-        print "v.length : ", v.length(), " attackRange : ", enemyRole.get_attr_value("attackRange")
-        print "currState : ", enemyRole.get_attr_value("currState")
+        #print "v.length : ", v.length(), " attackRange : ", enemyRole.get_attr_value("attackRange")
+        #print "currState : ", enemyRole.get_attr_value("currState")
         if v.length() > enemyRole.get_attr_value("attackRange"):
 
             if enemyRole.get_attr_value("currState") == "attacking":
@@ -912,13 +926,9 @@ class ActorManager(ResManager):
 
                     self.__isTalking = self.__resMgr.dialog_next()
 
-                    if self.__isTalking is False:
-
-                        messenger.send("trade_menu")
-
                 else:
 
-                    #self.__storyLine = 8
+                    self.__storyLine = 8
 
                     self.__resMgr.show_dialog(8)
 
@@ -989,13 +999,12 @@ class ActorManager(ResManager):
 
                 self.__resMgr.destroy_prompt()
                 self.__resMgr.show_prompt_box("获得" + str(money) + "金币")
-                self.__resMgr.play_sound(8)
 
                 self.__roleMgr.obtain_money(money)
 
                 self.__shouldDestroyPrompt = False
 
-                print self.__roleMgr.get_role("PlayerRole").get_attr_value("money")
+                #print self.__roleMgr.get_role("PlayerRole").get_attr_value("money")
 
                 chestRole.set_attr_value(key="opened", value=True)
 
@@ -1236,6 +1245,14 @@ class ActorManager(ResManager):
     def get_itvlMap(self):
 
         return self.__itvlMap
+
+    def set_storyLine(self, storyLine):
+
+        self.__storyLine = storyLine
+
+    def get_storyLine(self):
+
+        return self.__storyLine
 
     def print_eventEffertRecord(self):
 
