@@ -33,7 +33,10 @@ class SceneManager(object):
 
     def reset(self):
 
-        self = SceneManager()
+        self.__actorMgr = ActorManager()
+        self.__modelMgr = ModelManager()
+
+        self.__checkCircleList = []
 
     def build_on(self, showbase):
 
@@ -612,6 +615,10 @@ class SceneManager(object):
     def get_render(self):
 
         return self.__render
+
+    def get_ShowBase(self):
+
+        return self.__showbase
 
     def get_ActorMgr(self):
 
