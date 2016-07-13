@@ -2,6 +2,7 @@
 
 import copy
 
+from ControlModule.common_para import *
 from res_manager import ResManager
 from RoleModule.role_manager import RoleManager
 from ArchiveModule.archive_package import ArchivePackage
@@ -437,7 +438,7 @@ class ActorManager(ResManager):
         colorSeq = Sequence(
             colorItvl,
             FunctionInterval(self.__actor_hide, extraArgs = [enemy]),
-            Wait(12000),
+            Wait(REBORN_TIME),
             FunctionInterval(self.__actor_show, extraArgs = [enemy]),
             colorItvl2
         )

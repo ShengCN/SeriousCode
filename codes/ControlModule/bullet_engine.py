@@ -48,6 +48,7 @@ class BulletEngine(DirectObject):
     def init_mgr(self,sceneMgr,roleMgr):
         self.sceneMgr = sceneMgr
         self.roleMgr = roleMgr
+        self.sceneMgr.build_on(self.base)
 
     # 灯光镜头初始化
     def init_light_camera(self):

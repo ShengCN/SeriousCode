@@ -41,6 +41,7 @@ class MainMenu(ShowBase):
         self.roleMgr = RoleManager()
         self.sceneMgr = SceneManager()
         self.sceneMgr.bind_RoleManager(self.roleMgr)
+        self.sceneMgr.build_on(self)
         self.sceneMgr.get_ActorMgr().bind_ResourcesManager(self.__rm)
         self.roleMgr.bind_ResourcesManager(self.__rm)
 

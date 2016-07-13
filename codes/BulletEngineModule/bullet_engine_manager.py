@@ -303,7 +303,7 @@ class BulletEngineMgr(DirectObject):
             self.result = self.world.contactTest(self.__enemy_NP[id].node())
             for contact in self.result.getContacts():
                 if type(contact.getNode1()) != type(self.actor_character_Node):
-                    if contact.getNode1().isStatic() == False:
+                    if contact.getNode1().isStatic() == False and contact.getNode1().getMass() == 10.0:
                         print "人物所有的碰撞结果：%s" % self.result.getNumContacts()
                         print "wifi 受到了攻击"
                         print "%s%s 发生了碰撞" % (contact.getNode0(), contact.getNode1())
@@ -488,7 +488,16 @@ class BulletEngineMgr(DirectObject):
         self.processInput(dt)
         self.world.doPhysics(dt,4,1./240.)
         self.all_collide_result()
+        self.death_detect()
         return task.cont
+
+    def death_detect(self):
+        #enemies = self.roleMgr.get_one_kind_of_roles("EnemyRole")
+        for id in range(self.__amount):
+            roleId = self.sceneMgr.get_resId(self.__enemy_list[id])
+            if self.__role_dict[roleId].get_attr_value("hp") == 0:
+                self.__enemy_NP[id].setCollideMask(BitMask32.allOff())
+
 
     # ____TASK___
     def processInput(self, dt):
