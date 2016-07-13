@@ -404,7 +404,7 @@ class MainMenu(ShowBase):
 
     # 更新购买枪支1总价
     def set_gun1_total_price(self, textEntered):
-        if (int(textEntered) <= 1 and int(textEntered) >= 0):
+        if (int(textEntered) <= 1 and int(textEntered) >= 0 and self.__weapon2==0):
             self.__tradeGun1Number = int(textEntered)
         else:
             self.__tradeGun1Number = 0
@@ -416,7 +416,7 @@ class MainMenu(ShowBase):
 
     # 更新购买枪支2总价
     def set_gun2_total_price(self, textEntered):
-        if (int(textEntered) <= 1 and int(textEntered) >= 0):
+        if (int(textEntered) <= 1 and int(textEntered) >= 0 and self.__weapon3==0):
             self.__tradeGun2Number = int(textEntered)
         else:
             self.__tradeGun2Number = 0
@@ -442,7 +442,7 @@ class MainMenu(ShowBase):
 
     # 增加枪支1数量
     def __add_gun1(self):
-        if (self.__tradeGun1Number == 0):
+        if (self.__tradeGun1Number == 0 and self.__weapon2==0):
             self.__tradeGun1Number += 1
             self.__tradeGun1.set(str(self.__tradeGun1Number))
             self.set_gun1_total_price(str(self.__tradeGun1Number))
@@ -456,7 +456,7 @@ class MainMenu(ShowBase):
 
     # 增加枪支2数量
     def __add_gun2(self):
-        if (self.__tradeGun2Number == 0):
+        if (self.__tradeGun2Number == 0 and self.__weapon3==0):
             self.__tradeGun2Number += 1
             self.__tradeGun2.set(str(self.__tradeGun2Number))
             self.set_gun2_total_price(str(self.__tradeGun2Number))
@@ -645,6 +645,9 @@ class MainMenu(ShowBase):
             self.__coinNumber.destroy()
 
             taskMgr.remove('changeDataTask')
+
+            if self.__destroyMonsterHpBar==True:
+                self.destroy_monster_hp()
 
             self.__destroyMainGame = False
 
