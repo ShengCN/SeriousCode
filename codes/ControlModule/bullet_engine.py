@@ -44,11 +44,6 @@ class BulletEngine(DirectObject):
         self.base = base
         self.math_helper = MathHelper()
         self.init_mgr(sceneMgr,roleMgr)
-        self.init_shader()
-        self.init_light_camera()
-        self.init_bullet_engine()
-        self.init_AI()
-        self.init_input()
 
     def init_mgr(self,sceneMgr,roleMgr):
         self.sceneMgr = sceneMgr
@@ -394,6 +389,12 @@ class BulletEngine(DirectObject):
     场景部分
     """""""""""""""
     def home_scene(self):
+
+        self.init_shader()
+        self.init_light_camera()
+        self.init_bullet_engine()
+        self.init_AI()
+        self.init_input()
         self.init_roles()
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
@@ -456,6 +457,11 @@ class BulletEngine(DirectObject):
         self.taskMgr_set()
 
     def village_scene(self):
+        self.init_shader()
+        self.init_light_camera()
+        self.init_bullet_engine()
+        self.init_AI()
+        self.init_input()
         self.init_roles()
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
@@ -548,6 +554,11 @@ class BulletEngine(DirectObject):
 
     # 第二个室外场景
     def outer_scene(self):
+        self.init_shader()
+        self.init_light_camera()
+        self.init_bullet_engine()
+        self.init_AI()
+        self.init_input()
         self.init_roles()
         # 背景为黑色
         self.base.setBackgroundColor(0, 0, 0, 1)
@@ -646,6 +657,11 @@ class BulletEngine(DirectObject):
 
     # 教堂室内场景
     def room_scene(self):
+        self.init_shader()
+        self.init_light_camera()
+        self.init_bullet_engine()
+        self.init_AI()
+        self.init_input()
         self.init_roles()
         # Plane (static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
