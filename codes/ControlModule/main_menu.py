@@ -7,7 +7,7 @@
 from direct.showbase.ShowBase import ShowBase
 from direct.gui.OnscreenImage import OnscreenImage
 
-from BulletEngineModule.serious_game_scene import SeriousGameScene
+from BulletEngineModule.serious_game_scene import SeriousGameScene, BoxWorld
 from ResourcesModule.resources_manager import ResourcesManager
 from RoleModule.role_manager import RoleManager
 from SceneModule.scene_manager import SceneManager
@@ -1015,35 +1015,74 @@ class MainMenu(ShowBase):
     def village_scene(self):
         # 原
         self.village = SeriousGameScene(self,self.sceneMgr,self.roleMgr)
-        self.village.load_game_scene(VILLAGE,5)
+        box = BoxWorld(Point3(0, -400, 0),Point3(0, 370, 0),Point3(-360, 0, 0),Point3(380, 0, 0))
+        self.village.load_game_scene(VILLAGE,5,box)
         # 人物
         self.village.add_player_role()
-        self.village.add_enemy_role(Point3(10,10,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.village.add_enemy_role(Point3(0,10,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.village.add_enemy_role(Point3(20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.village.add_enemy_role(Point3(40,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.village.add_enemy_role(Point3(80,10,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.village.add_enemy_role(Point3(10,90,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.village.add_enemy_role(Point3(100,00,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.village.cam_control(False)
+
         self.main_game()
         self.show_monster_hp()
         self.accept('r',self.destory_scene,extraArgs = [self.village])
+
         self.village.task_update()
 
         # 声音
         self.__rm.play_sound(1)
 
-
     def home_scene(self):
-        pass
-
-    def outer_scene(self):
-        self.home = SeriousGameScene(self, self.sceneMgr, self.roleMgr)
-        self.home.load_game_scene(OUTER, 5)
+        self.home = SeriousGameScene(self,self.sceneMgr,self.roleMgr)
+        box = BoxWorld(Point3(0, -35, 0),Point3(0, 36, 0),Point3(-15, 0, 0),Point3(24, 0, 0))
+        self.home.load_game_scene(HOME,5.0,box)
         # 人物
         self.home.add_player_role()
-        self.home.add_enemy_role(Point3(10, 10, 0), 3, WIFE_ZOMBIE_PATH, WIFE_ZOMBIE_ACTION_PATH)
+        self.home.add_NPC_role("girl",Point3(18,-5,0),1.4,Vec3(200,0,0))
         self.main_game()
-        self.show_monster_hp()
+        self.home.cam_control(True,Point3(14,35,36),Vec3(0,0,0),Point3(5,0,10))
+        self.disableMouse()
         self.accept('r', self.destory_scene, extraArgs=[self.home])
         self.home.task_update()
 
+    def outer_scene(self):
+        self.outer = SeriousGameScene(self, self.sceneMgr, self.roleMgr)
+        box = BoxWorld(Point3(0, -400, 0),Point3(0, 390, 0),Point3(-300, 0, 0),Point3(380, 0, 0))
+        self.outer.load_game_scene(OUTER,5,box)
+        # 人物
+        self.outer.add_player_role()
+        self.outer.add_enemy_role(Point3(50, 20, 0), 1.3, WIFE_ZOMBIE_PATH, WIFE_ZOMBIE_ACTION_PATH)
+        self.outer.add_enemy_role(Point3(10, 160, 0), 3, HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.outer.add_enemy_role(Point3(40, 30, 0), 3, ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.outer.add_enemy_role(Point3(200, 110, 0), 3, HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.outer.add_enemy_role(Point3(120, 10, 0), 3, ZOMBIE,ZOMBIE_ACTION_PATH)
+        self.outer.add_enemy_role(Point3(10, 120, 0), 3, HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        self.outer.add_enemy_role(Point3(10, 10, 0), 3, ZOMBIE,ZOMBIE_ACTION_PATH)
+
+        self.outer.cam_control(False)
+        self.main_game()
+        self.show_monster_hp()
+        self.accept('r', self.destory_scene, extraArgs=[self.outer])
+        self.outer.task_update()
+
     def room_scene(self):
-        pass
+        self.room = SeriousGameScene(self,self.sceneMgr,self.roleMgr)
+        box = BoxWorld(Point3(0, -130, 0),Point3(0, 47, 0),Point3(-43, 0, 0),Point3(38, 0, 0))
+        self.room.load_game_scene(ROOM,5.0,box,-5)
+        # 人物
+        self.room.add_player_role(Point3(0,0,15),Vec3(0,0,0))
+        self.room.add_NPC_role("nun",Point3(34,22,2),3.0,Vec3(240,0,0))
+        self.room.add_NPC_role("stealer",Point3(-38,43,2),1.5,Vec3(100,0,0))
+        self.accept('r', self.destory_scene, extraArgs=[self.room])
+        self.room.cam_control(True, Point3(-35, -195, 65), Vec3(10, 10, 0), Point3(-10, 20, 0))
+        self.disableMouse()
+        self.main_game()
+        self.room.task_update()
+
 
     def destory_scene(self,serious_scene):
         serious_scene.destroy()
