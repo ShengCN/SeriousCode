@@ -28,6 +28,9 @@ class MainMenu(ShowBase):
         self.__destroySetting = False
         self.__destroyTrade = False
         self.__destroyArchive = False
+        self.__destroyHelp=False
+
+        self.__imagePath = "../../resources/images/"
 
         self.__weapon2=0
         self.__weapon3=0
@@ -61,9 +64,9 @@ class MainMenu(ShowBase):
         self.accept("ChangeMenu",self.__change_menu)
 
         archiveList = [
-            {"name": "Archive1", "progress": "50%", "time": "2016/07/05 09:49", "id": "1"},
-            {"name": "Archive2", "progress": "60%", "time": "2016/07/05 09:50", "id": "2"},
-            {"name": "Archive3", "progress": "70%", "time": "2016/07/05 09:51", "id": "3"}
+            # {"name": "Archive1", "progress": "50%", "time": "2016/07/05 09:49", "id": "1"},
+            # {"name": "Archive2", "progress": "60%", "time": "2016/07/05 09:50", "id": "2"},
+            # {"name": "Archive3", "progress": "70%", "time": "2016/07/05 09:51", "id": "3"}
             # {"name":"Archive4","progress":"80%","time":"2016/07/05 09:52","id":"4"},
             # {"name":"Archive5","progress":"90%","time":"2016/07/05 09:53","id":"5"}
         ]
@@ -139,16 +142,16 @@ class MainMenu(ShowBase):
         if self.__destroySetting==False:
             # 关闭游戏场景帧更新
             self.sceneMgr.get_ActorMgr().stop_all_itvls()
-            self.village.stop_update()
+            # self.village.stop_update()
             # 设置界面背景图
-            self.__background = OnscreenImage(image='../../resources/images/settings/setting_frame.png', pos=(0, 0, 0),
+            self.__background = OnscreenImage(image=self.__imagePath+'settings/setting_frame.png', pos=(0, 0, 0),
                                               scale=(1.0, 0, 0.7))
             self.__background.setTransparency(TransparencyAttrib.MAlpha)
 
             ##滑动条
             self.__slider = DirectSlider(pos=(0.16, 0, 0.26), scale=0.5, value=0.5, command=self.__setMusicSliderVolume,
                                          frameSize=(-1.0, 0.9, -0.06, 0.06),
-                                         image='../../resources/images/settings/slide_bar.png',
+                                         image=self.__imagePath + 'settings/slide_bar.png',
                                          image_pos=(-0.05, 0, 0.0), image_scale=(1.0, 0, 0.05),
                                          thumb_image='../../resources/images/settings/slide_btn.png',
                                          thumb_image_pos=(-0.0, 0, 0.0), thumb_image_scale=0.1,
@@ -161,33 +164,33 @@ class MainMenu(ShowBase):
             # 继续按钮
             self.__continueButton = DirectButton(pos=(-0.25, 0, 0.0), text="", scale=(0.2, 0, 0.1),
                                                  command=self.__continue_game,
-                                                 image=("../../resources/images/settings/btn_continue_0.png",
-                                                        "../../resources/images/settings/btn_continue_0.png"
-                                                        , "../../resources/images/settings/btn_continue_1.png"),
+                                                 image=(self.__imagePath + 'settings/btn_continue_0.png',
+                                                        self.__imagePath + 'settings/btn_continue_0.png',
+                                                        self.__imagePath + 'settings/btn_continue_1.png'),
                                                  frameColor=(0, 0, 0, 0))
             self.__continueButton.setTransparency(TransparencyAttrib.MAlpha)
 
             # 存档按钮
             self.__saveButton = DirectButton(pos=(0.33, 0, 0.0), text="", scale=(0.2, 0, 0.1), command=self.__save_game,
-                                             image=("../../resources/images/settings/btn_save_0.png",
-                                                    "../../resources/images/settings/btn_save_0.png"
-                                                    , "../../resources/images/settings/btn_save_1.png"),
+                                             image=(self.__imagePath + 'settings/btn_save_0.png',
+                                                    self.__imagePath + 'settings/btn_save_0.png',
+                                                    self.__imagePath + 'settings/btn_save_1.png'),
                                              frameColor=(0, 0, 0, 0))
             self.__saveButton.setTransparency(TransparencyAttrib.MAlpha)
 
             # 帮助按钮
             self.__helpButton = DirectButton(pos=(-0.25, 0, -0.25), text="", scale=(0.2, 0, 0.1), command=self.__help,
-                                             image=("../../resources/images/settings/btn_help_0.png",
-                                                    "../../resources/images/settings/btn_help_0.png"
-                                                    , "../../resources/images/settings/btn_help_1.png"),
+                                             image=(self.__imagePath + 'settings/btn_help_0.png',
+                                                    self.__imagePath + 'settings/btn_help_0.png',
+                                                    self.__imagePath + 'settings/btn_help_1.png'),
                                              frameColor=(0, 0, 0, 0))
             self.__helpButton.setTransparency(TransparencyAttrib.MAlpha)
 
             # 回到主界面按钮
             self.__homeButton = DirectButton(pos=(0.33, 0, -0.25), text="", scale=(0.2, 0, 0.1), command=self.__return_home,
-                                             image=("../../resources/images/settings/btn_home_0.png",
-                                                    "../../resources/images/settings/btn_home_0.png"
-                                                    , "../../resources/images/settings/btn_home_1.png"),
+                                             image=(self.__imagePath + 'settings/btn_home_0.png',
+                                                    self.__imagePath + 'settings/btn_home_0.png',
+                                                    self.__imagePath + 'settings/btn_home_1.png'),
                                              frameColor=(0, 0, 0, 0))
             self.__homeButton.setTransparency(TransparencyAttrib.MAlpha)
 
@@ -225,12 +228,16 @@ class MainMenu(ShowBase):
     # 设置界面，私有函数,存档
     def __save_game(self):
         self.setting_destroy()
+        archiveList=self.__rm.show_archives()
+        if (len(archiveList)!=0):
+            self.archive_menu(self,True,archiveList)
         self.__rm.play_sound(7)
 
     # 设置界面，私有函数,游戏帮助
     def __help(self):
         self.setting_destroy()
         self.__rm.play_sound(7)
+        self.help_menu()
 
     # 设置界面，私有函数,回到主界面
     def __return_home(self):
@@ -243,17 +250,15 @@ class MainMenu(ShowBase):
     # 交易界面
     def trade_menu(self):
         if self.__destroyTrade == False:
-            #初始化路径，数量
-            self.__imagePath = "../../resources/images/trade/"
 
             # self.__imageDict = dict()
-            self.__imageDict["tf"] = self.__imagePath + "trade_frame.png"
-            self.__imageDict["tfbg"] = self.__imagePath + "trade_frame_bg.png"
-            self.__imageDict["purchase1"] = self.__imagePath + "btn_perchase_0.png"
-            self.__imageDict["purchase2"] = self.__imagePath + "btn_perchase_1.png"
-            self.__imageDict["btnUp"] = self.__imagePath + "btn_up.png"
-            self.__imageDict["btnDown"] = self.__imagePath + "btn_down.png"
-            self.__imageDict["close"] = self.__imagePath + "close.png"
+            self.__imageDict["tf"] = self.__imagePath + "trade/trade_frame.png"
+            self.__imageDict["tfbg"] = self.__imagePath + "trade/trade_frame_bg.png"
+            self.__imageDict["purchase1"] = self.__imagePath + "trade/btn_perchase_0.png"
+            self.__imageDict["purchase2"] = self.__imagePath + "trade/btn_perchase_1.png"
+            self.__imageDict["btnUp"] = self.__imagePath + "trade/btn_up.png"
+            self.__imageDict["btnDown"] = self.__imagePath + "trade/btn_down.png"
+            self.__imageDict["closeTrade"] = self.__imagePath + "trade/close.png"
 
             #交易数量
             self.__tradeMedicineNumber = 0
@@ -362,7 +367,7 @@ class MainMenu(ShowBase):
 
             self.__closeBtn = DirectButton(pos=(0.88, 0, 0.33), text="", scale=(0.035, 0, 0.035),
                                            command=self.destroy_trade,
-                                           image=self.__imageDict["close"],
+                                           image=self.__imageDict["closeTrade"],
                                            frameColor=(0, 0, 0, 0))
             self.__closeBtn.setTransparency(TransparencyAttrib.MAlpha)
 
@@ -514,26 +519,24 @@ class MainMenu(ShowBase):
         if self.__destroyMainGame == False:
 
             self.__destroyMonsterHpBar=False
-            #初始化路径
-            self.__imagePath = "../../resources/images/main/"
 
             self.__imageDict = dict()
-            self.__imageDict["cbg"] = self.__imagePath + "charactor_bg.png"
-            self.__imageDict["ctop"] = self.__imagePath + "charactor_top.png"
-            self.__imageDict["charactor"] = self.__imagePath + "charactor3.png"
-            self.__imageDict["hpbg"] = self.__imagePath + "hp_bg.png"
-            self.__imageDict["hp"] = self.__imagePath + "hp.png"
-            self.__imageDict["hp1"] = self.__imagePath + "hp1.png"
-            self.__imageDict["mf"] = self.__imagePath + "medicine_frame.png"
-            self.__imageDict["medicine"] = self.__imagePath + "medicine.png"
-            self.__imageDict["gf"] = self.__imagePath + "gun_frame.png"
-            self.__imageDict["gun1"] = self.__imagePath + "gun_1.png"
-            self.__imageDict["gun2"] = self.__imagePath + "gun_2.png"
-            self.__imageDict["gun3"] = self.__imagePath + "gun_3.png"
-            self.__imageDict["coin"] = self.__imagePath + "coin.png"
+            self.__imageDict["cbg"] = self.__imagePath + "main/charactor_bg.png"
+            self.__imageDict["ctop"] = self.__imagePath + "main/charactor_top.png"
+            self.__imageDict["charactor"] = self.__imagePath + "main/charactor3.png"
+            self.__imageDict["hpbg"] = self.__imagePath + "main/hp_bg.png"
+            self.__imageDict["hp"] = self.__imagePath + "main/hp.png"
+            self.__imageDict["hp1"] = self.__imagePath + "main/hp1.png"
+            self.__imageDict["mf"] = self.__imagePath + "main/medicine_frame.png"
+            self.__imageDict["medicine"] = self.__imagePath + "main/medicine.png"
+            self.__imageDict["gf"] = self.__imagePath + "main/gun_frame.png"
+            self.__imageDict["gun1"] = self.__imagePath + "main/gun_1.png"
+            self.__imageDict["gun2"] = self.__imagePath + "main/gun_2.png"
+            self.__imageDict["gun3"] = self.__imagePath + "main/gun_3.png"
+            self.__imageDict["coin"] = self.__imagePath + "main/coin.png"
 
-            self.__money = 200000
-            self.__medicineNum = 10
+            self.__money = 0
+            self.__medicineNum = 0
 
             self.__blood = 100
             self.__monsterBlood = 100
@@ -600,15 +603,22 @@ class MainMenu(ShowBase):
         money=self.roleMgr.get_player_money()
         medicine=self.roleMgr.get_player_medicine_num()
         hp=self.roleMgr.get_player_hp()
-        self.set_money(money)
-        self.set_medicine_number(medicine)
-        self.set_blood(hp)
+        if money!=self.get_money():
+            self.set_money(money)
+        if medicine!=self.get_medicine_number():
+            self.set_medicine_number(medicine)
+        if hp!=self.get_blood():
+            self.set_blood(hp)
 
         #怪物
         # if self.__destroyMonsterHpBar==True:
-        #     monsterBlood=self.roleMgr.get_monster_hp()
-        #     self.set_monster_blood(monsterBlood)
+        #     monsterBlood=self.roleMgr.get_Boss_hp()
+        #     if monsterBlood!=self.get_monster_blood():
+        #         self.set_monster_blood(monsterBlood)
         return Task.cont
+
+    def take_medicine(self):
+        self.roleMgr.take_medicine()
 
     #显示怪物血条
     def show_monster_hp(self):
@@ -713,27 +723,29 @@ class MainMenu(ShowBase):
 
     # 设置怪物血量
     def set_monster_blood(self, blood):
-        self.__monsterBlood = blood
-        self.__monsterHpBar['value'] = self.__monsterBlood
+        if self.__destroyMonsterHpBar==True:
+            self.__monsterBlood = blood
+            self.__monsterHpBar['value'] = self.__monsterBlood
 
     #获得当前血量
     def get_blood(self):
         return self.__blood
+
+    def get_monster_blood(self):
+        return self.__monsterBlood
 
     """""""""""""""
     存档界面函数
     """""""""""""""
     def archive_menu(self,base,operate,archiveList):
         if self.__destroyArchive == False:
-            #初始化路径
-            self.__imagePath = "../../resources/images/archive/"
 
             self.__imageDict = dict()
-            self.__imageDict["bg"] = self.__imagePath + "bg.png"
-            self.__imageDict["abg"] = self.__imagePath + "archive_bg5.png"
-            self.__imageDict["cube"] = self.__imagePath + "archive_cube.png"
-            self.__imageDict["slider"] = self.__imagePath + "slider1.png"
-            self.__imageDict["close"] = self.__imagePath + "close.png"
+            self.__imageDict["bg"] = self.__imagePath + "archive/bg.png"
+            self.__imageDict["abg"] = self.__imagePath + "archive/archive_bg5.png"
+            self.__imageDict["cube"] = self.__imagePath + "archive/archive_cube.png"
+            self.__imageDict["slider"] = self.__imagePath + "archive/slider1.png"
+            self.__imageDict["close"] = self.__imagePath + "archive/close.png"
 
             self.__archiveContentList = list()
             self.__archiveGuiList = list()
@@ -892,6 +904,10 @@ class MainMenu(ShowBase):
                                            frameColor=(0, 0, 0, 0))
             self.__closeArchiveBtn.setTransparency(TransparencyAttrib.MAlpha)
 
+            self.destroy_trade()
+            self.destroy_main_game()
+            self.setting_destroy()
+
             self.__destroyArchive = True
 
     #设置存档记录
@@ -952,6 +968,33 @@ class MainMenu(ShowBase):
             # resource_manager,存档,id=0
             self.destroy_archive()
 
+    """""""""""""""
+    游戏说明界面函数
+    """""""""""""""
+    def help_menu(self):
+
+        if self.__destroyHelp==False:
+            self.__helpBg= OnscreenImage(image=self.__imagePath+"helpMenu.png", pos=(0, 0, 0), scale=1)
+            self.__helpBg.setSx(self.getAspectRatio())
+            self.__helpBg.setTransparency(TransparencyAttrib.MAlpha)
+
+            self.taskMgr.add(self.adapt_help, 'adaptTask')
+
+            self.__destroyHelp=True
+
+    #移除帮助界面控件
+    def destroy_help(self):
+        if self.__destroyHelp == True:
+            self.__helpBg.destroy()
+
+            taskMgr.remove('adaptTask')
+
+
+    #更新画面大小，自适应
+    def adapt_help(self,Task):
+        self.__helpBg.setSx(self.getAspectRatio())
+
+        return Task.cont
 
     """""""""""""""
     游戏界面函数
@@ -967,6 +1010,7 @@ class MainMenu(ShowBase):
         self.accept("1", self.set_gun1)
         self.accept("2", self.set_gun2)
         self.accept("3", self.set_gun3)
+        self.accept("q", self.take_medicine)
 
     def village_scene(self):
         # 原
