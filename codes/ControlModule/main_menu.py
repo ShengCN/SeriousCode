@@ -925,7 +925,7 @@ class MainMenu(ShowBase):
                 self.__archiveContentList[index + len(archiveList)]["name"] = ""
                 self.__archiveContentList[index + len(archiveList)]["progress"] = ""
                 self.__archiveContentList[index + len(archiveList)]["time"] = ""
-                self.__archiveContentList[index + len(archiveList)]["id"] = 0
+                self.__archiveContentList[index + len(archiveList)]["id"] = -1
 
     #移除存档界面控件
     def destroy_archive(self):
@@ -956,15 +956,15 @@ class MainMenu(ShowBase):
     def clickArchive(self, id):
         if self.__loadOrSave == False:#读档
             print self.__archiveContentList[id - 1]["id"]
-            sceneArchive=self.__rm.select_archives(int(self.__archiveContentList[id - 1]["id"]))[0]
-            roleArchive=self.__rm.select_archives(int(self.__archiveContentList[id - 1]["id"]))[1]
+            roleArchive=self.__rm.select_archives(int(self.__archiveContentList[id - 1]["id"]))
             #archive函数
             # resource_manager,读档,id=id
             self.destroy_archive()
         else:#存档
             print self.__archiveContentList[id - 1]["id"]
             #sceneArchive,roleArchive
-            self.__rm.save_archives(sceneArchive,roleArchive,int(self.__archiveContentList[id - 1]["id"]))
+            roleArchive=self.roleMgr.
+            self.__rm.save_archives(roleArchive,int(self.__archiveContentList[id - 1]["id"]))
             # resource_manager,存档,id=0
             self.destroy_archive()
 

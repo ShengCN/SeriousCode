@@ -25,7 +25,7 @@ class ResourcesManager(object):
 
         self.__archive=Archives()
 
-        self.__path=""
+        self.__path="123"
 
         self.__id=1
 
@@ -49,19 +49,6 @@ class ResourcesManager(object):
 
     def get_volume(self):
         return self.__sound.get_volume()
-
-    # #初始化暂停设置界面控件
-    # def show_volume_sliderbar(self,base):
-    #     self.__sound.init_setting(base)
-    #
-    # #移除滑动条等有关声音的控件
-    # def destroy_volume_sliderbar(self):
-    #     self.__sound.destroy()
-
-    # #开关背景音乐
-    # def play_background_music(self):
-    #
-    #     self.__sound.toggleMusicBox()
 
     """""""""""
     视频函数
@@ -110,7 +97,8 @@ class ResourcesManager(object):
         self.__dialogueFile.destroy_prompt()
 
     #设置剧情树路径
-    def set_path(self):
+    def set_path(self,path):
+        self.__path=path
         self.__dialogueFile.set_path(self.__path)
 
     # 获取剧情树路径
@@ -130,8 +118,9 @@ class ResourcesManager(object):
     #sceneArchive:场景存档
     #roleArchive:角色存档
     #id：档id，唯一标识，-1代表新的存档，0代表初始存档（开始新的游戏），>=1代表已经存在的存档
-    def save_archives(self,sceneArchive,roleArchive,id):
-        if self.__archive.save_archive(sceneArchive,roleArchive,id,self.__path):
+    def save_archives(self,roleArchive,id):
+        self.__path=self.get_path()
+        if self.__archive.save_archive(roleArchive,id,self.__path):
             print "存档成功"
         else:
             print "存档失败"
@@ -143,8 +132,9 @@ class ResourcesManager(object):
             print "读档失败"
         else:
             print "读档成功"
-            self.__path=self.__archive.select_archive(id)[2]
-            return [self.__archive.select_archive(id)[0],self.__archive.select_archive(id)[1]]
+            self.__path=self.__archive.select_archive(id)[1]
+            self.set_path(self.__path)
+            return self.__archive.select_archive(id)[0]
 
     #结束游戏,将存档内容写进文件
     def write_to_file(self):
