@@ -597,7 +597,7 @@ class CameraController(object):
 
         deltaR = 2 * self.__radius * math.cos((math.pi / 2 - deltaAngle / 2))
 
-        r = math.sqrt(self.__radius ** 2 - (self.__camCurrZ - self.__objectToFocus.getZ()) ** 2)
+        r = math.sqrt(math.fabs(self.__radius ** 2 - (self.__camCurrZ - self.__objectToFocus.getZ()) ** 2))
 
         deltaB = math.acos(1 - 0.5 * deltaR ** 2 / r ** 2)
 
@@ -618,7 +618,7 @@ class CameraController(object):
 
         deltaR = 2 * self.__radius * math.cos((math.pi / 2 - deltaAngle / 2))
 
-        r = math.sqrt(self.__radius ** 2 - (self.__camCurrZ - self.__objectToFocus.getZ()) ** 2)
+        r = math.sqrt(math.fabs(self.__radius ** 2 - (self.__camCurrZ - self.__objectToFocus.getZ()) ** 2))
 
         deltaB = math.acos(1 - 0.5 * deltaR ** 2 / r ** 2)
 
@@ -885,9 +885,9 @@ class CameraController(object):
 
         self.__camFixed = True
 
-        self.__camToCtrl.setPos(fixedPos)
+        self.__camToCtrl.setPos(self.__render,fixedPos)
         self.__camToCtrl.setHpr(fixedHpr)
-        self.__camToCtrl.lookAt(lookat)
+        self.__camToCtrl.lookAt(self.__render,lookat)
 
     def free_camera(self):
 

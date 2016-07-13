@@ -21,14 +21,6 @@ from panda3d.core import TransformState
 from panda3d.core import BitMask32
 from pandac.PandaModules import AntialiasAttrib, LODNode
 
-from panda3d.bullet import BulletWorld, ZUp
-from panda3d.bullet import BulletRigidBodyNode
-from panda3d.bullet import BulletDebugNode
-from panda3d.bullet import BulletConvexHullShape
-from panda3d.bullet import BulletBoxShape
-from panda3d.bullet import BulletCharacterControllerNode
-from panda3d.bullet import BulletPlaneShape
-from panda3d.bullet import BulletCapsuleShape
 from panda3d.bullet import *
 from ControlModule.common_para import *
 from ControlModule.math_helper import MathHelper
@@ -121,6 +113,7 @@ class BulletEngineMgr(DirectObject):
 
         # create role
         self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(self.actor_hunter))
+        print "新建猎人: ", self.actorRole.get_attr_value("currWeapon")
 
     # 新增 NPC
     def add_NPC_role(self,character_name,pos,scale,hpr=Vec3(0,0,0)):
@@ -140,11 +133,12 @@ class BulletEngineMgr(DirectObject):
         self.__NPC_Actor[id].setHpr(hpr)
 
         # create role
-        self.actorRole = self.roleMgr.create_role("NPCRole",
-                                                  self.sceneMgr.get_resId(self.__NPC_Actor[id]),
-                                                  characterName=character_name)
+        actorRole = self.roleMgr.create_role("NPCRole",
+                                            self.sceneMgr.get_resId(self.__NPC_Actor[id]),
+                                            characterName=character_name)
         # 主角与 NPC 时间监听
         self.sceneMgr.get_ActorMgr().add_toggle_for_player_to_interact("e", self.sceneMgr.get_resId(self.actor_hunter))
+        print "NPC 创建: ", self.actorRole.get_attr_value("currWeapon")
 
     # 新增 宝箱到场景
     def add_chest_role(self,pos,scale,):
@@ -373,6 +367,10 @@ class BulletEngineMgr(DirectObject):
         else:
             camCtrlr.fix_on(pos,hpr,lookAt)
 
+        allChildren = self.base.render.getChildren()
+        print  "相机创建后：", allChildren
+        print "相机位置: ",pos
+
         self.sceneMgr.bind_CameraController(camCtrlr)
         self.sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
 
@@ -414,6 +412,7 @@ class BulletEngineMgr(DirectObject):
 
     def doShoot(self):
         # 子弹枪声
+        print "子弹枪声: ",self.actorRole.get_attr_value("currWeapon")
         bullet_sound_id = self.actorRole.get_attr_value("currWeapon") + 3
         self.resMgr.play_sound(bullet_sound_id)
 

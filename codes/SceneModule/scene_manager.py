@@ -32,10 +32,10 @@ class SceneManager(object):
     """""""""""""""""""""""""""""""""""""""
 
     def reset(self):
-
+        roleMgr = self.__actorMgr.get_roleMgr()
         self.__actorMgr = ActorManager()
         self.__modelMgr = ModelManager()
-
+        self.__actorMgr.bind_RoleManager(roleMgr)
         self.__checkCircleList = []
 
     def build_on(self, showbase):

@@ -1019,7 +1019,7 @@ class MainMenu(ShowBase):
 
     def game_begin(self):
         self.__rm.play_media(self, 1)
-        self.accept("movie_over1",self.village_scene)
+        self.accept("movie_over1",self.home_scene)
         self.accept("trade_menu", self.trade_menu)
         self.accept("1", self.set_gun1)
         self.accept("2", self.set_gun2)
@@ -1027,6 +1027,9 @@ class MainMenu(ShowBase):
         self.accept("q", self.take_medicine)
 
     def village_scene(self,pos=Point3(-30,30,15)):
+        # reset
+        self.sceneMgr.reset()
+        self.roleMgr.reset()
         # 原
         self.village = SeriousGameScene(self,self.sceneMgr,self.roleMgr,self.__rm)
         self.current_scene = self.village
@@ -1049,16 +1052,15 @@ class MainMenu(ShowBase):
         self.ring1.setScale(3)
         self.ring2 = self.sceneMgr.add_model_scene(RING, self.render)
         self.ring2.setPos(140, -306, 0)
-        self.ring1.setScale(3)
+        self.ring2.setScale(3)
         self.sceneMgr.add_CheckCircle([(-250, -50, 0), "room"])
         self.sceneMgr.add_CheckCircle([(140, -306, 0), "home"])
 
         if self.sceneMgr.get_ActorMgr().get_storyLine() == 6:
             self.ring3 = self.sceneMgr.add_model_scene(RING, self.render)
             self.ring3.setPos(-225, -290, 2)
-            self.ring1.setScale(3)
+            self.ring3.setScale(3)
             self.sceneMgr.add_CheckCircle([(-225, -290, 0), "outer"])
-
 
         self.main_game()
         self.show_monster_hp()
@@ -1070,21 +1072,34 @@ class MainMenu(ShowBase):
         self.__rm.play_sound(1)
 
     def home_scene(self,pos=Point3(-30,30,15)):
+        # reset
+        self.sceneMgr.reset()
+        self.roleMgr.reset()
         self.home = SeriousGameScene(self,self.sceneMgr,self.roleMgr,self.__rm)
         self.current_scene = self.home
         self.current_scene_name = "home"
-        box = BoxWorld(Point3(0, -35, 0),Point3(0, 36, 0),Point3(-15, 0, 0),Point3(24, 0, 0))
+        box = BoxWorld(Point3(0, -35, 0),Point3(0, 36, 0),Point3(-20, 0, 0),Point3(24, 0, 0))
         self.home.load_game_scene(HOME,5.0,box)
         # 人物
-        self.home.add_player_role()
+        self.home.add_player_role(pos)
         self.home.add_NPC_role("girl",Point3(18,-5,0),1.4,Vec3(200,0,0))
+
+        # 场景传送点
+        self.ring = self.sceneMgr.add_model_scene(RING, self.render)
+        self.ring.setPos(-18, -18, 0)
+        self.sceneMgr.add_CheckCircle([(-18, -18, 0), "village"])
+
         self.main_game()
-        self.home.cam_control(True,Point3(14,35,36),Vec3(0,0,0),Point3(5,0,10))
-        self.disableMouse()
+        self.home.cam_control(True,Point3(12,35,36),Vec3(0,0,0),Point3(5,0,10))
+        # self.disableMouse()
         self.accept('r', self.destory_scene, extraArgs=[self.home])
         self.home.task_update()
 
     def outer_scene(self,pos=Point3(-30,30,15)):
+        # reset
+        self.sceneMgr.reset()
+        self.roleMgr.reset()
+
         self.outer = SeriousGameScene(self, self.sceneMgr, self.roleMgr,self.__rm)
         self.current_scene = self.outer
         self.current_scene_name = "outer"
@@ -1100,6 +1115,12 @@ class MainMenu(ShowBase):
         self.outer.add_enemy_role(Point3(10, 120, 0), 3, HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
         self.outer.add_enemy_role(Point3(10, 10, 0), 3, ZOMBIE,ZOMBIE_ACTION_PATH)
 
+        # 场景传送点
+        self.ring = self.sceneMgr.add_model_scene(RING, self.render)
+        self.ring.setPos(446, -40, 0)
+
+        self.sceneMgr.add_CheckCircle([(446, -40, 0), "mountain"])
+
         self.outer.cam_control(False)
         self.main_game()
         self.show_monster_hp()
@@ -1107,6 +1128,11 @@ class MainMenu(ShowBase):
         self.outer.task_update()
 
     def room_scene(self,pos=Point3(-30,30,15)):
+        # reset
+        self.sceneMgr.reset()
+        self.roleMgr.reset()
+
+        print "sceneMgr reset 结束"
         self.room = SeriousGameScene(self,self.sceneMgr,self.roleMgr,self.__rm)
         self.current_scene = self.room
         self.current_scene_name = "room"
@@ -1116,10 +1142,17 @@ class MainMenu(ShowBase):
         self.room.add_player_role(Point3(0,0,15),Vec3(0,0,0))
         self.room.add_NPC_role("nun",Point3(34,22,2),3.0,Vec3(240,0,0))
         self.room.add_NPC_role("stealer",Point3(-38,43,2),1.5,Vec3(100,0,0))
+        # 场景传送点
+        self.ring = self.sceneMgr.add_model_scene(RING, self.render)
+        self.ring.setPos(5, -85, 3)
+        self.sceneMgr.add_CheckCircle([(5, -85, 3), "village"])
+
         self.accept('r', self.destory_scene, extraArgs=[self.room])
         self.room.cam_control(True, Point3(-35, -195, 65), Vec3(10, 10, 0), Point3(-10, 20, 0))
         self.disableMouse()
         self.main_game()
+
+        print "事件重新开启"
         self.room.task_update()
 
 

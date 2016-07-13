@@ -35,9 +35,9 @@ class SeriousGameScene(DirectObject):
 
 
     def initAll(self,sceneMgr,roleMgr,resMgr):
+        self.worldNP = self.base.render.attachNewNode('World')
         self.__init_shader()
         self.__init_light_camear()
-        self.worldNP = self.base.render.attachNewNode('World')
         self.bullet_mgr = BulletEngineMgr(self.base,self.worldNP,sceneMgr,roleMgr,resMgr)
         self.sceneMgr = sceneMgr
         self.roleMgr = roleMgr
@@ -116,10 +116,15 @@ class SeriousGameScene(DirectObject):
 
     def destroy(self):
         # destory bullet
+        self.bullet_mgr.stop_update()
         self.bullet_mgr.cleanup()
-        # destory game scene
-        # self.base.render.node().removeAllChildren()
-
+        # destory game scene, 要保留相机
+        allChildren = self.base.render.getChildren()
+        for childNode in allChildren:
+            if childNode.getName() == "camera":
+                cameraNP = childNode
+        self.base.render.node().removeAllChildren()
+        self.base.render.attachNewNode(cameraNP.node())
 
 
 # 世界碰撞体

@@ -88,12 +88,13 @@ class RoleManager(object):
 
     def reset(self):
 
-        self.__playerRoleCount = 1
+        # self.__playerRoleCount = 1
         self.__enemyRoleCount = 0
         self.__npcRoleCount = 0
         self.__attachmentRoleCount = 0
 
-        self.__playerAttr = self.get_role("PlayerRole").get_all_attr()
+        if self.__roleMap.has_key("PlayerRole") is True:
+            self.__playerAttr = self.get_role("PlayerRole").get_all_attr()
 
         self.__roleModelMap = dict()
         self.__roleMap = dict()
