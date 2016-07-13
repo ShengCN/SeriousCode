@@ -36,6 +36,7 @@ class SeriousGameScene(DirectObject):
         self.bullet_mgr = BulletEngineMgr(self.base,self.worldNP,sceneMgr,roleMgr)
         self.sceneMgr = sceneMgr
         self.roleMgr = roleMgr
+        self.base.setBackgroundColor(0, 0, 0, 1)
 
     def initAll(self):
         self.__init_shader()
@@ -76,23 +77,27 @@ class SeriousGameScene(DirectObject):
         self.base.render.setLight(alightNP)
         self.base.render.setLight(dlightNP)
 
+    def cam_control(self,isFixed,pos=Point3(0,0,0),hpr=Vec3(0,0,0),lookAt=Point3(0,0,0)):
+        self.bullet_mgr.cam_control(isFixed,pos,hpr,lookAt)
 
-
-    def load_game_scene(self,scene_path,scale):
+    def load_game_scene(self,scene_path,scale,box,height=0):
         home = self.sceneMgr.add_model_scene(scene_path, self.base.render)
         home.setScale(scale)
-        box_world = BoxWorld(Point3(0, -430, 0),
-                              Point3(0, 400, 0),
-                              Point3(-300, 0, 0),
-                              Point3(330, 0, 0))
+        home.setZ(height)
+        box_world = box
         self.bullet_mgr.add_bullet_world(box_world)
 
-    # 新增游戏主角
-    def add_player_role(self):
-        self.bullet_mgr.add_player_role()
+    def load_game_scene_ball_rigid(self,scene_path,scale,radius):
+        home = self.sceneMgr.add_model_scene(scene_path, self.base.render)
+        home.setScale(scale)
+        return self.bullet_mgr.add_ball_bullet_world(radius)
 
-    def add_NPC_role(self,character_name,pos,scale):
-        self.bullet_mgr.add_NPC_role(character_name,pos,scale)
+    # 新增游戏主角
+    def add_player_role(self,pos=Point3(-30,30,15),hpr=Vec3(0,0,0)):
+        self.bullet_mgr.add_player_role(pos,hpr)
+
+    def add_NPC_role(self,character_name,pos,scale,hpr=Vec3(0,0,0)):
+        self.bullet_mgr.add_NPC_role(character_name,pos,scale,hpr)
 
     # 新增怪物
     def add_enemy_role(self,pos,scale,model_path,model_action_path):

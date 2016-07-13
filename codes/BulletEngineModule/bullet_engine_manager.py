@@ -49,7 +49,6 @@ class BulletEngineMgr(DirectObject):
         self.init_roles()
         self.init_input()
 
-
     # 初始化 bullet 引擎
     def init_bullet_engine(self):
         self.world = BulletWorld()
@@ -84,6 +83,9 @@ class BulletEngineMgr(DirectObject):
         self.add_plane_collide(box_world.north, Vec3(1, 0, 0))  ##测试碰撞平面(北)
         self.add_plane_collide(box_world.south, Vec3(-1, 0, 0))  ##测试碰撞平面(南
 
+    def add_ball_bullet_world(self,radius):
+        return self.add_ball_collide(radius)
+
     """""""""""""""
     人物管理部分
     """""""""""""""
@@ -96,7 +98,7 @@ class BulletEngineMgr(DirectObject):
         self.init_AI()
 
     # 新增游戏主角
-    def add_player_role(self):
+    def add_player_role(self,pos,hpr):
         # 猎人
         self.actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
                                                           HUNTER_ACTION_PATH,
@@ -104,8 +106,7 @@ class BulletEngineMgr(DirectObject):
         self.actor_hunter.setPos(0, 1, -10)  # 相对于胶囊体坐标
         self.actor_hunter.setScale(1.6)
         self.actor_hunter.setTwoSided(True)
-        self.add_actor_collide(self.actor_hunter, 3.5, 15)
-        self.actorNP.setPos(-30, 30, 0)
+        self.add_actor_collide(self.actor_hunter,pos,hpr, 3.5, 15)
 
         # control
         self.sceneMgr.get_ActorMgr().set_clock(globalClock)
@@ -118,21 +119,9 @@ class BulletEngineMgr(DirectObject):
 
         # create role
         self.actorRole = self.roleMgr.create_role("PlayerRole", self.sceneMgr.get_resId(self.actor_hunter))
-        camCtrlr = CameraController()
-        camCtrlr.bind_ShowBase(self.base)
-        camCtrlr.set_clock(globalClock)
-        camCtrlr.focus_on(self.actor_hunter, 100)
-        camCtrlr.set_rotateSpeed(10)
-        camCtrlr.add_toggle_to_opt("u", "rotate_around_up")
-        camCtrlr.add_toggle_to_opt("j", "rotate_around_down")
-        camCtrlr.add_toggle_to_opt("h", "rotate_around_cw")
-        camCtrlr.add_toggle_to_opt("k", "rotate_around_ccw")
-
-        self.sceneMgr.bind_CameraController(camCtrlr)
-        self.sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
 
     # 新增 NPC
-    def add_NPC_role(self,character_name,pos,scale):
+    def add_NPC_role(self,character_name,pos,scale,hpr=Vec3(0,0,0)):
         NPC_dic={
             "nun":NUN,
             "girl":GIRL,
@@ -146,6 +135,7 @@ class BulletEngineMgr(DirectObject):
                                                                             self.base.render)
         self.__NPC_Actor[id].setPos(pos)
         self.__NPC_Actor[id].setScale(scale)
+        self.__NPC_Actor[id].setHpr(hpr)
 
         # create role
         self.actorRole = self.roleMgr.create_role("NPCRole",
@@ -192,6 +182,24 @@ class BulletEngineMgr(DirectObject):
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", id, "walk")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", id, "attack")
 
+    """""""""""""""
+    物理世界碰撞体
+    """""""""""""""
+    # 用场景凸包建立碰撞体
+    def add_box_convex(self,scene,height,scale):
+        geomNodes = scene.findAllMatches('**/+GeomNode')
+        geomNode = geomNodes.getPath(0).node()
+        geom = geomNode.getGeom(0)
+        world_shape = BulletConvexHullShape()
+        world_shape.addGeom(geom)
+        self.world_convex_np = self.worldNP.attachNewNode(BulletRigidBodyNode("convex_world"))
+        self.world_convex_np.setScale(scale)
+        self.world_convex_np.setPos(0,0,height)
+        self.world_convex_np.node().addShape(world_shape)
+        self.world_convex_np.setCollideMask(BitMask32.allOn())
+        self.world.attachRigidBody(self.world_convex_np.node())
+
+
     # 房屋碰撞体
     def add_rigid_box(self):
         pass
@@ -213,14 +221,15 @@ class BulletEngineMgr(DirectObject):
         self.world.attachRigidBody(actor_np.node())
         return actor_np
 
-    def add_actor_collide(self,actor,radius,height):
+    def add_actor_collide(self,actor,pos,hpr,radius,height):
         # 猎人胶囊碰撞体
         r = radius
         h = height
         self.actor_shape = BulletCapsuleShape(r, height, ZUp)
         self.actor_character_Node = BulletCharacterControllerNode(self.actor_shape, 1.0, 'Player')
         self.actorNP = self.worldNP.attachNewNode(self.actor_character_Node)
-        self.actorNP.setPos(-20, 30, 0)
+        self.actorNP.setPos(pos)
+        self.actorNP.setHpr(hpr)
         self.actorNP.setCollideMask(BitMask32.allOn())
         self.world.attachCharacter(self.actorNP.node())
         # actor.detachNode(self.world)
@@ -234,6 +243,15 @@ class BulletEngineMgr(DirectObject):
         np.setPos(pos)
         np.setCollideMask(BitMask32.allOn())
         self.world.attachRigidBody(np.node())
+
+    def add_ball_collide(self,radius):
+        shape = BulletSphereShape(radius)
+        np = self.worldNP.attachNewNode(BulletRigidBodyNode('ball_world'))
+        np.node().addShape(shape)
+        np.setCollideMask(BitMask32.allOff())
+        self.world.attachRigidBody(np.node())
+        return np
+
     """""""""""""""
     AI 部分
     """""""""""""""
@@ -329,6 +347,23 @@ class BulletEngineMgr(DirectObject):
         inputState.watchWithModifiers('forward', 'w')
         inputState.watchWithModifiers('turnLeft', 'a')
         inputState.watchWithModifiers('turnRight', 'd')
+
+    def cam_control(self,isFixed,pos=Point3(0,0,0),hpr=Vec3(0,0,0),lookAt=Point3(0,0,0)):
+        camCtrlr = CameraController()
+        camCtrlr.bind_ShowBase(self.base)
+        camCtrlr.set_clock(globalClock)
+        if isFixed == False:
+            camCtrlr.focus_on(self.actor_hunter, 100)
+            camCtrlr.set_rotateSpeed(10)
+            camCtrlr.add_toggle_to_opt("u", "rotate_around_up")
+            camCtrlr.add_toggle_to_opt("j", "rotate_around_down")
+            camCtrlr.add_toggle_to_opt("h", "rotate_around_cw")
+            camCtrlr.add_toggle_to_opt("k", "rotate_around_ccw")
+        else:
+            camCtrlr.fix_on(pos,hpr,lookAt)
+
+        self.sceneMgr.bind_CameraController(camCtrlr)
+        self.sceneMgr.get_ActorMgr().bind_CameraController(camCtrlr)
 
     # _____HANDLER_____
     def doExit(self):
