@@ -84,7 +84,7 @@ class RoleManager(object):
 
         self.__arcPkg = ArchivePackage(arcPkgName = "role",
                                        itemsName = ROLE_ATTR_LIST)
-
+        self.__playerAttr = None
 
     def reset(self):
 
@@ -92,6 +92,8 @@ class RoleManager(object):
         self.__enemyRoleCount = 0
         self.__npcRoleCount = 0
         self.__attachmentRoleCount = 0
+
+        self.__playerAttr = self.get_role("PlayerRole").get_all_attr()
 
         self.__roleModelMap = dict()
         self.__roleMap = dict()
@@ -139,6 +141,10 @@ class RoleManager(object):
             playerRole.set_attr_value("cd", cd)
             playerRole.set_attr_value("remainCd", cd)
 
+            if self.__playerAttr is not None:
+
+                playerRole.set_all_attr(self.__playerAttr)
+
             self.__roleMap[roleId] = playerRole
             self.__roleModelMap[roleId] = modelId
 
@@ -147,7 +153,7 @@ class RoleManager(object):
             for i in range(num):
 
                 enemyRole = EnemyRole(modelId = modelId)
-                enemyRole.set_attr_value("hp", hp)
+                #enemyRole.set_attr_value("hp", hp)
 
                 self.__enemyRoleCount += 1
 
