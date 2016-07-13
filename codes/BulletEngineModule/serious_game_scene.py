@@ -28,19 +28,21 @@ from panda3d.bullet import *
 from BulletEngineModule.bullet_engine_manager import BulletEngineMgr
 
 class SeriousGameScene(DirectObject):
-    def __init__(self, base,sceneMgr,roleMgr):
+    def __init__(self, base,sceneMgr,roleMgr,resMgr):
         DirectObject.__init__(self)
         self.base = base
-        self.worldNP = self.base.render.attachNewNode('World')
-        self.initAll()
-        self.bullet_mgr = BulletEngineMgr(self.base,self.worldNP,sceneMgr,roleMgr)
-        self.sceneMgr = sceneMgr
-        self.roleMgr = roleMgr
-        self.base.setBackgroundColor(0, 0, 0, 1)
+        self.initAll(sceneMgr,roleMgr,resMgr)
 
-    def initAll(self):
+
+    def initAll(self,sceneMgr,roleMgr,resMgr):
         self.__init_shader()
         self.__init_light_camear()
+        self.worldNP = self.base.render.attachNewNode('World')
+        self.bullet_mgr = BulletEngineMgr(self.base,self.worldNP,sceneMgr,roleMgr,resMgr)
+        self.sceneMgr = sceneMgr
+        self.roleMgr = roleMgr
+        self.resMgr = resMgr
+        self.base.setBackgroundColor(0, 0, 0, 1)
 
     # shader 初始化
     def __init_shader(self):
@@ -116,7 +118,7 @@ class SeriousGameScene(DirectObject):
         # destory bullet
         self.bullet_mgr.cleanup()
         # destory game scene
-        self.base.render.node().removeAllChildren()
+        # self.base.render.node().removeAllChildren()
 
 
 

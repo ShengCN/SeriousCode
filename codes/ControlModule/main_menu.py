@@ -18,7 +18,6 @@ from direct.showbase.DirectObject import DirectObject
 from direct.gui.DirectGui import *
 from panda3d.core import *
 from direct.task import Task
-from ControlModule.bullet_engine import BulletEngine
 from ControlModule.common_para import *
 
 class MainMenu(ShowBase):
@@ -35,6 +34,9 @@ class MainMenu(ShowBase):
         self.__weapon2=0
         self.__weapon3=0
         self.init_Mgr()
+        self.current_scene = None
+        self.current_scene_name = None
+        self.change_scene_input()
 
     def init_Mgr(self):
         self.__rm = ResourcesManager()
@@ -44,6 +46,14 @@ class MainMenu(ShowBase):
         self.sceneMgr.build_on(self)
         self.sceneMgr.get_ActorMgr().bind_ResourcesManager(self.__rm)
         self.roleMgr.bind_ResourcesManager(self.__rm)
+
+    # 监听场景切换
+    def change_scene_input(self):
+        self.accept("change_to_scene_village",self.change_to_village)
+        self.accept("change_to_scene_outer",self.change_to_outer)
+        self.accept("change_to_scene_home",self.change_to_home)
+        self.accept("change_to_scene_room",self.change_to_room)
+        # self.accept("change_to_scene_mountain",self.changeto)
 
     """""""""""""""
     所有界面（菜单、设置、游戏中）
@@ -63,6 +73,7 @@ class MainMenu(ShowBase):
         self.accept("LoadGame",self.__load_game)
         self.accept("Description",self.__description)
         self.accept("ChangeMenu",self.__change_menu)
+
 
         archiveList = [
             # {"name": "Archive1", "progress": "50%", "time": "2016/07/05 09:49", "id": "1"},
@@ -143,7 +154,7 @@ class MainMenu(ShowBase):
         if self.__destroySetting==False:
             # 关闭游戏场景帧更新
             self.sceneMgr.get_ActorMgr().stop_all_itvls()
-            # self.village.stop_update()
+            self.current_scene.stop_update()
             # 设置界面背景图
             self.__background = OnscreenImage(image=self.__imagePath+'settings/setting_frame.png', pos=(0, 0, 0),
                                               scale=(1.0, 0, 0.7))
@@ -221,8 +232,8 @@ class MainMenu(ShowBase):
     # 设置界面，私有函数,继续游戏
     def __continue_game(self):
         self.setting_destroy()
-        # self.__game.reset_update()
-        self.village.reset_update()
+        self.destroy_help()
+        self.current_scene.reset_update()
         self.sceneMgr.get_ActorMgr().restart_all_itvls()
         self.__rm.play_sound(7)
 
@@ -612,10 +623,10 @@ class MainMenu(ShowBase):
             self.set_blood(hp)
 
         #怪物
-        # if self.__destroyMonsterHpBar==True:
-        #     monsterBlood=self.roleMgr.get_Boss_hp()
-        #     if monsterBlood!=self.get_monster_blood():
-        #         self.set_monster_blood(monsterBlood)
+        if self.__destroyMonsterHpBar==True:
+            monsterBlood=self.roleMgr.get_Boss_hp()
+            if monsterBlood!=self.get_monster_blood():
+                self.set_monster_blood(monsterBlood)
         return Task.cont
 
     def take_medicine(self):
@@ -726,7 +737,8 @@ class MainMenu(ShowBase):
     def set_monster_blood(self, blood):
         if self.__destroyMonsterHpBar==True:
             self.__monsterBlood = blood
-            self.__monsterHpBar['value'] = self.__monsterBlood
+            print "========================,hp:",blood
+            self.__monsterHpBar['value'] = self.__monsterBlood/10.0
 
     #获得当前血量
     def get_blood(self):
@@ -964,7 +976,7 @@ class MainMenu(ShowBase):
         else:#存档
             print self.__archiveContentList[id - 1]["id"]
             #sceneArchive,roleArchive
-            roleArchive=self.roleMgr.
+            roleArchive=self.roleMgr.export_arcPkg()
             self.__rm.save_archives(roleArchive,int(self.__archiveContentList[id - 1]["id"]))
             # resource_manager,存档,id=0
             self.destroy_archive()
@@ -986,6 +998,7 @@ class MainMenu(ShowBase):
     #移除帮助界面控件
     def destroy_help(self):
         if self.__destroyHelp == True:
+            self.__destroyHelp = False
             self.__helpBg.destroy()
 
             taskMgr.remove('adaptTask')
@@ -1006,20 +1019,22 @@ class MainMenu(ShowBase):
 
     def game_begin(self):
         self.__rm.play_media(self, 1)
-        self.accept("movie_over1",self.outer_scene)
+        self.accept("movie_over1",self.village_scene)
         self.accept("trade_menu", self.trade_menu)
         self.accept("1", self.set_gun1)
         self.accept("2", self.set_gun2)
         self.accept("3", self.set_gun3)
         self.accept("q", self.take_medicine)
 
-    def village_scene(self):
+    def village_scene(self,pos=Point3(-30,30,15)):
         # 原
-        self.village = SeriousGameScene(self,self.sceneMgr,self.roleMgr)
+        self.village = SeriousGameScene(self,self.sceneMgr,self.roleMgr,self.__rm)
+        self.current_scene = self.village
+        self.current_scene_name = "village"
         box = BoxWorld(Point3(0, -400, 0),Point3(0, 370, 0),Point3(-360, 0, 0),Point3(380, 0, 0))
         self.village.load_game_scene(VILLAGE,5,box)
         # 人物
-        self.village.add_player_role()
+        self.village.add_player_role(pos)
         self.village.add_enemy_role(Point3(0,10,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
         self.village.add_enemy_role(Point3(20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
         self.village.add_enemy_role(Point3(40,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
@@ -1028,17 +1043,36 @@ class MainMenu(ShowBase):
         self.village.add_enemy_role(Point3(100,00,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
         self.village.cam_control(False)
 
+        # 场景切换点
+        self.ring1 = self.sceneMgr.add_model_scene(RING, self.render)
+        self.ring1.setPos(-250,-50,0)
+        self.ring1.setScale(3)
+        self.ring2 = self.sceneMgr.add_model_scene(RING, self.render)
+        self.ring2.setPos(140, -306, 0)
+        self.ring1.setScale(3)
+        self.sceneMgr.add_CheckCircle([(-250, -50, 0), "room"])
+        self.sceneMgr.add_CheckCircle([(140, -306, 0), "home"])
+
+        if self.sceneMgr.get_ActorMgr().get_storyLine() == 6:
+            self.ring3 = self.sceneMgr.add_model_scene(RING, self.render)
+            self.ring3.setPos(-225, -290, 2)
+            self.ring1.setScale(3)
+            self.sceneMgr.add_CheckCircle([(-225, -290, 0), "outer"])
+
+
         self.main_game()
         self.show_monster_hp()
         self.accept('r',self.destory_scene,extraArgs = [self.village])
-
+        self.accept('l',self.outer_scene)
         self.village.task_update()
 
         # 声音
         self.__rm.play_sound(1)
 
-    def home_scene(self):
-        self.home = SeriousGameScene(self,self.sceneMgr,self.roleMgr)
+    def home_scene(self,pos=Point3(-30,30,15)):
+        self.home = SeriousGameScene(self,self.sceneMgr,self.roleMgr,self.__rm)
+        self.current_scene = self.home
+        self.current_scene_name = "home"
         box = BoxWorld(Point3(0, -35, 0),Point3(0, 36, 0),Point3(-15, 0, 0),Point3(24, 0, 0))
         self.home.load_game_scene(HOME,5.0,box)
         # 人物
@@ -1050,8 +1084,10 @@ class MainMenu(ShowBase):
         self.accept('r', self.destory_scene, extraArgs=[self.home])
         self.home.task_update()
 
-    def outer_scene(self):
-        self.outer = SeriousGameScene(self, self.sceneMgr, self.roleMgr)
+    def outer_scene(self,pos=Point3(-30,30,15)):
+        self.outer = SeriousGameScene(self, self.sceneMgr, self.roleMgr,self.__rm)
+        self.current_scene = self.outer
+        self.current_scene_name = "outer"
         box = BoxWorld(Point3(0, -400, 0),Point3(0, 390, 0),Point3(-300, 0, 0),Point3(380, 0, 0))
         self.outer.load_game_scene(OUTER,5,box)
         # 人物
@@ -1070,8 +1106,10 @@ class MainMenu(ShowBase):
         self.accept('r', self.destory_scene, extraArgs=[self.outer])
         self.outer.task_update()
 
-    def room_scene(self):
-        self.room = SeriousGameScene(self,self.sceneMgr,self.roleMgr)
+    def room_scene(self,pos=Point3(-30,30,15)):
+        self.room = SeriousGameScene(self,self.sceneMgr,self.roleMgr,self.__rm)
+        self.current_scene = self.room
+        self.current_scene_name = "room"
         box = BoxWorld(Point3(0, -130, 0),Point3(0, 47, 0),Point3(-43, 0, 0),Point3(38, 0, 0))
         self.room.load_game_scene(ROOM,5.0,box,-5)
         # 人物
@@ -1084,6 +1122,30 @@ class MainMenu(ShowBase):
         self.main_game()
         self.room.task_update()
 
+
+    # 场景切换
+    def change_to_village(self):
+        if(self.current_scene_name == "outer"):
+            self.destory_scene(self.current_scene)
+            self.village_scene()
+        elif(self.current_scene_name == "home"):
+            self.destory_scene(self.current_scene)
+            self.village_scene()
+        if(self.current_scene_name == "room"):
+            self.destory_scene(self.current_scene)
+            self.village_scene()
+
+    def change_to_home(self):
+        self.destory_scene(self.current_scene)
+        self.home_scene()
+
+    def change_to_room(self):
+        self.destory_scene(self.current_scene)
+        self.room_scene()
+
+    def change_to_outer(self):
+        self.destory_scene(self.current_scene)
+        self.outer_scene()
 
     def destory_scene(self,serious_scene):
         serious_scene.destroy()

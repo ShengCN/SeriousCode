@@ -36,12 +36,13 @@ from SceneModule.camera_controller import CameraController
 
 
 class BulletEngineMgr(DirectObject):
-    def __init__(self,base,worldNP,sceneMgr,roleMgr):
+    def __init__(self,base,worldNP,sceneMgr,roleMgr,resMgr):
         DirectObject.__init__(self)
         self.base = base
         self.worldNP = worldNP
         self.sceneMgr = sceneMgr
         self.roleMgr = roleMgr
+        self.resMgr = resMgr
         self.initAll()
 
     def initAll(self):
@@ -95,6 +96,7 @@ class BulletEngineMgr(DirectObject):
         self.__role_dict = dict()
         self.__NPC_Actor = dict()
         self.__chest_list = dict()
+        self.__isDead = dict()
         self.init_AI()
 
     # 新增游戏主角
@@ -164,6 +166,7 @@ class BulletEngineMgr(DirectObject):
     def add_enemy_role(self,pos,scale,model_path,model_action_path):
         self.__amount = self.__amount + 1
         id = self.__amount - 1
+        self.__isDead[id] = False
         self.add_enemy(id,pos,scale,model_path,model_action_path)
         self.setAI(id,self.__enemy_NP[id])
 
@@ -177,10 +180,17 @@ class BulletEngineMgr(DirectObject):
         self.__enemy_NP[id] = self.add_model_collide(self.__enemy_list[id],pos,4,18,id)
         self.__enemy_NP[id].setZ(14)
         # 增加人物 role 到角色管理器
-        id = self.sceneMgr.get_resId(self.__enemy_list[id])
-        self.__role_dict[id] = self.roleMgr.create_role("EnemyRole", id)
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", id, "walk")
-        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", id, "attack")
+        role_id = self.sceneMgr.get_resId(self.__enemy_list[id])
+        self.__role_dict[role_id] = self.roleMgr.create_role("EnemyRole", role_id)
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_walk", role_id, "walk")
+        self.sceneMgr.get_ActorMgr().add_toggle_to_actor("enemy_attack", role_id, "attack")
+
+        if id == 0:
+            # role_id = self.sceneMgr.get_resId(self.__enemy_list[id])wwwwa
+            # self.__role_dict[role_id] = self.roleMgr.create_role("EnemyRole", role_id)
+            self.__role_dict[role_id].set_attr_value("Boss", 1)
+            self.__role_dict[role_id].set_attr_value("hp", BOSS_HP)
+
 
     """""""""""""""
     物理世界碰撞体
@@ -286,15 +296,16 @@ class BulletEngineMgr(DirectObject):
     def AIUpdate(self,task):
         if self.__amount > 0:
             for id in range(self.__amount):
-                if self.isDanger(id):
-                    AIbehaviors = self.AI_Character[id].getAiBehaviors()
-                    AIbehaviors.removeAi("all")
-                    AIbehaviors.pursue(self.actorNP)
-                else:
-                    AIbehaviors = self.AI_Character[id].getAiBehaviors()
-                    AIbehaviors.removeAi("all")
-                    AIbehaviors.wander(5, 0, 10, 1)
-                self.AIworld.update()
+                if self.__isDead[id] != True:
+                    if self.isDanger(id):
+                        AIbehaviors = self.AI_Character[id].getAiBehaviors()
+                        AIbehaviors.removeAi("all")
+                        AIbehaviors.pursue(self.actorNP)
+                    else:
+                        AIbehaviors = self.AI_Character[id].getAiBehaviors()
+                        AIbehaviors.removeAi("all")
+                        AIbehaviors.wander(5, 0, 10, 1)
+                    self.AIworld.update()
         return task.cont
 
     # 所有攻击的碰撞检测
@@ -402,9 +413,12 @@ class BulletEngineMgr(DirectObject):
 
 
     def doShoot(self):
-        pFrom = Point3(0,0,0)
-        pTo = Point3()
+        # 子弹枪声
+        bullet_sound_id = self.actorRole.get_attr_value("currWeapon") + 3
+        self.resMgr.play_sound(bullet_sound_id)
 
+        pFrom = Point3(0, 0, 0)
+        pTo = Point3()
         print "omega"
         omega = self.actorNP.getHpr().getX()
         print omega
@@ -412,20 +426,13 @@ class BulletEngineMgr(DirectObject):
         v = Point3(math.cos(omega * math.pi / 180), math.sin(omega * math.pi / 180),0)
         v.normalize()
         v *= BULLET_SPEED
-        print '子弹速度 %s' %v
         #create Bullet
         size = Vec3(7,7,7)
         pFrom = self.actorNP.getPos()
-        print '玩家位置 %s' %pFrom
         x = self.actorNP.getPos().getX()
         y = self.actorNP.getPos().getY()
         z = self.actorNP.getPos().getZ()
         hpr = self.actorNP.getHpr()
-        print '玩家位置x %s' % x
-        print '玩家位置y %s' % y
-        print '玩家位置z %s' % z
-        print '玩家方向hpr %s' % hpr
-        print '胶囊包围体r %s' % self.actor_character_Node.getShape().getRadius()
         cosOmg = 18*math.cos(omega*math.pi/180)
         sinOmg = 18*math.sin(omega*math.pi/180)
         bulletNP = self.create_bullet('Bullet', BULLET_SIZE, Point3(x + cosOmg, y + sinOmg, 15), True)
@@ -435,6 +442,8 @@ class BulletEngineMgr(DirectObject):
         bulletNP.setCollideMask(BitMask32.allOff())
         print '子弹方向hpr %s' % v
         print '子弹位置 %s' %bulletNP.getPos()
+
+
 
         # Remove the bullet again after 1 sec
         taskMgr.doMethodLater(1,self.doRemove,'doRemove',
@@ -496,8 +505,11 @@ class BulletEngineMgr(DirectObject):
         for id in range(self.__amount):
             roleId = self.sceneMgr.get_resId(self.__enemy_list[id])
             if self.__role_dict[roleId].get_attr_value("hp") == 0:
+                # 碰撞体移除
                 self.__enemy_NP[id].setCollideMask(BitMask32.allOff())
-
+                # AI 不更新
+                self.__isDead[id] = True
+                self.AI_Character[id].getAiBehaviors().removeAi("all")
 
     # ____TASK___
     def processInput(self, dt):

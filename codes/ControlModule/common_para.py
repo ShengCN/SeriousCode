@@ -1,4 +1,6 @@
 # coding=utf-8
+from panda3d.core import Point3
+
 modelRootPath = "/d/SeriousPresent"
 
 CONFIG = """
@@ -58,6 +60,16 @@ ZOMBIE_ACTION_PATH = {
     "walk" : modelRootPath+"/Material/ModelEGGS/Zombie/Zombie_Walk.egg",
     "attack": modelRootPath+"/Material/ModelEGGS/Zombie/Zombie_Offence.egg"
 }
+"""""""""""""""
+传送点位置
+"""""""""""""""
+VILLAGE_TO_ROOM = Point3(-250,-50,2)
+VILLAGE_TO_OUTER = Point3(-225,-290,2)
+VILLAGE_TO_HOME = Point3(140,-306,2)
+HOME_TO_VILLAGE = Point3(-18,-18,0)
+OUTER_TO_VILLAGE = Point3(446,-40,0)
+ROOM_TO_VILLAGE = Point3(5,-85,3)
+
 
 """""""""""""""
 NPC模型
@@ -72,6 +84,8 @@ CHEST_OPEN = {
 """""""""""""""
 HOME场景
 """""""""""""""
+RING = modelRootPath + "/Material/ModelEGGS/Ring/ring.egg"
+
 HOME = modelRootPath + "/Material/ModelEGGS/Home/home.egg"
 
 """""""""""""""
@@ -108,13 +122,13 @@ TEST_SECOND_SCENE = modelRootPath + "/house_test/Outer_v2.egg"
 SPEED = 100.0
 JUMP_HEIGHT = 1.0
 JUMP_SPEED = 10.0
-ENEMY_MASS = 300.0
+ENEMY_MASS = 0.0
 BULLET_MASS = 10.0
 BULLET_SPEED = 1000.0
 BULLET_SIZE = 3.0
 DANGER_LENGTH = 100
 REBORN_TIME = 12000
-
+BOSS_HP = 1000
 """""""""""""""
 AI 参数
 """""""""""""""
