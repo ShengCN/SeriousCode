@@ -26,6 +26,7 @@ from panda3d.core import BitMask32
 from pandac.PandaModules import AntialiasAttrib, LODNode
 from panda3d.bullet import *
 from BulletEngineModule.bullet_engine_manager import BulletEngineMgr
+from ControlModule.common_para import *
 
 class SeriousGameScene(DirectObject):
     def __init__(self, base,sceneMgr,roleMgr,resMgr):
@@ -94,9 +95,9 @@ class SeriousGameScene(DirectObject):
         home.setScale(scale)
         return self.bullet_mgr.add_ball_bullet_world(radius)
 
-    # 新增游戏主角
-    def add_player_role(self,pos=Point3(-30,30,15),hpr=Vec3(0,0,0)):
-        self.bullet_mgr.add_player_role(pos,hpr)
+    # 新增游戏主角     pos,Vec3(0,0,0),HUNTER_PATH,HUNTER_ACTION_PATH
+    def add_player_role(self,pos=Point3(-30,30,15),hpr=Vec3(0,0,0),MODEL = HUNTER_PATH,ACTION_MODEL=HUNTER_ACTION_PATH):
+        self.bullet_mgr.add_player_role(pos,hpr,MODEL,ACTION_MODEL)
 
     def add_NPC_role(self,character_name,pos,scale,hpr=Vec3(0,0,0)):
         self.bullet_mgr.add_NPC_role(character_name,pos,scale,hpr)

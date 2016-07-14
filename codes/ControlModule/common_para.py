@@ -30,6 +30,7 @@ text-default-font /c/Windows/Fonts/FZSTK.ttf
 主角模型
 """""""""""""""
 HUNTER_PATH = modelRootPath + "/Material/ModelEGGS/Hunter/hunter_AlarmPos1.egg"
+HUNTER_QUIET = modelRootPath + "/Material/ModelEGGS/Hunter/hunter_Quiet.egg"
 HUNTER_ACTION_PATH = {
     "run" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_RunWithGun1.egg",
     "run_back" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_RunBackWithGun1.egg",

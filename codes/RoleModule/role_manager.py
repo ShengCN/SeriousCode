@@ -443,7 +443,7 @@ class RoleManager(object):
         player = self.get_role("PlayerRole")
 
         medicineNum = player.get_attr_value("medicineNum")
-        recoverHP = player.get_attr_value("recoverHP")
+        recoverHP = player.get_attr_value("recoverHp")
         hp = player.get_attr_value("hp")
 
         if medicineNum == 0:

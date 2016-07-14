@@ -92,10 +92,10 @@ class BulletEngineMgr(DirectObject):
         self.init_AI()
 
     # 新增游戏主角
-    def add_player_role(self,pos,hpr):
+    def add_player_role(self,pos,hpr,MODEL,ACTION_MODEL):
         # 猎人
-        self.actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
-                                                          HUNTER_ACTION_PATH,
+        self.actor_hunter = self.sceneMgr.add_actor_scene(MODEL,
+                                                          ACTION_MODEL,
                                                           self.base.render)
         self.actor_hunter.setPos(0, 1, -10)  # 相对于胶囊体坐标
         self.actor_hunter.setScale(1.6)

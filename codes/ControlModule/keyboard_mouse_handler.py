@@ -18,7 +18,6 @@ class MenuPlayerInputHandler(MenuInputHandler):
         self.accept("s",self.__countIncress)
         self.accept("arrow_down",self.__countIncress)
         self.accept("enter",self.__decide)
-        self.accept("escape",exit)
 
         taskMgr.add(self.updateInput, "update input")
 
