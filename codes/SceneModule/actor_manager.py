@@ -146,6 +146,9 @@ class ActorManager(ResManager):
         self.__arcPkg.append_metaData(key = "eventActionRecord")
         self.__arcPkg.append_metaData(key = "eventEffertRecord")
 
+        self.__render = None
+        self.__isPurchasing = False
+
     """""""""""""""
     动态模型管理函数
     """""""""""""""
@@ -611,6 +614,14 @@ class ActorManager(ResManager):
 
         return self.__roleMgr
 
+    def bind_render(self, render):
+
+        self.__render = render
+
+    def get_render(self):
+
+        return self.__render 
+
     def bind_ResourcesManager(self, resMgr):
 
         self.__resMgr = resMgr
@@ -877,9 +888,16 @@ class ActorManager(ResManager):
 
         return task.cont
 
+    def __no_purchasing(self):
+
+        self.__isPurchasing = False
+
     def __talk_or_open(self):
 
         playerRole = self.__roleMgr.get_role("PlayerRole")
+        player = self.get_actor(playerRole.get_attr_value("modelId"))
+
+        player.accept("trade_over", self.__no_purchasing)
 
         # 与NPC对话
         if self.__NPCCanTalkWith is not None:
@@ -927,61 +945,88 @@ class ActorManager(ResManager):
 
                     self.__isTalking = self.__resMgr.dialog_next()
 
+                    if self.__isTalking is False:
+
+                        messenger.send("trade_menu")
+
+                        self.__isPurchasing = True
+
                 else:
 
-                    self.__storyLine = 8
+                    if self.__isPurchasing is False:
 
-                    self.__resMgr.show_dialog(8)
+                        self.__storyLine = 8
 
-                    self.__isTalking = True
+                        self.__resMgr.show_dialog(8)
+
+                        self.__isTalking = True
 
             return
 
         if self.__storyLine == 2 or self.__isTalking is True:
 
-            if self.__storyLine == 3 and self.__isTalking is True:
+            playerX = player.getX(self.__render)
+            playerY = player.getY(self.__render)
 
-                self.__isTalking = self.__resMgr.dialog_next()
+            if playerX >= -45 and playerX <=25 and \
+                playerY >= 400 and playerY <= 470:
 
-            if self.__storyLine == 2:
+                if self.__storyLine == 3 and self.__isTalking is True:
 
-                self.__storyLine += 1
+                    self.__isTalking = self.__resMgr.dialog_next()
 
-                playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
+                if self.__storyLine == 2:
 
-                self.__resMgr.show_dialog(self.__storyLine)
+                    self.__storyLine += 1
 
-                self.__isTalking = True
+                    playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
+
+                    self.__resMgr.show_dialog(self.__storyLine)
+
+                    self.__isTalking = True
 
         if self.__storyLine == 4 or self.__isTalking is True:
 
-            if self.__storyLine == 5 and self.__isTalking is True:
-                self.__isTalking = self.__resMgr.dialog_next()
+            playerX = player.getX(self.__render)
+            playerY = player.getY(self.__render)
 
-            if self.__storyLine == 4:
-                self.__storyLine += 1
+            if playerX >= -45 and playerX <=25 and \
+                playerY >= 400 and playerY <= 470:
 
-                playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
+                if self.__storyLine == 5 and self.__isTalking is True:
+                    self.__isTalking = self.__resMgr.dialog_next()
 
-                self.__resMgr.show_dialog(self.__storyLine)
+                if self.__storyLine == 4:
+                    self.__storyLine += 1
 
-                self.__isTalking = True
+                    playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
+
+                    self.__resMgr.show_dialog(self.__storyLine)
+
+                    self.__isTalking = True
 
         if self.__storyLine == 6 or self.__isTalking is True:
 
-            if self.__storyLine == 7 and self.__isTalking is True:
+            enemies = self.__roleMgr.get_one_kind_of_roles("EnemyRole")
 
-                self.__isTalking = self.__resMgr.dialog_next()
+            for enemy in enemies:
 
-            if self.__storyLine == 6:
+                if enemy.get_attr_value("Boss") == 1 and \
+                    enemy.get_attr_value("hp") == 0:
 
-                self.__storyLine += 1
+                    if self.__storyLine == 7 and self.__isTalking is True:
 
-                playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
+                        self.__isTalking = self.__resMgr.dialog_next()
 
-                self.__resMgr.show_dialog(self.__storyLine)
+                    if self.__storyLine == 6:
 
-                self.__isTalking = True
+                        self.__storyLine += 1
+
+                        playerRole.set_attr_value(key="storyLine", value=self.__storyLine)
+
+                        self.__resMgr.show_dialog(self.__storyLine)
+
+                        self.__isTalking = True
 
         # 打开宝箱
         if self.__chestCanOpen is not None:

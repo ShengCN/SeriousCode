@@ -44,6 +44,8 @@ class SceneManager(object):
 
         self.__render = self.__showbase.render
 
+        self.__actorMgr.bind_render(self.__render)
+
         #self.__camCtrlr.bind_ShowBase(showbase)
 
     # 添加动态模型场景
