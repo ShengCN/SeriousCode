@@ -1029,6 +1029,7 @@ class MainMenu(ShowBase):
 
     def village_scene(self,pos=Point3(-30,30,15)):
         # reset
+        #self.current_scene.stop_update()
         self.sceneMgr.reset()
         self.roleMgr.reset()
         self.sceneMgr.build_on(self)
@@ -1069,6 +1070,8 @@ class MainMenu(ShowBase):
             self.ring3.setPos(-225, -290, 2)
             self.ring3.setScale(3)
             self.sceneMgr.add_CheckCircle([(-225, -290, 0), "outer"])
+
+        #self.sceneMgr.get_ActorMgr().print_resMap()
 
         self.main_game()
         # self.show_monster_hp()

@@ -97,6 +97,7 @@ class BulletEngineMgr(DirectObject):
         self.actor_hunter = self.sceneMgr.add_actor_scene(HUNTER_PATH,
                                                           HUNTER_ACTION_PATH,
                                                           self.base.render)
+        print "our hunter : ", self.actor_hunter.getName()
         self.actor_hunter.setPos(0, 1, -10)  # 相对于胶囊体坐标
         self.actor_hunter.setScale(1.6)
         self.actor_hunter.setTwoSided(True)

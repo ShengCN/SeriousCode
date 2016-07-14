@@ -119,7 +119,7 @@ TEST_SECOND_SCENE = modelRootPath + "/house_test/Outer_v2.egg"
 """""""""""""""
 玩家的游戏参数
 """""""""""""""
-SPEED = 100.0
+SPEED = 50
 JUMP_HEIGHT = 1.0
 JUMP_SPEED = 10.0
 ENEMY_MASS = 0.0
@@ -129,7 +129,7 @@ BULLET_SIZE = 3.0
 DANGER_LENGTH = 100
 REBORN_TIME = 12000
 BOSS_HP = 1000
-CHANGE_SCENE_DISTANCE = 25
+CHANGE_SCENE_DISTANCE = 10
 """""""""""""""
 AI 参数
 """""""""""""""
