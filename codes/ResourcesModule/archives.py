@@ -56,6 +56,7 @@ class Archives(object):
             id = len(self.__archives)+1
             self.new_archive(roleArchive,id,path)
             self.__archives.append(self.__archive)
+            self.write_to_file()
             return True
         #覆盖之前的存档
         else:
@@ -63,10 +64,10 @@ class Archives(object):
                 if (self.__archives[i]["id"] == id):
                     self.new_archive(roleArchive,id,path)
                     self.__archives[i]=self.__archive
+                    self.write_to_file()
                     return True
         return False
 
-        # self.write_to_file()
 
     #新建存档
     def new_archive(self,roleArchive,id,path):
