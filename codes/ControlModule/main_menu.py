@@ -407,6 +407,8 @@ class MainMenu(ShowBase):
             self.__closeBtn.destroy()
             self.__destroyTrade = False
 
+            messenger.send("trade_over")
+
     # 更新购买药品总价
     def set_medicine_total_price(self, textEntered):
         if (int(textEntered) <= 99 and int(textEntered) >= 0):
