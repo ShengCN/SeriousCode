@@ -42,7 +42,9 @@ class SeriousGame(DirectObject):
     def __description(self):
         print '进入描述界面'
         self.__window.destroy()
-        self.__window.help_menu()
+        # False:help
+        # True:description
+        self.__window.help_menu(True)
 
 
 

@@ -255,12 +255,16 @@ class MainMenu(ShowBase):
     def __help(self):
         self.setting_destroy()
         self.__rm.play_sound(7)
-        self.help_menu()
+        # False:help
+        # True:description
+        self.help_menu(False)
 
     # 设置界面，私有函数,回到主界面
     def __return_home(self):
         self.setting_destroy()
         self.__rm.play_sound(7)
+        self.destroy_main_game()
+        self.start()
 
     """""""""""""""
     交易界面函数
@@ -976,7 +980,8 @@ class MainMenu(ShowBase):
 
             taskMgr.remove('adaptArchiveTask')
 
-            self.start()
+            if self.__loadOrSave == True:
+                self.start()
 
     #滑动滑动条
     def move(self):
@@ -994,6 +999,7 @@ class MainMenu(ShowBase):
             print self.__archiveContentList[id - 1]["id"]
             roleArchive=self.__rm.select_archives(int(self.__archiveContentList[id - 1]["id"]))
             #archive函数
+            self.room_scene()
             # resource_manager,读档,id=id
             self.destroy_archive()
         else:#存档
@@ -1007,26 +1013,42 @@ class MainMenu(ShowBase):
     """""""""""""""
     游戏说明界面函数
     """""""""""""""
-    def help_menu(self):
 
-        if self.__destroyHelp==False:
-            self.__helpBg= OnscreenImage(image=self.__imagePath+"helpMenu.png", pos=(0, 0, 0), scale=1)
+    def help_menu(self, ft):
+        # False:help
+        # True:description
+        self.__helpOrDescription = ft
+        if self.__destroyHelp == False:
+            self.__helpBg = OnscreenImage(image=self.__imagePath + "helpMenu.png", pos=(0, 0, 0), scale=1)
             self.__helpBg.setSx(self.getAspectRatio())
             self.__helpBg.setTransparency(TransparencyAttrib.MAlpha)
 
+            self.__closeHlepBtn = DirectButton(pos=(1.7, 0, 0.9), text="", scale=(0.05, 0, 0.05),
+                                               command=self.destroy_help,
+                                               image=self.__imagePath + 'archive/close.png',
+                                               frameColor=(0, 0, 0, 0))
+            self.__closeHlepBtn.setTransparency(TransparencyAttrib.MAlpha)
+
             self.taskMgr.add(self.adapt_help, 'adaptTask')
 
-            self.__destroyHelp=True
+            self.destroy_main_game()
+
+            self.__destroyHelp = True
 
     #移除帮助界面控件
     def destroy_help(self):
         if self.__destroyHelp == True:
             self.__destroyHelp = False
             self.__helpBg.destroy()
+            self.__closeHlepBtn.destroy()
 
             taskMgr.remove('adaptTask')
-
-            self.start()
+            # False:help
+            # True:description
+            if self.__helpOrDescription == True:
+                self.start()
+            else:
+                self.main_game()
 
 
     #更新画面大小，自适应
