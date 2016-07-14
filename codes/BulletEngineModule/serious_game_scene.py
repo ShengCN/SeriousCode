@@ -105,6 +105,10 @@ class SeriousGameScene(DirectObject):
     def add_enemy_role(self,pos,scale,model_path,model_action_path):
         self.bullet_mgr.add_enemy_role(pos,scale,model_path,model_action_path)
 
+    # 增加室内房屋碰撞体
+    def add_rigid_box(self,pos,size,hpr,id):
+        self.bullet_mgr.add_rigid_box(pos,size,hpr,id)
+
     def task_update(self):
         self.bullet_mgr.task_update()
 

@@ -1019,7 +1019,7 @@ class MainMenu(ShowBase):
 
     def game_begin(self):
         self.__rm.play_media(self, 1)
-        self.accept("movie_over1",self.home_scene)
+        self.accept("movie_over1",self.village_scene)
         self.accept("trade_menu", self.trade_menu)
         self.accept("1", self.set_gun1)
         self.accept("2", self.set_gun2)
@@ -1036,14 +1036,17 @@ class MainMenu(ShowBase):
         self.current_scene_name = "village"
         box = BoxWorld(Point3(0, -400, 0),Point3(0, 370, 0),Point3(-360, 0, 0),Point3(380, 0, 0))
         self.village.load_game_scene(VILLAGE,5,box)
+        # 为房屋建立碰撞体
+        self.village.add_rigid_box(Point3(-290,-93,0),Vec3(20,40,10),Vec3(-45,0,0),1)
+
         # 人物
         self.village.add_player_role(pos)
-        self.village.add_enemy_role(Point3(0,10,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
-        self.village.add_enemy_role(Point3(20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
-        self.village.add_enemy_role(Point3(40,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
-        self.village.add_enemy_role(Point3(80,10,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
-        self.village.add_enemy_role(Point3(10,90,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
-        self.village.add_enemy_role(Point3(100,00,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        # self.village.add_enemy_role(Point3(0,10,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        # self.village.add_enemy_role(Point3(20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        # self.village.add_enemy_role(Point3(40,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        # self.village.add_enemy_role(Point3(80,10,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        # self.village.add_enemy_role(Point3(10,90,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        # self.village.add_enemy_role(Point3(100,00,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
         self.village.cam_control(False)
 
         # 场景切换点
@@ -1063,7 +1066,7 @@ class MainMenu(ShowBase):
             self.sceneMgr.add_CheckCircle([(-225, -290, 0), "outer"])
 
         self.main_game()
-        self.show_monster_hp()
+        # self.show_monster_hp()
         self.accept('r',self.destory_scene,extraArgs = [self.village])
         self.accept('l',self.outer_scene)
         self.village.task_update()

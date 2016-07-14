@@ -205,8 +205,16 @@ class BulletEngineMgr(DirectObject):
 
 
     # 房屋碰撞体
-    def add_rigid_box(self):
-        pass
+    def add_rigid_box(self,pos,size,hpr,id):
+        shape = BulletBoxShape(size)
+        box_np = self.worldNP.attachNewNode(BulletRigidBodyNode(str(id)))
+        box_np.setPos(self.base.render,pos)
+        box_np.node().addShape(shape)
+        box_np.setHpr(self.base.render,hpr)
+        box_np.setCollideMask(BitMask32.allOn())
+        box_np.node().setDeactivationEnabled(False)
+        self.world.attachRigidBody(box_np.node())
+
 
     # 人物碰撞体
     def add_model_collide(self,actor,pos,radius,height,name):
