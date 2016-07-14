@@ -1300,6 +1300,10 @@ class ActorManager(ResManager):
 
         return self.__storyLine
 
+    def get_ResourcesManager(self):
+
+        return self.__resMgr
+
     def print_eventEffertRecord(self):
 
         print "----- eventEffertRecord -----"

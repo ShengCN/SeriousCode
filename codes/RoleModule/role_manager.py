@@ -469,7 +469,7 @@ class RoleManager(object):
         if money < 0:
 
             self.__resMgr.destroy_prompt()
-            self.__resMgr.show_prompt_box("金币不足！")
+            #self.__resMgr.show_prompt_box("金币不足！")
 
             money += price
 

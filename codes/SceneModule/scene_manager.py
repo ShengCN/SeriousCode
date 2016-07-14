@@ -33,7 +33,11 @@ class SceneManager(object):
 
     def reset(self):
         roleMgr = self.__actorMgr.get_roleMgr()
+        storyLine = self.__actorMgr.get_storyLine()
+        resMgr = self.__actorMgr.get_ResourcesManager()
         self.__actorMgr = ActorManager()
+        self.__actorMgr.set_storyLine(storyLine)
+        self.__actorMgr.bind_ResourcesManager(resMgr)
         self.__modelMgr = ModelManager()
         self.__actorMgr.bind_RoleManager(roleMgr)
         self.__checkCircleList = []
