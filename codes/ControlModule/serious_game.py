@@ -36,9 +36,15 @@ class SeriousGame(DirectObject):
 
     def __load_game_window(self):
         print '控制器选择载入游戏窗口'
+        self.__window.destroy()
+        self.__window.archive()
 
     def __description(self):
         print '进入描述界面'
+        self.__window.destroy()
+        # False:help
+        # True:description
+        self.__window.help_menu(True)
 
 
 

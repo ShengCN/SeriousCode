@@ -49,7 +49,7 @@ class MediaPlayer():
         self.__card.reparentTo(base.render2d)
         self.__card.setTexture(self.__tex)
 
-        self.__sound = loader.loadSfx(self.__mediaFileName[self.id])
+        self.__sound = loader.loadMusic(self.__mediaFileName[self.id])
         # Synchronize the video to the sound.
         self.__tex.synchronizeTo(self.__sound)
 

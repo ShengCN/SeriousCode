@@ -73,6 +73,7 @@ class MainMenu(ShowBase):
         self.accept("Description",self.__description)
         self.accept("ChangeMenu",self.__change_menu)
 
+        self.taskMgr.add(self.adapt_main, 'adaptMainTask')
 
         archiveList = [
             # {"name": "Archive1", "progress": "50%", "time": "2016/07/05 09:49", "id": "1"},
@@ -86,6 +87,11 @@ class MainMenu(ShowBase):
         self.accept("z",self.main_game)
         self.accept("u", self.destroy_main_game)
 
+    def adapt_main(self, Task):
+        self.__image.setSx(self.getAspectRatio())
+
+        return Task.cont
+
     """""""""""""""
     菜单界面函数
     """""""""""""""
@@ -93,6 +99,7 @@ class MainMenu(ShowBase):
     def destroy(self):
         self.__image.destroy()
         self.__keyInput.destroy()
+        taskMgr.remove('adaptMainTask')
 
     # 私有函数，进入新建游戏界面
     def __new_game(self):
@@ -248,12 +255,16 @@ class MainMenu(ShowBase):
     def __help(self):
         self.setting_destroy()
         self.__rm.play_sound(7)
-        self.help_menu()
+        # False:help
+        # True:description
+        self.help_menu(False)
 
     # 设置界面，私有函数,回到主界面
     def __return_home(self):
         self.setting_destroy()
         self.__rm.play_sound(7)
+        self.destroy_main_game()
+        self.start()
 
     """""""""""""""
     交易界面函数
@@ -751,6 +762,10 @@ class MainMenu(ShowBase):
     """""""""""""""
     存档界面函数
     """""""""""""""
+    def archive(self):
+        archiveList = self.__rm.show_archives()
+        self.archive_menu(self, False, archiveList)
+
     def archive_menu(self,base,operate,archiveList):
         if self.__destroyArchive == False:
 
@@ -918,11 +933,18 @@ class MainMenu(ShowBase):
                                            frameColor=(0, 0, 0, 0))
             self.__closeArchiveBtn.setTransparency(TransparencyAttrib.MAlpha)
 
+            self.taskMgr.add(self.adapt_archive, 'adaptArchiveTask')
+
             self.destroy_trade()
             self.destroy_main_game()
             self.setting_destroy()
 
             self.__destroyArchive = True
+
+    def adapt_archive(self, Task):
+        self.__archiveBg.setSx(self.getAspectRatio())
+
+        return Task.cont
 
     #设置存档记录
     def set_archive_list(self, archiveList):
@@ -956,6 +978,11 @@ class MainMenu(ShowBase):
             self.__closeArchiveBtn.destroy()
             self.__destroyArchive = False
 
+            taskMgr.remove('adaptArchiveTask')
+
+            if self.__loadOrSave == True:
+                self.start()
+
     #滑动滑动条
     def move(self):
         value = self.__archiveSlider.getValue()
@@ -972,6 +999,7 @@ class MainMenu(ShowBase):
             print self.__archiveContentList[id - 1]["id"]
             roleArchive=self.__rm.select_archives(int(self.__archiveContentList[id - 1]["id"]))
             #archive函数
+            self.room_scene()
             # resource_manager,读档,id=id
             self.destroy_archive()
         else:#存档
@@ -985,24 +1013,42 @@ class MainMenu(ShowBase):
     """""""""""""""
     游戏说明界面函数
     """""""""""""""
-    def help_menu(self):
 
-        if self.__destroyHelp==False:
-            self.__helpBg= OnscreenImage(image=self.__imagePath+"helpMenu.png", pos=(0, 0, 0), scale=1)
+    def help_menu(self, ft):
+        # False:help
+        # True:description
+        self.__helpOrDescription = ft
+        if self.__destroyHelp == False:
+            self.__helpBg = OnscreenImage(image=self.__imagePath + "helpMenu.png", pos=(0, 0, 0), scale=1)
             self.__helpBg.setSx(self.getAspectRatio())
             self.__helpBg.setTransparency(TransparencyAttrib.MAlpha)
 
+            self.__closeHlepBtn = DirectButton(pos=(1.7, 0, 0.9), text="", scale=(0.05, 0, 0.05),
+                                               command=self.destroy_help,
+                                               image=self.__imagePath + 'archive/close.png',
+                                               frameColor=(0, 0, 0, 0))
+            self.__closeHlepBtn.setTransparency(TransparencyAttrib.MAlpha)
+
             self.taskMgr.add(self.adapt_help, 'adaptTask')
 
-            self.__destroyHelp=True
+            self.destroy_main_game()
+
+            self.__destroyHelp = True
 
     #移除帮助界面控件
     def destroy_help(self):
         if self.__destroyHelp == True:
             self.__destroyHelp = False
             self.__helpBg.destroy()
+            self.__closeHlepBtn.destroy()
 
             taskMgr.remove('adaptTask')
+            # False:help
+            # True:description
+            if self.__helpOrDescription == True:
+                self.start()
+            else:
+                self.main_game()
 
 
     #更新画面大小，自适应
@@ -1043,7 +1089,19 @@ class MainMenu(ShowBase):
         box = BoxWorld(Point3(0, -400, 0),Point3(0, 450, 0),Point3(-360, 0, 0),Point3(380, 0, 0))
         self.current_scene.load_game_scene(VILLAGE,5,box)
         # 为房屋建立碰撞体
-        self.current_scene.add_rigid_box(Point3(-290,-93,0),Vec3(20,40,10),Vec3(-45,0,0),1)
+        # self.village.add_rigid_box(Point3(-290,-93,0),Vec3(20,40,10),Vec3(-45,0,0),1)
+        self.current_scene.add_rigid_box(Point3(-350, -143, 0), Vec3(70, 130, 10), Vec3(-48, 0, 0), 1)
+        self.current_scene.add_rigid_box(Point3(-344.367, 225.982, 0), Vec3(84, 34, 10), Vec3(-135, 0, 0), 2)
+        self.current_scene.add_rigid_box(Point3(-10.4909, 445.62, 0), Vec3(34, 27, 10), Vec3(-180, 0, 0), 3)
+        self.current_scene.add_rigid_box(Point3(342.876, -178.818, 0), Vec3(106, 27, 10), Vec3(66, 0, 0), 4)
+        self.current_scene.add_rigid_box(Point3(183.335, -338.465, 0), Vec3(40, 30, 10), Vec3(20, 0, 0), 5)
+        self.current_scene.add_rigid_box(Point3(205.281, 36.0989, 0), Vec3(65, 20, 10), Vec3(78, 0, 0), 6)
+        self.current_scene.add_rigid_box(Point3(32.2944, 236, 0), Vec3(25, 50, 10), Vec3(-92, 0, 0), 7)
+        self.current_scene.add_rigid_box(Point3(-78.9699, 109.141, 0), Vec3(64, 21, 10), Vec3(-95, 0, 0), 8)
+        self.current_scene.add_rigid_box(Point3(161.117, -92.7849, 0), Vec3(5, 49, 10), Vec3(38, 0, 0), 9)
+        self.current_scene.add_rigid_box(Point3(18.7286, -137.477, 0), Vec3(83, 34, 10), Vec3(3, 0, 0), 10)
+        self.current_scene.add_rigid_box(Point3(120.282, 429.443, 0), Vec3(87, 28, 10), Vec3(-185, 0, 0), 11)
+        self.current_scene.add_rigid_box(Point3(136.794, -101.288, 0), Vec3(5, 50, 10), Vec3(3, 0, 0), 12)
 
         # 人物
         self.current_scene.add_player_role(pos)
@@ -1119,6 +1177,19 @@ class MainMenu(ShowBase):
         self.accept("space", self.debug_current_scene)
         box = BoxWorld(Point3(0, -400, 0),Point3(0, 390, 0),Point3(-300, 0, 0),Point3(380, 0, 0))
         self.current_scene.load_game_scene(OUTER,5,box)
+        # 碰撞体
+        self.current_scene.add_rigid_box(Point3(-107.136, -316.692, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 1)
+        self.current_scene.add_rigid_box(Point3(-296.11, 161.937, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 2)
+        self.current_scene.add_rigid_box(Point3(49.8745, 332.188, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 3)
+        self.current_scene.add_rigid_box(Point3(282.176, 315.785, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 4)
+        self.current_scene.add_rigid_box(Point3(252.245, 151.372, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 5)
+        self.current_scene.add_rigid_box(Point3(299.826, -150.148, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 6)
+        self.current_scene.add_rigid_box(Point3(250.284, -233.053, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 7)
+        self.current_scene.add_rigid_box(Point3(107.56, -311.737, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 8)
+        self.current_scene.acurrent_scenedd_rigid_box(Point3(-50.9728, 25.3249, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 9)
+        self.current_scene.add_rigid_box(Point3(154.491, 0.735287, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 10)
+        self.current_scene.add_rigid_box(Point3(-290.218, -257.439, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 11)
+        self.current_scene.add_rigid_box(Point3(-73.0873, -115.129, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 12)
         # 人物
         self.current_scene.add_player_role()
         self.current_scene.add_enemy_role(Point3(50, 20, 0), 1.3, WIFE_ZOMBIE_PATH, WIFE_ZOMBIE_ACTION_PATH)
@@ -1154,6 +1225,11 @@ class MainMenu(ShowBase):
         self.accept("space", self.debug_current_scene)
         box = BoxWorld(Point3(0, -130, 0),Point3(0, 47, 0),Point3(-43, 0, 0),Point3(38, 0, 0))
         self.current_scene.load_game_scene(ROOM,5.0,box,-5)
+        # 为场景建立碰撞体
+        self.current_scene.add_rigid_box(Point3(-32.0762, -71.9935, 0), Vec3(10, 20, 10), Vec3(-90, 0, 0), 1)
+        self.current_scene.add_rigid_box(Point3(-31.4281, -27.7879, 0), Vec3(10, 20, 10), Vec3(-90, 0, 0), 2)
+        self.current_scene.add_rigid_box(Point3(-29.1829, 8.12416, 0), Vec3(10, 20, 10), Vec3(-90, 0, 0), 3)
+        self.current_scene.add_rigid_box(Point3(43.4811, -18.5947, 0), Vec3(19, 15, 10), Vec3(90, 0, 0), 4)
         # 人物
         self.current_scene.add_player_role(Point3(0,0,15),Vec3(0,0,0))
         self.current_scene.add_NPC_role("nun",Point3(34,22,2),3.0,Vec3(240,0,0))
