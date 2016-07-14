@@ -928,9 +928,9 @@ class MainMenu(ShowBase):
             self.__archiveGuiList[4]["time"].setText(self.__archiveContentList[4]["time"])
 
             self.__closeArchiveBtn = DirectButton(pos=(1.7, 0, 0.9), text="", scale=(0.05, 0, 0.05),
-                                           command=self.destroy_archive,
-                                           image=self.__imageDict["close"],
-                                           frameColor=(0, 0, 0, 0))
+                                                  command=self.destroy_archive, extraArgs=[True],
+                                                  image=self.__imageDict["close"],
+                                                  frameColor=(0, 0, 0, 0))
             self.__closeArchiveBtn.setTransparency(TransparencyAttrib.MAlpha)
 
             self.taskMgr.add(self.adapt_archive, 'adaptArchiveTask')
@@ -964,7 +964,8 @@ class MainMenu(ShowBase):
                 self.__archiveContentList[index + len(archiveList)]["id"] = -1
 
     #移除存档界面控件
-    def destroy_archive(self):
+    def destroy_archive(self, tf):
+        self.__loadOrSave = tf
         self.__rm.play_sound(7)
         if self.__destroyArchive == True:
             for index in range(len(self.__archiveGuiList)):
@@ -1002,14 +1003,14 @@ class MainMenu(ShowBase):
             self.room_scene()
             self.roleMgr.import_arcPkg(roleArchive)
             # resource_manager,读档,id=id
-            self.destroy_archive()
+            self.destroy_archive(False)
         else:#存档
             print self.__archiveContentList[id - 1]["id"]
             #sceneArchive,roleArchive
             roleArchive=self.roleMgr.export_arcPkg()
             self.__rm.save_archives(roleArchive,int(self.__archiveContentList[id - 1]["id"]))
             # resource_manager,存档,id=0
-            self.destroy_archive()
+            self.destroy_archive(True)
 
     """""""""""""""
     游戏说明界面函数
