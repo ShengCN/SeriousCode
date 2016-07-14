@@ -44,8 +44,8 @@ class Archives(object):
             self.__showArchives[i]["id"]=self.__archives[i]["id"]
             self.__showArchives[i]["name"] = self.__archives[i]["name"]
             self.__showArchives[i]["time"] = self.__archives[i]["time"]
-            self.__showArchives[i]["progress"] = "50%"
-            # self.__showArchives[i]["progress"] = self.__archives[i]["progress"]
+            # self.__showArchives[i]["progress"] = "50%"
+            self.__showArchives[i]["progress"] = self.__archives[i]["progress"]
 
         return self.__showArchives
 
