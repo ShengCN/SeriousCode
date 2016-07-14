@@ -1000,6 +1000,7 @@ class MainMenu(ShowBase):
             roleArchive=self.__rm.select_archives(int(self.__archiveContentList[id - 1]["id"]))
             #archive函数
             self.room_scene()
+            self.roleMgr.import_arcPkg(roleArchive)
             # resource_manager,读档,id=id
             self.destroy_archive()
         else:#存档
