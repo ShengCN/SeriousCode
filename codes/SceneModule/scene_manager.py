@@ -6,6 +6,7 @@ from terrain_manager import TerrainManager
 from camera_controller import CameraController
 from light_controller import LightController
 import SeriousTools.SeriousTools as SeriousTools
+from ControlModule.common_para import *
 
 from direct.showbase.MessengerGlobal import messenger
 
@@ -120,7 +121,7 @@ class SceneManager(object):
             dVector = playerPos - circle[0]
             dVector.setZ(0)
 
-            if dVector.length() < 2.5:
+            if dVector.length() < CHANGE_SCENE_DISTANCE:
 
                 messenger.send("change_to_scene_" + circle[1])
                 #print "change_to_scene_" + circle[1]

@@ -1019,7 +1019,7 @@ class MainMenu(ShowBase):
 
     def game_begin(self):
         self.__rm.play_media(self, 1)
-        self.accept("movie_over1",self.village_scene)
+        self.accept("movie_over1",self.room_scene)
         self.accept("trade_menu", self.trade_menu)
         self.accept("1", self.set_gun1)
         self.accept("2", self.set_gun2)
