@@ -130,7 +130,7 @@ class ActorManager(ResManager):
 
         self.__effertMsgDiptcr = EffertMsgDispatcher()
 
-        self.__resMgr = None
+        self.__resMgr = ResourcesManager()
 
         self.__arcPkg = ArchivePackage(arcPkgName = "actor",
                                        itemsName = [
@@ -180,47 +180,6 @@ class ActorManager(ResManager):
         #self.print_all_itvl_duration()
 
         return res
-
-    def reset(self):
-
-        self._resCount = 0
-
-        self._resMap = None
-        self._resMap = dict()
-
-        self._resPath = None
-        self._resPath = dict()
-
-        self.__itvlMap = None
-        self.__itvlMap = dict()
-
-        self.__itvlState = None
-        self.__itvlState = dict()
-
-        self.__playerMovingState = None
-        self.__playerMovingState = dict()
-
-        self.__NPCCanTalkWith = None
-
-        self.__enemyCanAttack = None
-        self.__enemyCanAttack = dict()
-
-        self.__eventActionRecord = None
-        self.__eventActionRecord = dict()
-
-        self.__eventEffertRecord = None
-        self.__eventEffertRecord = dict()
-
-        self.__effertMsgDiptcr = None
-        self.__effertMsgDiptcr = EffertMsgDispatcher()
-
-        self.__camCurrH = None
-
-        self.__isPurchasing = False
-
-        self.isPlayerMoving = False
-
-        #self.__isTalking = False
 
     def delete_actor(self, actorId):
 
@@ -307,7 +266,7 @@ class ActorManager(ResManager):
 
     def add_toggle_for_player_to_interact(self, toggleEvent, playerId):
         player = self.get_actor(playerId)
-        #print "in add_toggle_for_player : ", player
+        print "in add_toggle_for_player : ", player
         player.accept(toggleEvent, self.__talk_or_open)
 
     #########################################
@@ -941,14 +900,12 @@ class ActorManager(ResManager):
         player = self.get_actor(playerRole.get_attr_value("modelId"))
 
         player.accept("trade_over", self.__no_purchasing)
-        #print "NPC can talk with : ", self.__NPCCanTalkWith, ", and storyLine : ", self.__storyLine
+        print "NPC can talk with : ", self.__NPCCanTalkWith, ", and storyLine : ", self.__storyLine
         # 与NPC对话
         if self.__NPCCanTalkWith is not None:
 
-            print "NPC can talk with : ", self.__NPCCanTalkWith.getName(), ", and storyLine : ", self.__storyLine, \
-                    ", isTalking : ", self.__isTalking
-
             NPCId = self.get_actorId(self.__NPCCanTalkWith)
+            print"现在的NPC是：",NPCId
 
             NPCRole = self.__roleMgr.get_role_by_model(NPCId)
 
@@ -1109,11 +1066,11 @@ class ActorManager(ResManager):
         minDist = sys.maxint
 
         playerRole = self.__roleMgr.get_role("PlayerRole")
-        #print "in check_player_touch_area : ", playerRole
+
         touchRadius = playerRole.get_attr_value("touchRadius")
 
         player = self.get_actor(playerRole.get_attr_value("modelId"))
-        #print "in check_player_touch_area : ", playerRole, " modelId : ", playerRole.get_attr_value("modelId")
+
         playerPos = player.getPos()
 
         # 首先监测Enemy
@@ -1193,7 +1150,7 @@ class ActorManager(ResManager):
                 self.__resMgr.show_prompt_box("发现NPC")
 
                 self.__NPCCanTalkWith = NPC
-                #print "发现NPC：", NPC
+                print "发现NPC：", NPC
 
                 self.__shouldDestroyPrompt = True
 

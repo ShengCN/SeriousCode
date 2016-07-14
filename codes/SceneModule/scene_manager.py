@@ -33,17 +33,16 @@ class SceneManager(object):
     """""""""""""""""""""""""""""""""""""""
 
     def reset(self):
-
-        actor = self.get_ActorMgr().get_actor("actor1")
-
-        if actor != None:
-
-            actor.ignore("e")
-
-        self.__actorMgr.reset()
-
+        roleMgr = self.__actorMgr.get_roleMgr()
+        storyLine = self.__actorMgr.get_storyLine()
+        resMgr = self.__actorMgr.get_ResourcesManager()
+        self.__actorMgr = None
+        self.__actorMgr = ActorManager()
+        self.__actorMgr.NPC_None()
+        self.__actorMgr.set_storyLine(storyLine)
+        self.__actorMgr.bind_ResourcesManager(resMgr)
         self.__modelMgr = ModelManager()
-
+        self.__actorMgr.bind_RoleManager(roleMgr)
         self.__checkCircleList = []
 
     def build_on(self, showbase):

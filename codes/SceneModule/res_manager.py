@@ -76,11 +76,3 @@ class ResManager(object):
     def get_resPath(self):
 
         return self._resPath
-
-    def print_resMap(self):
-
-        print "+++++++++++++++++"
-        for a, b in self._resMap.iteritems():
-
-            print a, " : ", b
-        print "+++++++++++++++++"

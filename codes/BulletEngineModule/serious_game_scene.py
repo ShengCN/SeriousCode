@@ -127,7 +127,6 @@ class SeriousGameScene(DirectObject):
         for childNode in allChildren:
             if childNode.getName() == "camera":
                 cameraNP = childNode
-        print "in destroy :::: ", self.base.render.find("**/hunter_Alarm1*")
         self.base.render.node().removeAllChildren()
         self.base.render.attachNewNode(cameraNP.node())
 
