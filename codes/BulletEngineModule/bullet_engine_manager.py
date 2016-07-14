@@ -109,6 +109,7 @@ class BulletEngineMgr(DirectObject):
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("s", actorId1, "run_back")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked1", actorId1, "rda")
         self.sceneMgr.get_ActorMgr().add_toggle_to_actor("player_be_attacked2", actorId1, "lda")
+        self.sceneMgr.get_ActorMgr().add_toggle_for_player_to_interact("e", actorId1)
         self.sceneMgr.get_ActorMgr().toggle_actor_attack("mouse1", actorId1)
 
         # create role
@@ -137,8 +138,8 @@ class BulletEngineMgr(DirectObject):
                                             self.sceneMgr.get_resId(self.__NPC_Actor[id]),
                                             characterName=character_name)
         # 主角与 NPC 时间监听
-        self.sceneMgr.get_ActorMgr().add_toggle_for_player_to_interact("e", self.sceneMgr.get_resId(self.actor_hunter))
-        print "NPC 创建: ", self.actorRole.get_attr_value("currWeapon")
+        #self.sceneMgr.get_ActorMgr().add_toggle_for_player_to_interact("e", self.sceneMgr.get_resId(self.actor_hunter))
+        #print "NPC 创建: ", self.actorRole.get_attr_value("currWeapon")
 
     # 新增 宝箱到场景
     def add_chest_role(self,pos,scale,):
@@ -412,7 +413,7 @@ class BulletEngineMgr(DirectObject):
 
     def cleanup(self):
         ###todo
-        self.stop_update()
+        # self.stop_update()
         self.ignore('mouse1')
         self.world = None
         self.worldNP.removeNode()
@@ -450,8 +451,6 @@ class BulletEngineMgr(DirectObject):
         print '子弹方向hpr %s' % v
         print '子弹位置 %s' %bulletNP.getPos()
 
-
-
         # Remove the bullet again after 1 sec
         taskMgr.doMethodLater(1,self.doRemove,'doRemove',
                             extraArgs=[bulletNP],
@@ -474,7 +473,8 @@ class BulletEngineMgr(DirectObject):
         return bodyNP
 
     def doRemove(self,bulletNP,task):
-        self.world.removeRigidBody(bulletNP.node())
+        if self.world != None:
+            self.world.removeRigidBody(bulletNP.node())
         return task.done
 
     """""""""""""""

@@ -265,9 +265,8 @@ class ActorManager(ResManager):
             self.add_toggle_to_actor(toggleEvent, actorId, actionName)
 
     def add_toggle_for_player_to_interact(self, toggleEvent, playerId):
-
         player = self.get_actor(playerId)
-
+        print "in add_toggle_for_player : ", player
         player.accept(toggleEvent, self.__talk_or_open)
 
     #########################################
@@ -892,17 +891,21 @@ class ActorManager(ResManager):
 
         self.__isPurchasing = False
 
+    def NPC_None(self):
+        self.__NPCCanTalkWith = None
+
     def __talk_or_open(self):
 
         playerRole = self.__roleMgr.get_role("PlayerRole")
         player = self.get_actor(playerRole.get_attr_value("modelId"))
 
         player.accept("trade_over", self.__no_purchasing)
-
+        print "NPC can talk with : ", self.__NPCCanTalkWith, ", and storyLine : ", self.__storyLine
         # 与NPC对话
         if self.__NPCCanTalkWith is not None:
 
             NPCId = self.get_actorId(self.__NPCCanTalkWith)
+            print"现在的NPC是：",NPCId
 
             NPCRole = self.__roleMgr.get_role_by_model(NPCId)
 
@@ -955,7 +958,7 @@ class ActorManager(ResManager):
 
                     if self.__isPurchasing is False:
 
-                        self.__storyLine = 8
+                        #self.__storyLine = 8
 
                         self.__resMgr.show_dialog(8)
 
@@ -967,7 +970,7 @@ class ActorManager(ResManager):
 
             playerX = player.getX(self.__render)
             playerY = player.getY(self.__render)
-
+            #print "the storyLine : ", self.__storyLine
             if playerX >= -45 and playerX <=25 and \
                 playerY >= 400 and playerY <= 470:
 
@@ -1136,18 +1139,18 @@ class ActorManager(ResManager):
 
             NPC = self.get_actor(NPCRole.get_attr_value("modelId"))
 
-            NPCPos = NPC.getPos()
 
             dVector = NPC.getPos(player)
             dVector.setZ(0)
 
-            if dVector.length() <= minDist and dVector.length() <= touchRadius:
+            if dVector.length() <= touchRadius:
 
-                minDist = dVector.length()
+                #minDist = dVector.length()
 
                 self.__resMgr.show_prompt_box("发现NPC")
 
                 self.__NPCCanTalkWith = NPC
+                print "发现NPC：", NPC
 
                 self.__shouldDestroyPrompt = True
 

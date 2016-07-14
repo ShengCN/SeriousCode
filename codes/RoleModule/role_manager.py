@@ -96,6 +96,9 @@ class RoleManager(object):
         if self.__roleMap.has_key("PlayerRole") is True:
             self.__playerAttr = self.get_role("PlayerRole").get_all_attr()
 
+        self.__roleModelMap = None
+        self.__roleMap = None
+
         self.__roleModelMap = dict()
         self.__roleMap = dict()
 
