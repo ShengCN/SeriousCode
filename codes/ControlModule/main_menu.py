@@ -1072,7 +1072,7 @@ class MainMenu(ShowBase):
 
     def game_begin(self):
         self.__rm.play_media(self, 1)
-        self.accept("movie_over1",self.outer_scene)
+        self.accept("movie_over1",self.room_scene)
         self.accept("trade_menu", self.trade_menu)
         self.accept("1", self.set_gun1)
         self.accept("2", self.set_gun2)
@@ -1118,6 +1118,27 @@ class MainMenu(ShowBase):
         # self.current_scene.add_enemy_role(Point3(100,00,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
         self.current_scene.cam_control(False)
 
+        # 宝箱
+        self.chest1 = self.sceneMgr.add_actor_scene(CHEST, CHEST_OPEN, self.sceneMgr.get_render())
+        self.chest1.setPos(-195, -130, 0)
+        self.chest1Role = self.roleMgr.create_role(roleType="AttachmentRole",
+                                                   modelId=self.sceneMgr.get_resId(self.chest1))
+
+        self.chest2 = self.sceneMgr.add_actor_scene(CHEST2, CHEST2_OPEN, self.sceneMgr.get_render())
+        self.chest2.setPos(46, 134, 0)
+        self.chest2Role = self.roleMgr.create_role(roleType="AttachmentRole",
+                                                   modelId=self.sceneMgr.get_resId(self.chest2))
+
+        self.chest3 = self.sceneMgr.add_actor_scene(CHEST3, CHEST3_OPEN, self.sceneMgr.get_render())
+        self.chest3.setPos(-83, 430, 0)
+        self.chest3Role = self.roleMgr.create_role(roleType="AttachmentRole",
+                                                   modelId=self.sceneMgr.get_resId(self.chest3))
+
+        self.chest4 = self.sceneMgr.add_actor_scene(CHEST, CHEST_OPEN, self.sceneMgr.get_render())
+        self.chest4.setPos(-270, 304, 0)
+        self.chest4Role = self.roleMgr.create_role(roleType="AttachmentRole",
+                                                   modelId=self.sceneMgr.get_resId(self.chest4))
+
         # 场景切换点
         self.ring1 = self.sceneMgr.add_model_scene(RING, self.render)
         self.ring1.setPos(-250,-50,0)
@@ -1158,6 +1179,7 @@ class MainMenu(ShowBase):
         # 人物
         self.current_scene.add_player_role(Point3(0,0,10),Vec3(0,0,0),HUNTER_QUIET,HUNTER_QUIET_ACTION_PATH)
         self.current_scene.add_NPC_role("girl",Point3(18,-5,0),1.4,Vec3(200,0,0))
+        self.current_scene.add_rigid_box(Point3(3.03028, -10.2857, 0), Vec3(8, 8, 10), Vec3(0, 0, 0), 1)
 
         # 场景传送点
         self.ring = self.sceneMgr.add_model_scene(RING, self.render)
@@ -1208,7 +1230,7 @@ class MainMenu(ShowBase):
         self.sceneMgr.add_CheckCircle([(446, -40, 0), "mountain"])
         self.ring = self.sceneMgr.add_model_scene(RING, self.render)
         self.ring.setPos(446, -40, 0)
-        self.ring3.setScale(3)
+        self.ring.setScale(3)
         self.sceneMgr.add_CheckCircle([(446, -40, 0), "mountain"])
         self.accept("change_to_scene_mountain", self.change_to_mountain_with_media)
 

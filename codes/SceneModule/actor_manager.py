@@ -945,8 +945,8 @@ class ActorManager(ResManager):
         # 与NPC对话
         if self.__NPCCanTalkWith is not None:
 
-            print "NPC can talk with : ", self.__NPCCanTalkWith.getName(), ", and storyLine : ", self.__storyLine, \
-                    ", isTalking : ", self.__isTalking
+            # print "NPC can talk with : ", self.__NPCCanTalkWith.getName(), ", and storyLine : ", self.__storyLine, \
+            #         ", isTalking : ", self.__isTalking
 
             NPCId = self.get_actorId(self.__NPCCanTalkWith)
 
@@ -1083,7 +1083,8 @@ class ActorManager(ResManager):
 
             chestRole = self.__roleMgr.get_role_by_model(chestId)
 
-            if chestRole.get_attr_value("opened") is False:
+            if chestRole.get_attr_value("opened") is False and \
+                self.__roleMgr.openedChest[chestId] is False:
 
                 self.__chestCanOpen.play("open")
 
@@ -1099,6 +1100,8 @@ class ActorManager(ResManager):
                 #print self.__roleMgr.get_role("PlayerRole").get_attr_value("money")
 
                 chestRole.set_attr_value(key="opened", value=True)
+
+                self.__roleMgr.openedChest[chestId] = True
 
     # 监测玩家角色可触碰区域内的其他角色, 监测到的不同事件具有不同优先级
     # 优先级1：发现Enemy
@@ -1234,17 +1237,19 @@ class ActorManager(ResManager):
 
             if dVector.length() <= chestTouchRadius:
 
-                if chest.get_attr_value("opened") is False:
+                if chest.get_attr_value("opened") is False and \
+                    self.__roleMgr.openedChest[chest.get_attr_value("modelId")] is False:
 
                     self.__resMgr.show_prompt_box("发现宝箱")
 
-                    self.__playerFoundChest = True
 
                     self.__shouldDestroyPrompt = False
 
                     self.__chestCanOpen = _chest
 
-                    return task.cont
+                self.__playerFoundChest = True
+
+                return task.cont
 
             elif dVector.length() > chestTouchRadius:
 

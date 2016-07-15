@@ -86,9 +86,18 @@ NPC模型
 GIRL = modelRootPath + "/Material/ModelEGGS/Girl/GIRL_Pose.egg"
 NUN = modelRootPath + "/Material/ModelEGGS/Nun/NUNV_Pose.egg"
 STEALER = modelRootPath + "/Material/ModelEGGS/Stealer/StealerWithPose.egg"
+
 CHEST = modelRootPath + "/Material/ModelEGGS/Chest/Chest1.egg"
 CHEST_OPEN = {
     "open" : modelRootPath + "/Material/ModelEGGS/Chest/Chest1_Open.egg"
+}
+CHEST2 = modelRootPath + "/Material/ModelEGGS/Chest/Chest2.egg"
+CHEST2_OPEN = {
+    "open" : modelRootPath + "/Material/ModelEGGS/Chest/Chest2_Open.egg"
+}
+CHEST3 = modelRootPath + "/Material/ModelEGGS/Chest/Chest3.egg"
+CHEST3_OPEN = {
+    "open" : modelRootPath + "/Material/ModelEGGS/Chest/Chest3_Open.egg"
 }
 """""""""""""""
 HOME场景
@@ -137,8 +146,8 @@ BULLET_SPEED = 1000.0
 BULLET_SIZE = 3.0
 DANGER_LENGTH = 100
 REBORN_TIME = 12000
-BOSS_HP = 1000
-CHANGE_SCENE_DISTANCE = 15
+BOSS_HP = 2000
+CHANGE_SCENE_DISTANCE = 10
 
 """""""""""""""
 AI 参数

@@ -86,6 +86,8 @@ class RoleManager(object):
                                        itemsName = ROLE_ATTR_LIST)
         self.__playerAttr = None
 
+        self.openedChest = dict()
+
     def reset(self):
 
         # self.__playerRoleCount = 1
@@ -229,6 +231,10 @@ class RoleManager(object):
 
             self.__roleMap[roleId] = attachmentRole
             self.__roleModelMap[roleId] = modelId
+
+            if self.openedChest.has_key(modelId) is False:
+
+                self.openedChest[modelId] = False
 
             if attachmentType == "medicine":
 
