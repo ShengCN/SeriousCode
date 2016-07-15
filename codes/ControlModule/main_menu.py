@@ -50,7 +50,7 @@ class MainMenu(ShowBase):
     # 监听场景切换
     def change_scene_input(self):
         self.accept("change_to_scene_village",self.change_to_village)
-        self.accept("change_to_scene_outer",self.change_to_outer)
+        self.accept("movie_over2",self.change_to_outer)
         self.accept("change_to_scene_home",self.change_to_home)
         self.accept("change_to_scene_room",self.change_to_room)
         # self.accept("change_to_scene_mountain",self.changeto)
@@ -251,6 +251,7 @@ class MainMenu(ShowBase):
         self.setting_destroy()
         archiveList=self.__rm.show_archives()
         if (len(archiveList)!=0):
+            self.current_scene.destroy()
             self.archive_menu(self,True,archiveList)
         self.__rm.play_sound(7)
 
@@ -264,6 +265,7 @@ class MainMenu(ShowBase):
 
     # 设置界面，私有函数,回到主界面
     def __return_home(self):
+        self.current_scene.destroy()
         self.setting_destroy()
         self.__rm.play_sound(7)
         self.destroy_main_game()
@@ -1070,7 +1072,7 @@ class MainMenu(ShowBase):
 
     def game_begin(self):
         self.__rm.play_media(self, 1)
-        self.accept("movie_over1",self.room_scene)
+        self.accept("movie_over1",self.outer_scene)
         self.accept("trade_menu", self.trade_menu)
         self.accept("1", self.set_gun1)
         self.accept("2", self.set_gun2)
@@ -1110,10 +1112,10 @@ class MainMenu(ShowBase):
         self.current_scene.add_player_role(pos,Vec3(0,0,0),HUNTER_PATH,HUNTER_ACTION_PATH)
         self.current_scene.add_enemy_role(Point3(0,10,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
         self.current_scene.add_enemy_role(Point3(20,0,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
-        self.current_scene.add_enemy_role(Point3(40,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
-        self.current_scene.add_enemy_role(Point3(80,10,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
-        self.current_scene.add_enemy_role(Point3(10,90,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
-        self.current_scene.add_enemy_role(Point3(100,00,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        # self.current_scene.add_enemy_role(Point3(40,0,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        # self.current_scene.add_enemy_role(Point3(80,10,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
+        # self.current_scene.add_enemy_role(Point3(10,90,0),3,ZOMBIE,ZOMBIE_ACTION_PATH)
+        # self.current_scene.add_enemy_role(Point3(100,00,0),3,HOOK_ZOMBIE,HOOK_ZOMBIE_ACTION_PATH)
         self.current_scene.cam_control(False)
 
         # 场景切换点
@@ -1131,6 +1133,7 @@ class MainMenu(ShowBase):
             self.ring3.setPos(-225, -290, 2)
             self.ring3.setScale(3)
             self.sceneMgr.add_CheckCircle([(-225, -290, 0), "outer"])
+            self.accept("change_to_scene_outer",self.change_to_outer_with_media)
 
         self.main_game()
         # self.show_monster_hp()
@@ -1145,6 +1148,7 @@ class MainMenu(ShowBase):
         self.roleMgr.reset()
         self.sceneMgr.build_on(self)
 
+        self.ignore("mouse1")
         self.current_scene = None
         self.current_scene = SeriousGameScene(self,self.sceneMgr,self.roleMgr,self.__rm)
         self.current_scene_name = "home"
@@ -1152,7 +1156,7 @@ class MainMenu(ShowBase):
         box = BoxWorld(Point3(0, -35, 0),Point3(0, 36, 0),Point3(-20, 0, 0),Point3(24, 0, 0))
         self.current_scene.load_game_scene(HOME,5.0,box)
         # 人物
-        self.current_scene.add_player_role(pos)
+        self.current_scene.add_player_role(Point3(0,0,10),Vec3(0,0,0),HUNTER_QUIET,HUNTER_QUIET_ACTION_PATH)
         self.current_scene.add_NPC_role("girl",Point3(18,-5,0),1.4,Vec3(200,0,0))
 
         # 场景传送点
@@ -1175,7 +1179,7 @@ class MainMenu(ShowBase):
         self.current_scene = SeriousGameScene(self, self.sceneMgr, self.roleMgr,self.__rm)
         self.current_scene_name = "outer"
         self.accept("space", self.debug_current_scene)
-        box = BoxWorld(Point3(0, -400, 0),Point3(0, 390, 0),Point3(-300, 0, 0),Point3(380, 0, 0))
+        box = BoxWorld(Point3(0, -400, 0),Point3(0, 390, 0),Point3(-300, 0, 0),Point3(450, 0, 0))
         self.current_scene.load_game_scene(OUTER,5,box)
         # 碰撞体
         self.current_scene.add_rigid_box(Point3(-107.136, -316.692, 9.96), Vec3(10, 10, 10), Vec3(-48, 0, 0), 1)
@@ -1201,10 +1205,12 @@ class MainMenu(ShowBase):
         self.current_scene.add_enemy_role(Point3(10, 10, 0), 3, ZOMBIE,ZOMBIE_ACTION_PATH)
 
         # 场景传送点
+        self.sceneMgr.add_CheckCircle([(446, -40, 0), "mountain"])
         self.ring = self.sceneMgr.add_model_scene(RING, self.render)
         self.ring.setPos(446, -40, 0)
-
+        self.ring3.setScale(3)
         self.sceneMgr.add_CheckCircle([(446, -40, 0), "mountain"])
+        self.accept("change_to_scene_mountain", self.change_to_mountain_with_media)
 
         self.current_scene.cam_control(False)
         self.main_game()
@@ -1230,7 +1236,7 @@ class MainMenu(ShowBase):
         self.current_scene.add_rigid_box(Point3(-29.1829, 8.12416, 0), Vec3(10, 20, 10), Vec3(-90, 0, 0), 3)
         self.current_scene.add_rigid_box(Point3(43.4811, -18.5947, 0), Vec3(19, 15, 10), Vec3(90, 0, 0), 4)
         # 人物
-        self.current_scene.add_player_role(Point3(0,0,10),Vec3(0,0,0),HUNTER_QUIET,HUNTER_ACTION_PATH)
+        self.current_scene.add_player_role(Point3(0,0,10),Vec3(0,0,0),HUNTER_QUIET,HUNTER_QUIET_ACTION_PATH)
         self.current_scene.add_NPC_role("nun",Point3(34,22,2),3.0,Vec3(240,0,0))
         self.current_scene.add_NPC_role("stealer",Point3(-38,43,2),1.5,Vec3(100,0,0))
         # 场景传送点
@@ -1267,7 +1273,6 @@ class MainMenu(ShowBase):
         self.room_scene()
 
     def change_to_outer(self):
-        self.destory_scene(self.current_scene)
         self.outer_scene()
 
     def debug_current_scene(self):
@@ -1275,6 +1280,19 @@ class MainMenu(ShowBase):
         print self.current_scene
 
     def destory_scene(self,serious_scene):
-        serious_scene.destroy()
+        if self.current_scene != None:
+            serious_scene.destroy()
         # 确定是否 destory main_game
         self.destroy_main_game()
+
+    def change_to_outer_with_media(self):
+        self.destory_scene(self.current_scene)
+        self.destroy_main_game()
+        self.__rm.play_media(self,2)
+        self.accept("movie_over2", self.change_to_outer)
+
+    def change_to_mountain_with_media(self):
+        self.destory_scene(self.current_scene)
+        self.destroy_main_game()
+        self.__rm.play_media(self,3)
+        self.accept("movie_over2", self.start)

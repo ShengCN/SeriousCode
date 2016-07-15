@@ -354,7 +354,7 @@ class RoleManager(object):
 
         playerRole.set_all_attr(arcPkg)
 
-        self.__sceneMgr.get_ActorMgr.set_storyLine(playerRole.get_attr_value("storyLine"))
+        self.__sceneMgr.get_ActorMgr().set_storyLine(playerRole.get_attr_value("storyLine"))
 
     def export_arcPkg(self):
 

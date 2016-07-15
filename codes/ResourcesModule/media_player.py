@@ -61,7 +61,7 @@ class MediaPlayer():
 
     def getTime(self,task):
         if self.__sound.status() == self.__sound.PLAYING:
-            return Task.cont
+            return task.cont
         else:
             self.destroy()
             messenger.send("movie_over"+self.id)

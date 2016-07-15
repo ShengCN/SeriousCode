@@ -49,10 +49,10 @@ class BulletEngineMgr(DirectObject):
         # World
         self.debugNP = self.worldNP.attachNewNode(BulletDebugNode('Debug'))
         self.debugNP.show()
-        self.debugNP.node().showWireframe(True)
-        self.debugNP.node().showConstraints(True)
+        self.debugNP.node().showWireframe(False)
+        self.debugNP.node().showConstraints(False)
         self.debugNP.node().showBoundingBoxes(False)
-        self.debugNP.node().showNormals(True)
+        self.debugNP.node().showNormals(False)
         self.world.setDebugNode(self.debugNP.node())
         # 地板(static)
         shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
@@ -313,18 +313,19 @@ class BulletEngineMgr(DirectObject):
 
     # 所有攻击的碰撞检测
     def all_collide_result(self):
-        for id in range(self.__amount):
-            self.result = self.world.contactTest(self.__enemy_NP[id].node())
-            for contact in self.result.getContacts():
-                if type(contact.getNode1()) != type(self.actor_character_Node):
-                    if contact.getNode1().isStatic() == False and contact.getNode1().getMass() == 10.0:
-                        print "人物所有的碰撞结果：%s" % self.result.getNumContacts()
-                        print "wifi 受到了攻击"
-                        print "%s%s 发生了碰撞" % (contact.getNode0(), contact.getNode1())
-                        roleId = self.sceneMgr.get_resId(self.__enemy_list[id])
-                        print "role id is : "
-                        self.roleMgr.calc_attack("PlayerRole", self.__role_dict[roleId].get_attr_value("roleId"))
-                        print "怪物血量:%s" %self.__role_dict[roleId].get_attr_value("hp")
+        if self.world != None:
+            for id in range(self.__amount):
+                self.result = self.world.contactTest(self.__enemy_NP[id].node())
+                for contact in self.result.getContacts():
+                    if type(contact.getNode1()) != type(self.actor_character_Node):
+                        if contact.getNode1().isStatic() == False and contact.getNode1().getMass() == 10.0:
+                            print "人物所有的碰撞结果：%s" % self.result.getNumContacts()
+                            print "wifi 受到了攻击"
+                            print "%s%s 发生了碰撞" % (contact.getNode0(), contact.getNode1())
+                            roleId = self.sceneMgr.get_resId(self.__enemy_list[id])
+                            print "role id is : "
+                            self.roleMgr.calc_attack("PlayerRole", self.__role_dict[roleId].get_attr_value("roleId"))
+                            print "怪物血量:%s" %self.__role_dict[roleId].get_attr_value("hp")
             # todo 血量计算
 
     # AI 的距离判断
@@ -481,9 +482,7 @@ class BulletEngineMgr(DirectObject):
     帧更新
     """""""""""""""
     def task_update(self):
-        taskMgr.add(self.sceneMgr.update_scene, "update_scene")
         taskMgr.add(self.update, 'updateWorld')
-        taskMgr.add(self.AIUpdate, 'AIUpdate')
 
     # 设置界面暂停帧更新
     def stop_update(self):
@@ -495,14 +494,15 @@ class BulletEngineMgr(DirectObject):
 
     #设置界面结束，恢复帧更新
     def reset_update(self):
-        taskMgr.add(self.sceneMgr.update_scene, "update_scene")
         taskMgr.add(self.update, 'updateWorld')
-        taskMgr.add(self.AIUpdate, 'AIUpdate')
 
     def update(self, task):
         dt = globalClock.getDt()
         self.processInput(dt)
-        self.world.doPhysics(dt,4,1./240.)
+        if self.world != None:
+            self.world.doPhysics(dt,4,1./240.)
+        self.sceneMgr.update_scene(task)
+        self.AIUpdate(task)
         self.all_collide_result()
         self.death_detect()
         return task.cont
@@ -511,12 +511,13 @@ class BulletEngineMgr(DirectObject):
         #enemies = self.roleMgr.get_one_kind_of_roles("EnemyRole")
         for id in range(self.__amount):
             roleId = self.sceneMgr.get_resId(self.__enemy_list[id])
-            if self.__role_dict[roleId].get_attr_value("hp") == 0:
-                # 碰撞体移除
-                self.__enemy_NP[id].setCollideMask(BitMask32.allOff())
-                # AI 不更新
-                self.__isDead[id] = True
-                self.AI_Character[id].getAiBehaviors().removeAi("all")
+            if roleId != None:
+                if self.__role_dict[roleId].get_attr_value("hp") == 0:
+                    # 碰撞体移除
+                    self.__enemy_NP[id].setCollideMask(BitMask32.allOff())
+                    # AI 不更新
+                    self.__isDead[id] = True
+                    self.AI_Character[id].getAiBehaviors().removeAi("all")
 
     # ____TASK___
     def processInput(self, dt):

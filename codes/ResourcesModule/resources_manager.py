@@ -58,7 +58,7 @@ class ResourcesManager(object):
     #fileName:视频文件路径
     def play_media(self,base,id):
         self.__media.playMedia(base,id)
-        self.stop_sound(self.__id)
+        # self.stop_sound(self.__id)
 
 
     #移除视频控件

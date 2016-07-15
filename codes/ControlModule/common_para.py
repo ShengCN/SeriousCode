@@ -39,6 +39,14 @@ HUNTER_ACTION_PATH = {
     "attack":modelRootPath+ "/Material/ModelEGGS/Hunter/hunter_Attack1.egg",
     "stand":modelRootPath+"/Material/ModelEGGS/Hunter/hunter_Alarm1Pose.egg"
 }
+HUNTER_QUIET_ACTION_PATH = {
+    "run" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WALK.egg",
+    "run_back" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WALK.egg",
+    "rda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WALK.egg",
+    "lda" : modelRootPath + "/Material/ModelEGGS/Hunter/hunter_WALK.egg",
+    "attack":modelRootPath+ "/Material/ModelEGGS/Hunter/hunter_WALK.egg",
+    "stand":modelRootPath+"/Material/ModelEGGS/Hunter/hunter_QuietPose.egg"
+}
 BULLET_PATH = modelRootPath + "/Material/ModelEGGS/Bullet/Bullet.egg"
 
 """""""""""""""
@@ -92,7 +100,7 @@ HOME = modelRootPath + "/Material/ModelEGGS/Home/home.egg"
 """""""""""""""
 VILLAGE场景
 """""""""""""""
-VILLAGE = modelRootPath + "/Material/ModelEGGS/Village/village.egg"
+VILLAGE = modelRootPath + "/Material/ModelEGGS/Village/village2.egg"
 
 """""""""""""""
 OUTER场景
@@ -114,13 +122,13 @@ test 用
 TEST_HOUSE1 = modelRootPath + "/house_test/house1.egg"
 TEST_HOUSE2 = modelRootPath + "/house_test/house2.egg"
 TEST_HOUSE3 = modelRootPath + "/house_test/house3.egg"
-TEST_MAIN_SCENE = modelRootPath + "/house_test/village.egg"
+TEST_MAIN_SCENE = modelRootPath + "/house_test/village2.egg"
 TEST_SECOND_SCENE = modelRootPath + "/house_test/Outer_v2.egg"
 
 """""""""""""""
 玩家的游戏参数
 """""""""""""""
-SPEED = 100.0
+SPEED = 50.0
 JUMP_HEIGHT = 1.0
 JUMP_SPEED = 10.0
 ENEMY_MASS = 0.0
@@ -130,7 +138,8 @@ BULLET_SIZE = 3.0
 DANGER_LENGTH = 100
 REBORN_TIME = 12000
 BOSS_HP = 1000
-CHANGE_SCENE_DISTANCE = 25
+CHANGE_SCENE_DISTANCE = 15
+
 """""""""""""""
 AI 参数
 """""""""""""""
